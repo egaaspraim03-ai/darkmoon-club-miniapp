@@ -6,71 +6,100 @@
   <title>Dark Moon Club</title>
   <script src="https://telegram.org/js/telegram-web-app.js?61"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
     body { 
       font-family: 'Inter', system-ui, sans-serif; 
       margin:0; padding:0; 
-      background: #0f001f; /* тёмно-фиолетовый фон */
+      background: #0a001f; 
       color: #ffffff; 
+      overflow-x: hidden;
     }
     .container { max-width: 420px; margin: 0 auto; padding: 16px; }
 
     .header {
-      background: linear-gradient(135deg, #4B0082, #1a0033);
-      border-radius: 20px;
-      padding: 24px 16px 20px;
+      background: linear-gradient(135deg, #2a0055, #0f001f);
+      border-radius: 24px;
+      padding: 28px 16px 24px;
       text-align: center;
       margin-bottom: 20px;
-      box-shadow: 0 8px 30px rgba(155, 89, 182, 0.5);
+      box-shadow: 0 0 40px rgba(155, 89, 182, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(155,89,182,0.15) 0%, transparent 70%);
+      animation: pulse 8s infinite;
     }
     .avatar {
-      width: 100px;
-      height: 100px;
+      width: 110px;
+      height: 110px;
       border-radius: 50%;
-      border: 5px solid #9B59B6;
-      box-shadow: 0 0 30px rgba(155, 89, 182, 0.9);
-      margin-bottom: 12px;
+      border: 6px solid #9B59B6;
+      box-shadow: 0 0 35px #9B59B6, 0 0 60px rgba(155,89,182,0.7);
+      margin-bottom: 14px;
       object-fit: cover;
+      z-index: 2;
     }
     .header h1 { 
-      font-size: 34px; 
-      margin: 8px 0 6px; 
-      color: white;
-      text-shadow: 0 0 20px rgba(255,255,255,0.4);
+      font-size: 38px; 
+      font-weight: 900;
+      margin: 10px 0 8px; 
+      color: #ffffff;
+      text-shadow: 0 0 20px #9B59B6, 0 0 40px #9B59B6;
+      letter-spacing: 2px;
     }
     .stats { 
-      color: #ddd; 
-      font-size: 15.5px; 
-      line-height: 1.4;
+      color: #bb99ff; 
+      font-size: 16px; 
+      text-shadow: 0 0 10px #9B59B6;
     }
+
     .card { 
-      background: rgba(30, 10, 50, 0.85); 
-      border-radius: 16px; 
-      padding: 8px; 
-      margin-bottom: 12px; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      background: rgba(20, 5, 45, 0.85); 
+      border: 2px solid #9B59B6;
+      border-radius: 18px; 
+      padding: 10px; 
+      margin-bottom: 14px; 
+      box-shadow: 0 0 25px rgba(155,89,182,0.4);
     }
     button { 
       width: 100%; 
-      padding: 19px 16px; 
-      margin: 7px 0; 
-      border: none; 
-      border-radius: 14px; 
-      font-size: 17.5px; 
-      font-weight: 600; 
-      background: linear-gradient(90deg, #9B59B6, #7B4A9C);
+      padding: 20px 16px; 
+      margin: 8px 0; 
+      border: 2px solid #9B59B6;
+      border-radius: 16px; 
+      font-size: 18px; 
+      font-weight: 700; 
+      background: linear-gradient(90deg, #6B1E9C, #9B59B6);
       color: white; 
       display: flex;
       align-items: center;
       gap: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 0 20px rgba(155,89,182,0.6);
+      transition: all 0.2s ease;
     }
-    button:hover { transform: translateY(-2px); opacity: 0.96; }
+    button:hover { 
+      transform: scale(1.04) translateY(-3px); 
+      box-shadow: 0 0 35px #9B59B6;
+      background: linear-gradient(90deg, #9B59B6, #C084FC);
+    }
     .footer { 
       text-align: center; 
-      margin-top: 25px; 
+      margin-top: 30px; 
       font-size: 13px; 
-      opacity: 0.55; 
+      opacity: 0.6; 
+      text-shadow: 0 0 10px #9B59B6;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
     }
   </style>
 </head>
@@ -78,7 +107,7 @@
   <div class="container">
     <div class="header">
       <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar" alt="NEXUS">
-      <h1>🌑 Dark Moon</h1>
+      <h1>🌑 DARK MOON</h1>
       <div class="stats">
         103 участника • Уровень 6 • 23 место<br>
         Вместе в вечной тьме 🔥
@@ -98,12 +127,12 @@
       <button onclick="openLink('https://t.me/mangabuff')">📰 Новости сайта (TG)</button>
     </div>
 
-    <button onclick="openLink('https://mangabuff.ru/faq/general')" style="background: rgba(30,10,50,0.9); color: #ccc;">
+    <button onclick="openLink('https://mangabuff.ru/faq/general')" style="background: rgba(30,10,50,0.9); border-color: #7B4A9C; color: #ddd;">
       📋 FAQ по клубам и вкладам
     </button>
 
     <div class="footer">
-      Mini App для @DarkMoon_A_Bot • NEXUS
+      NEXUS • Dark Moon Club
     </div>
   </div>
 
@@ -111,9 +140,6 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    tg.MainButton.setText("Открыть клуб Dark Moon");
-    tg.MainButton.onClick(() => openLink('https://mangabuff.ru/clubs/dark-moon'));
-    tg.MainButton.show();
 
     function openLink(url) {
       tg.openLink(url);
