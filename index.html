@@ -7,71 +7,81 @@
   <script src="https://telegram.org/js/telegram-web-app.js?61"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: var(--tg-theme-bg-color);
-      color: var(--tg-theme-text-color);
+    body { 
+      font-family: 'Inter', system-ui, sans-serif; 
+      margin:0; padding:0; 
+      background: var(--tg-theme-bg-color); 
+      color: var(--tg-theme-text-color); 
     }
     .container { max-width: 420px; margin: 0 auto; padding: 16px; }
+    
     .header {
       text-align: center;
-      padding: 24px 0 16px;
+      padding: 20px 0 16px;
       background: linear-gradient(180deg, #4B0082, #1a0033);
       border-radius: 0 0 20px 20px;
       margin-bottom: 20px;
       color: white;
+      position: relative;
     }
-    .header h1 {
-      font-size: 32px;
-      margin: 0;
-      text-shadow: 0 0 15px rgba(147, 112, 219, 0.8);
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 4px solid #9B59B6;
+      box-shadow: 0 0 20px rgba(147, 112, 219, 0.6);
+      margin-bottom: 12px;
+      object-fit: cover;
     }
-    .stats {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-top: 8px;
-      font-size: 15px;
-      opacity: 0.95;
+    .header h1 { 
+      font-size: 32px; 
+      margin: 0; 
+      text-shadow: 0 0 15px rgba(147, 112, 219, 0.8); 
     }
-    .card {
-      background: var(--tg-theme-secondary-bg-color);
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    .stats { 
+      display: flex; 
+      justify-content: center; 
+      gap: 16px; 
+      margin-top: 8px; 
+      font-size: 15px; 
+      opacity: 0.95; 
     }
-    button {
-      width: 100%;
-      padding: 18px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 14px;
-      font-size: 17px;
-      font-weight: 600;
-      background: #9B59B6; /* фиолетовый как на сайте */
-      color: white;
-      cursor: pointer;
+    .card { 
+      background: var(--tg-theme-secondary-bg-color); 
+      border-radius: 18px; 
+      padding: 18px; 
+      margin-bottom: 14px; 
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2); 
+    }
+    button { 
+      width: 100%; 
+      padding: 18px; 
+      margin: 8px 0; 
+      border: none; 
+      border-radius: 14px; 
+      font-size: 17px; 
+      font-weight: 600; 
+      background: #9B59B6; 
+      color: white; 
+      cursor: pointer; 
     }
     button:hover { opacity: 0.9; transform: scale(1.03); }
-    .secondary-btn {
-      background: var(--tg-theme-secondary-bg-color);
-      color: var(--tg-theme-text-color);
+    .secondary-btn { 
+      background: var(--tg-theme-secondary-bg-color); 
+      color: var(--tg-theme-text-color); 
     }
-    .footer {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 13px;
-      opacity: 0.6;
+    .footer { 
+      text-align: center; 
+      margin-top: 30px; 
+      font-size: 13px; 
+      opacity: 0.6; 
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Шапка в стиле клуба -->
     <div class="header">
+      <img src="https://ibb.co/HTR7J7Q5" class="avatar" alt="NEXUS">
       <h1>🌑 Dark Moon</h1>
       <div class="stats">
         <div>103 участника</div>
@@ -81,7 +91,6 @@
       <p style="margin-top:8px; font-size:15px; opacity:0.9;">Вместе в вечной тьме 🔥</p>
     </div>
 
-    <!-- Основные кнопки клуба -->
     <div class="card">
       <button onclick="openLink('https://mangabuff.ru/clubs/dark-moon')">🔥 Мой клуб</button>
       <button onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')">📈 Внести вклад / Вклады</button>
@@ -89,14 +98,12 @@
       <button onclick="openLink('https://mangabuff.ru/clubs')">🏆 Рейтинг клубов</button>
     </div>
 
-    <!-- Чтение и новости -->
     <div class="card">
       <button onclick="openLink('https://mangabuff.ru/')">📚 Новые главы</button>
       <button onclick="openLink('https://mangabuff.ru/manga')">📖 Каталог манги</button>
-      <button onclick="openLink('https://t.me/mangabuff')">📰 Новости сайта (официальный канал)</button>
+      <button onclick="openLink('https://t.me/mangabuff')">📰 Новости сайта (TG)</button>
     </div>
 
-    <!-- Дополнительно -->
     <button onclick="openLink('https://mangabuff.ru/faq/general')" class="secondary-btn">
       📋 FAQ по клубам и вкладам
     </button>
@@ -109,13 +116,12 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
-    tg.expand();                    // разворачивает на весь экран
+    tg.expand();
     tg.MainButton.setText("Открыть клуб Dark Moon");
     tg.MainButton.onClick(() => openLink('https://mangabuff.ru/clubs/dark-moon'));
     tg.MainButton.show();
 
     function applyTheme() {
-      // Автоматически подхватывает тёмную тему Telegram
       document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#1a0033');
       document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
       document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color);
@@ -124,7 +130,7 @@
     tg.onEvent('themeChanged', applyTheme);
 
     function openLink(url) {
-      tg.openLink(url);   // открывает внутри Telegram (без выхода из мини-аппа)
+      tg.openLink(url);
     }
   </script>
 </body>
