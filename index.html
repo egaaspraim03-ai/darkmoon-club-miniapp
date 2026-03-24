@@ -14,61 +14,66 @@
       color: var(--tg-theme-text-color); 
     }
     .container { max-width: 420px; margin: 0 auto; padding: 16px; }
-    
+
     .header {
+      background: linear-gradient(135deg, #4B0082, #1a0033);
+      border-radius: 20px;
+      padding: 24px 16px 20px;
       text-align: center;
-      padding: 20px 0 16px;
-      background: linear-gradient(180deg, #4B0082, #1a0033);
-      border-radius: 0 0 20px 20px;
       margin-bottom: 20px;
-      color: white;
-      position: relative;
+      box-shadow: 0 8px 25px rgba(155, 89, 182, 0.4);
     }
     .avatar {
-      width: 80px;
-      height: 80px;
+      width: 92px;
+      height: 92px;
       border-radius: 50%;
-      border: 4px solid #9B59B6;
-      box-shadow: 0 0 20px rgba(147, 112, 219, 0.6);
+      border: 5px solid #9B59B6;
+      box-shadow: 0 0 25px rgba(155, 89, 182, 0.8);
       margin-bottom: 12px;
       object-fit: cover;
     }
     .header h1 { 
-      font-size: 32px; 
-      margin: 0; 
-      text-shadow: 0 0 15px rgba(147, 112, 219, 0.8); 
+      font-size: 34px; 
+      margin: 8px 0 4px; 
+      color: white;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
     }
     .stats { 
-      display: flex; 
-      justify-content: center; 
-      gap: 16px; 
-      margin-top: 8px; 
+      color: #ddd; 
       font-size: 15px; 
-      opacity: 0.95; 
+      margin-top: 4px;
     }
     .card { 
       background: var(--tg-theme-secondary-bg-color); 
-      border-radius: 18px; 
-      padding: 18px; 
-      margin-bottom: 14px; 
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2); 
+      border-radius: 16px; 
+      padding: 6px; 
+      margin-bottom: 12px; 
     }
     button { 
       width: 100%; 
-      padding: 18px; 
-      margin: 8px 0; 
+      padding: 18px 16px; 
+      margin: 6px 0; 
       border: none; 
       border-radius: 14px; 
       font-size: 17px; 
       font-weight: 600; 
-      background: #9B59B6; 
+      background: linear-gradient(90deg, #9B59B6, #7B4A9C);
       color: white; 
-      cursor: pointer; 
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-    button:hover { opacity: 0.9; transform: scale(1.03); }
+    button:hover { transform: translateY(-2px); opacity: 0.95; }
     .secondary-btn { 
       background: var(--tg-theme-secondary-bg-color); 
       color: var(--tg-theme-text-color); 
+    }
+    .main-btn {
+      background: linear-gradient(90deg, #00b4ff, #0099ff);
+      font-size: 18px;
+      padding: 20px;
+      margin-top: 10px;
     }
     .footer { 
       text-align: center; 
@@ -81,14 +86,12 @@
 <body>
   <div class="container">
     <div class="header">
-      <img src="https://ibb.co/HTR7J7Q5" class="avatar" alt="NEXUS">
+      <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar" alt="NEXUS">
       <h1>🌑 Dark Moon</h1>
       <div class="stats">
-        <div>103 участника</div>
-        <div>Уровень 6</div>
-        <div>23 место</div>
+        103 участника • Уровень 6 • 23 место<br>
+        Вместе в вечной тьме 🔥
       </div>
-      <p style="margin-top:8px; font-size:15px; opacity:0.9;">Вместе в вечной тьме 🔥</p>
     </div>
 
     <div class="card">
@@ -108,8 +111,12 @@
       📋 FAQ по клубам и вкладам
     </button>
 
+    <button onclick="openLink('https://mangabuff.ru/clubs/dark-moon')" class="main-btn">
+      Открыть клуб Dark Moon
+    </button>
+
     <div class="footer">
-      Mini App для @DarkMoon_A_Bot • NEXUS style
+      Mini App для @DarkMoon_A_Bot • NEXUS
     </div>
   </div>
 
