@@ -12,7 +12,6 @@
       margin:0; padding:0; 
       background: #0a001f; 
       color: #ffffff; 
-      overflow-x: hidden;
     }
     .container { max-width: 420px; margin: 0 auto; padding: 16px; }
 
@@ -33,7 +32,7 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(155,89,182,0.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(155,89,182,0.2) 0%, transparent 70%);
       animation: pulse 8s infinite;
     }
     .avatar {
@@ -41,27 +40,28 @@
       height: 110px;
       border-radius: 50%;
       border: 6px solid #9B59B6;
-      box-shadow: 0 0 35px #9B59B6, 0 0 60px rgba(155,89,182,0.7);
+      box-shadow: 0 0 35px #9B59B6, 0 0 65px rgba(155,89,182,0.8);
       margin-bottom: 14px;
       object-fit: cover;
-      z-index: 2;
     }
     .header h1 { 
-      font-size: 38px; 
+      font-size: 42px; 
       font-weight: 900;
-      margin: 10px 0 8px; 
+      margin: 8px 0 10px; 
       color: #ffffff;
-      text-shadow: 0 0 20px #9B59B6, 0 0 40px #9B59B6;
-      letter-spacing: 2px;
+      text-shadow: 0 0 25px #9B59B6, 
+                   0 0 45px #9B59B6,
+                   0 0 70px #C084FC;
+      letter-spacing: 3px;
     }
     .stats { 
       color: #bb99ff; 
       font-size: 16px; 
-      text-shadow: 0 0 10px #9B59B6;
+      text-shadow: 0 0 12px #9B59B6;
     }
 
     .card { 
-      background: rgba(20, 5, 45, 0.85); 
+      background: rgba(20, 5, 45, 0.9); 
       border: 2px solid #9B59B6;
       border-radius: 18px; 
       padding: 10px; 
@@ -86,7 +86,7 @@
     }
     button:hover { 
       transform: scale(1.04) translateY(-3px); 
-      box-shadow: 0 0 35px #9B59B6;
+      box-shadow: 0 0 40px #9B59B6;
       background: linear-gradient(90deg, #9B59B6, #C084FC);
     }
     .footer { 
@@ -107,7 +107,7 @@
   <div class="container">
     <div class="header">
       <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar" alt="NEXUS">
-      <h1>🌑 DARK MOON</h1>
+      <h1>DARK MOON</h1>
       <div class="stats">
         103 участника • Уровень 6 • 23 место<br>
         Вместе в вечной тьме 🔥
