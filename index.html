@@ -26,7 +26,7 @@
     .screen { display:none; }
     .screen.active { display:block; }
 
-    .battle-container { background:rgba(20,5,45,0.95); border:3px solid #9B59B6; border-radius:20px; padding:15px; margin-bottom:20px; max-height: calc(100vh - 280px); overflow-y:auto; }
+    .battle-container { background:rgba(20,5,45,0.95); border:3px solid #9B59B6; border-radius:20px; padding:15px; margin-bottom:20px; }
     .pokemon-row { display:flex; justify-content:space-between; }
     .pokemon { text-align:center; width:48%; }
     .hp-bar { height:14px; background:#222; border-radius:10px; overflow:hidden; margin:8px 0; }
@@ -36,7 +36,6 @@
     .moves-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
     .move-btn { background:rgba(155,89,182,0.3); border:2px solid #9B59B6; border-radius:12px; padding:14px; text-align:center; font-weight:600; }
 
-    .modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; padding:20px; overflow-y:auto; }
     .energy-bar { height:12px; background:#222; border-radius:10px; overflow:hidden; margin:8px 0; }
     .energy-fill { height:100%; background:linear-gradient(90deg,#C084FC,#9B59B6); }
   </style>
@@ -74,15 +73,10 @@
       <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
     </div>
 
-    <!-- Выбор зоны (как перемещение по миру) -->
-    <div id="zone-selection">
-      <button onclick="selectZone('Лунный лес')" style="margin:6px 0;background:#6B1E9C;">🌲 Лунный лес (Лето)</button>
-      <button onclick="selectZone('Тёмные руины')" style="margin:6px 0;background:#6B1E9C;">🏚️ Тёмные руины (Осень)</button>
-      <button onclick="selectZone('Ледяные пики')" style="margin:6px 0;background:#6B1E9C;">❄️ Ледяные пики (Зима)</button>
-      <button onclick="selectZone('Каменные долины')" style="margin:6px 0;background:#6B1E9C;">🏔️ Каменные долины (Весна)</button>
-    </div>
+    <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
+      🌍 Выбрать зону перед боем
+    </button>
 
-    <!-- Бой появляется только после встречи с противником -->
     <div id="battle-area" style="display:none;">
       <div class="battle-container">
         <div class="pokemon-row">
@@ -116,8 +110,6 @@
         </div>
       </div>
     </div>
-
-    <button onclick="openPvP()" style="margin-top:15px;background:linear-gradient(90deg,#C084FC,#9B59B6);">⚔️ PvP — Вызвать игроков</button>
   </div>
 
   <!-- Lunadex -->
@@ -147,12 +139,33 @@
   const tg = window.Telegram.WebApp;
   tg.ready(); tg.expand();
 
-  function openLink(url) { tg.openLink(url); }
-
-  let player = { name:"DARK LORD", level:12, season:"Лето", element:"Трава", hp:200, maxHp:200, atk:85, def:70 };
-  let enemy = { name:"SHADOW DRAGON", level:11, season:"Осень", element:"Дракон", hp:200, maxHp:200, atk:110, def:65 };
   let energy = 10;
   let currentZone = "";
+
+  // Класс Pokemon (аналог твоего Python-кода)
+  class Pokemon {
+    constructor(name, level = 1, season = "Лето", element = "Трава") {
+      this.name = name;
+      this.level = level;
+      this.season = season;
+      this.element = element;
+      this.hp = level * 20;
+      this.maxHp = level * 20;
+      this.attack = level * 5;
+    }
+  }
+
+  // Текущий игрок и 6 героев
+  let player = new Pokemon("DARK LORD", 12, "Лето", "Трава");
+
+  let team = [
+    new Pokemon("DARK LORD", 12, "Лето", "Трава"),
+    new Pokemon("SHADOW DRAGON", 11, "Осень", "Дракон"),
+    new Pokemon("MOON BLADE", 14, "Зима", "Тёмный"),
+    new Pokemon("ICE WRAITH", 13, "Зима", "Лед"),
+    new Pokemon("VOID WALKER", 15, "Осень", "Призрачный"),
+    new Pokemon("FIRE REAPER", 10, "Лето", "Огонь")
+  ];
 
   function updateEnergy() {
     document.getElementById('energy-text').textContent = energy;
@@ -162,87 +175,38 @@
   function updateHP() {
     document.getElementById('player-hp-bar').style.width = (player.hp / player.maxHp * 100) + '%';
     document.getElementById('player-hp-text').textContent = Math.max(0, Math.floor(player.hp)) + '/' + player.maxHp;
-    document.getElementById('enemy-hp-bar').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
-    document.getElementById('enemy-hp-text').textContent = Math.max(0, Math.floor(enemy.hp)) + '/' + enemy.maxHp;
   }
 
-  function selectZone(zone) {
-    currentZone = zone;
-    document.getElementById('battle-log').innerHTML = `Ты прибыл в <strong>${zone}</strong>.<br>Ищешь противника...`;
+  function showZoneSelection() {
     document.getElementById('battle-area').style.display = 'block';
+    document.getElementById('battle-log').innerHTML = `
+      Выбери зону:<br><br>
+      <button onclick="enterZone('Лунный лес (Лето)')" style="margin:6px 0;">🌲 Лунный лес (Лето)</button>
+      <button onclick="enterZone('Тёмные руины (Осень)')" style="margin:6px 0;">🏚️ Тёмные руины (Осень)</button>
+      <button onclick="enterZone('Ледяные пики (Зима)')" style="margin:6px 0;">❄️ Ледяные пики (Зима)</button>
+      <button onclick="enterZone('Каменные долины (Весна)')" style="margin:6px 0;">🏔️ Каменные долины (Весна)</button>
+    `;
+  }
+
+  function enterZone(zone) {
+    currentZone = zone;
+    document.getElementById('battle-log').innerHTML = `
+      Ты прибыл в <strong>${zone}</strong>.<br><br>
+      <button onclick="startBattle()" style="background:#C084FC;color:#000;">🔍 Начать бой</button>
+    `;
+  }
+
+  function startBattle() {
+    document.getElementById('battle-log').innerHTML = `Дикий герой появился!<br><br>Что будет делать Dark Lord?`;
+    updateHP();
   }
 
   function chooseAction(action) {
     const log = document.getElementById('battle-log');
-    const panel = document.getElementById('moves-panel');
-    panel.style.display = 'none';
-
-    if (energy <= 0) {
-      log.innerHTML = '❌ Недостаточно энергии!';
-      return;
-    }
-
-    if (action === 'attack') {
-      panel.style.display = 'block';
-      const list = document.getElementById('moves-list');
-      list.innerHTML = '';
-      const moves = [{name:"Удар тенью"},{name:"Ядовитый шип"},{name:"Лунный луч"},{name:"Тёмный вихрь"}];
-      moves.forEach(m => {
-        const btn = document.createElement('button');
-        btn.className = 'move-btn';
-        btn.textContent = m.name;
-        btn.onclick = () => playerAttack(m);
-        list.appendChild(btn);
-      });
-    } else if (action === 'bag') log.innerHTML = 'Рюкзак пока пуст...';
+    if (action === 'attack') log.innerHTML = 'Выбери атаку...';
+    else if (action === 'bag') log.innerHTML = 'Рюкзак пока пуст...';
     else if (action === 'switch') log.innerHTML = 'Выбор героя (скоро)';
-    else if (action === 'run') {
-      const chance = Math.random() * 100;
-      log.innerHTML = chance > 35 ? '✅ Ты успешно сбежал!' : '❌ Побег не удался!';
-    }
-  }
-
-  function playerAttack(move) {
-    energy--;
-    updateEnergy();
-    const log = document.getElementById('battle-log');
-    log.innerHTML = `Ты использовал <strong>${move.name}</strong>!`;
-  }
-
-  function openPvP() {
-    if (energy <= 0) {
-      document.getElementById('battle-log').innerHTML = '❌ Недостаточно энергии для PvP!';
-      return;
-    }
-    energy--;
-    updateEnergy();
-
-    document.getElementById('battle-log').innerHTML = `
-      🏆 <strong>Топ игроков онлайн:</strong><br>
-      1. ShadowReaper (Lv.18) (ИИ)<br>
-      2. MoonBlade (Lv.15) (ИИ)<br>
-      3. DarkVortex (Lv.14) (ИИ)<br><br>
-      👥 Сейчас онлайн: 47 игроков<br><br>
-      <button onclick="openRadar()" style="background:#C084FC;color:#000;width:100%;">Открыть радар и выбрать цель</button>
-    `;
-  }
-
-  function openRadar() {
-    document.getElementById('battle-log').innerHTML = `
-      📡 <strong>Радар</strong><br>
-      Нажми на цель:<br><br>
-      <button onclick="selectPvPTarget('ShadowReaper (ИИ)')" style="margin:5px 0;">ShadowReaper (Lv.18)</button>
-      <button onclick="selectPvPTarget('MoonBlade (ИИ)')" style="margin:5px 0;">MoonBlade (Lv.15)</button>
-      <button onclick="selectPvPTarget('DarkVortex (ИИ)')" style="margin:5px 0;">DarkVortex (Lv.14)</button>
-      <button onclick="selectPvPTarget('IceWraith (ИИ)')" style="margin:5px 0;">IceWraith (Lv.12)</button>
-    `;
-  }
-
-  function selectPvPTarget(name) {
-    enemy.name = name;
-    document.getElementById('enemy-name').textContent = name;
-    document.getElementById('battle-log').innerHTML = `Ты вызвал на бой <strong>${name}</strong>! Бой начался...`;
-    document.getElementById('battle-area').style.display = 'block';
+    else if (action === 'run') log.innerHTML = 'Попытка побега...';
   }
 
   function switchTab(n) {
@@ -250,11 +214,6 @@
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelectorAll('.screen')[n].classList.add('active');
     document.querySelectorAll('.nav-item')[n].classList.add('active');
-  }
-
-  function showInventorySection(section) {
-    const content = document.getElementById('inventory-content');
-    content.innerHTML = `<h3>${section === 'events' ? '🎉 Ивенты' : 'Lunadex'}</h3><p>Скоро будет полный список.</p>`;
   }
 
   window.onload = () => {
