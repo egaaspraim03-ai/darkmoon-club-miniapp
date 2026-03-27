@@ -61,43 +61,66 @@
 
   <!-- ИГРА -->
   <div id="game-screen" class="screen">
-    <h2 style="text-align:center;color:#C084FC;margin:0 0 15px;">⚔️ БОЙ КАРТОЧЕК</h2>
+    <h2 style="text-align:center;color:#C084FC;margin:0 0 15px;">🌌 Dark Moon Приключение</h2>
 
-    <div style="text-align:center;margin-bottom:12px;">
-      <strong>Энергия: <span id="energy-text">10</span>/10</strong>
-      <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
-    </div>
+    <!-- Создание персонажа (как в pokemon.py) -->
+    <div id="creation-screen" class="modal" style="display:flex;">
+      <div class="modal-content">
+        <h2>Создай своего тренера</h2>
+        <p>Твой ник:</p>
+        <input id="trainer-name" type="text" placeholder="IMPERATOR" style="width:100%;padding:14px;margin:10px 0;border-radius:12px;border:none;background:#1a0033;color:#fff;">
 
-    <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
-      🌍 Выбрать зону перед боем
-    </button>
-
-    <div id="battle-area" style="display:none;">
-      <div class="battle-container">
-        <div class="pokemon-row">
-          <div class="pokemon">
-            <div style="font-size:32px;" id="player-emoji">🧛</div>
-            <strong id="player-name">DARK LORD</strong><br>
-            <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
-            <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
-            <small>HP <span id="player-hp-text">200/200</span></small>
-          </div>
-          <div class="pokemon">
-            <div style="font-size:32px;" id="enemy-emoji">🐉</div>
-            <strong id="enemy-name">SHADOW DRAGON</strong><br>
-            <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
-            <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
-            <small>HP <span id="enemy-hp-text">200/200</span></small>
-          </div>
+        <p>Ты мальчик или девочка?</p>
+        <div style="display:flex;gap:15px;justify-content:center;margin:15px 0;">
+          <button onclick="setGender('♂')" style="width:auto;padding:12px 30px;">♂ Мальчик</button>
+          <button onclick="setGender('♀')" style="width:auto;padding:12px 30px;">♀ Девочка</button>
         </div>
 
-        <div class="log" id="battle-log">Что будет делать Dark Lord?</div>
+        <p>Выбери стартового героя:</p>
+        <button onclick="chooseStarter(0)" style="margin:8px 0;">🔥 Charizard (Огонь)</button>
+        <button onclick="chooseStarter(1)" style="margin:8px 0;">🌿 Bulbasaur (Трава)</button>
+        <button onclick="chooseStarter(2)" style="margin:8px 0;">💧 Blastoise (Вода)</button>
+      </div>
+    </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <button onclick="playerAttack()">⚔️ Атаковать</button>
-          <button onclick="usePotion()">🧪 Зелье (10)</button>
-          <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
-          <button onclick="tryEscape()">🏃 Сбежать</button>
+    <!-- Основной экран после создания персонажа -->
+    <div id="adventure-screen" style="display:none;">
+      <div style="text-align:center;margin-bottom:12px;">
+        <strong>Энергия: <span id="energy-text">10</span>/10</strong>
+        <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
+      </div>
+
+      <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
+        🌍 Выбрать зону
+      </button>
+
+      <div id="battle-area" style="display:none;">
+        <div class="battle-container">
+          <div class="pokemon-row">
+            <div class="pokemon">
+              <div style="font-size:32px;" id="player-emoji">🧛</div>
+              <strong id="player-name">DARK LORD</strong><br>
+              <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
+              <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
+              <small>HP <span id="player-hp-text">200/200</span></small>
+            </div>
+            <div class="pokemon">
+              <div style="font-size:32px;" id="enemy-emoji">🐉</div>
+              <strong id="enemy-name">SHADOW DRAGON</strong><br>
+              <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
+              <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
+              <small>HP <span id="enemy-hp-text">200/200</span></small>
+            </div>
+          </div>
+
+          <div class="log" id="battle-log">Дикий герой появился! Что будешь делать?</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <button onclick="playerAttack()">⚔️ Атаковать</button>
+            <button onclick="usePotion()">🧪 Зелье (10)</button>
+            <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
+            <button onclick="tryEscape()">🏃 Сбежать</button>
+          </div>
         </div>
       </div>
     </div>
@@ -131,21 +154,33 @@
   tg.ready(); tg.expand();
 
   let energy = 10;
-  let trainerNick = "Тренер";
+  let trainerName = "";
+  let gender = "";
   let playerHp = 200;
   let enemyHp = 200;
   let potionCount = 10;
 
-  function updateEnergy() {
-    document.getElementById('energy-text').textContent = energy;
-    document.getElementById('energy-bar').style.width = (energy / 10 * 100) + '%';
+  function setGender(g) { gender = g; }
+
+  function chooseStarter(num) {
+    const starters = ["Charizard", "Bulbasaur", "Blastoise"];
+    const emojis = ["🔥", "🌿", "💧"];
+    const elements = ["Огонь", "Трава", "Вода"];
+
+    document.getElementById('player-name').textContent = starters[num];
+    document.getElementById('player-emoji').textContent = emojis[num];
+    document.getElementById('player-info').innerHTML = `Lv.1 • ${elements[num]}`;
+
+    document.getElementById('creation-screen').style.display = 'none';
+    document.getElementById('adventure-screen').style.display = 'block';
+
+    document.getElementById('battle-log').innerHTML = `Привет, <strong>${trainerName}</strong>!<br>Твой стартовый герой — ${starters[num]}!<br><br>Выбери зону и начни приключение.`;
   }
 
-  function updateHP() {
-    document.getElementById('player-hp-bar').style.width = (playerHp / 200 * 100) + '%';
-    document.getElementById('player-hp-text').textContent = playerHp + '/200';
-    document.getElementById('enemy-hp-bar').style.width = (enemyHp / 200 * 100) + '%';
-    document.getElementById('enemy-hp-text').textContent = enemyHp + '/200';
+  function registerUser() {
+    trainerName = document.getElementById('trainer-name').value.trim() || "Тренер Тьмы";
+    document.getElementById('registration-screen').style.display = 'none';
+    document.getElementById('creation-screen').style.display = 'flex';
   }
 
   function showZoneSelection() {
@@ -175,6 +210,13 @@
     document.getElementById('battle-log').innerHTML = `Дикий герой появился!<br><br>Что будешь делать?`;
   }
 
+  function updateHP() {
+    document.getElementById('player-hp-bar').style.width = (playerHp / 200 * 100) + '%';
+    document.getElementById('player-hp-text').textContent = playerHp + '/200';
+    document.getElementById('enemy-hp-bar').style.width = (enemyHp / 200 * 100) + '%';
+    document.getElementById('enemy-hp-text').textContent = enemyHp + '/200';
+  }
+
   function playerAttack() {
     const damage = Math.floor(Math.random() * 25) + 15;
     enemyHp = Math.max(0, enemyHp - damage);
@@ -184,7 +226,7 @@
       document.getElementById('battle-log').innerHTML += '<br><br>🎉 Ты победил!';
       return;
     }
-    setTimeout(enemyTurn, 700);
+    setTimeout(enemyTurn, 800);
   }
 
   function enemyTurn() {
@@ -230,14 +272,7 @@
 
   function showLunadexSection(section) {
     const content = document.getElementById('lunadex-content');
-    if (section === 'effectiveness') {
-      content.innerHTML = `
-        <h3>📊 Таблица эффективности</h3>
-        <p>Скоро здесь будет полная таблица стихий (как мы делали раньше).</p>
-      `;
-    } else {
-      content.innerHTML = `<h3>${section}</h3><p>Раздел в разработке.</p>`;
-    }
+    content.innerHTML = `<h3>${section}</h3><p>Раздел в разработке.</p>`;
   }
 
   function openLink(url) { tg.openLink(url); }
