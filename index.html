@@ -49,9 +49,7 @@
       font-weight: 900;
       margin: 8px 0 10px; 
       color: #ffffff;
-      text-shadow: 0 0 25px #9B59B6, 
-                   0 0 45px #9B59B6,
-                   0 0 70px #C084FC;
+      text-shadow: 0 0 25px #9B59B6, 0 0 45px #9B59B6, 0 0 70px #C084FC;
       letter-spacing: 3px;
     }
     .stats { 
@@ -89,6 +87,96 @@
       box-shadow: 0 0 40px #9B59B6;
       background: linear-gradient(90deg, #9B59B6, #C084FC);
     }
+
+    /* === НОВАЯ НИЖНЯЯ ПАНЕЛЬ === */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 420px;
+      margin: 0 auto;
+      background: linear-gradient(90deg, #1a0033, #2a0055);
+      border-top: 3px solid #9B59B6;
+      display: flex;
+      padding: 8px 0;
+      box-shadow: 0 -4px 20px rgba(155,89,182,0.5);
+      z-index: 1000;
+    }
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      color: #bb99ff;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .nav-item.active {
+      color: #ffffff;
+      text-shadow: 0 0 15px #C084FC;
+    }
+    .nav-item span {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Экраны */
+    .screen {
+      display: none;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    /* Экран боя (пока базовый) */
+    .battle-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .battle-container {
+      background: rgba(20,5,45,0.95);
+      border: 3px solid #9B59B6;
+      border-radius: 20px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .pokemon-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .pokemon {
+      text-align: center;
+      width: 45%;
+    }
+    .hp-bar {
+      height: 12px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .hp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff00, #00cc00);
+      transition: width 0.4s ease;
+    }
+    .log {
+      background: #0a001f;
+      border: 2px solid #9B59B6;
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 80px;
+      font-size: 15px;
+      margin-bottom: 15px;
+    }
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
     .footer { 
       text-align: center; 
       margin-top: 30px; 
@@ -105,34 +193,95 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar" alt="NEXUS">
-      <h1>DARK MOON</h1>
-      <div class="stats">
-        103 участника • Уровень 6 • 23 место<br>
-        Вместе в вечной тьме 🔥
+
+    <!-- Экран Клуба -->
+    <div id="club-screen" class="screen active">
+      <div class="header">
+        <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar" alt="NEXUS">
+        <h1>DARK MOON</h1>
+        <div class="stats">
+          103 участника • Уровень 6 • 23 место<br>
+          Вместе в вечной тьме 🔥
+        </div>
+      </div>
+
+      <div class="card">
+        <button onclick="openLink('https://mangabuff.ru/clubs/dark-moon')">🔥 Мой клуб</button>
+        <button onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')">📈 Внести вклад / Вклады</button>
+        <button onclick="openLink('https://mangabuff.ru/manga/test')">🃏 Клубные карты</button>
+        <button onclick="openLink('https://mangabuff.ru/clubs')">🏆 Рейтинг клубов</button>
+      </div>
+
+      <div class="card">
+        <button onclick="openLink('https://mangabuff.ru/')">📚 Новые главы</button>
+        <button onclick="openLink('https://mangabuff.ru/manga')">📖 Каталог манги</button>
+        <button onclick="openLink('https://t.me/mangabuff')">📰 Новости сайта (TG)</button>
+      </div>
+
+      <button onclick="openLink('https://mangabuff.ru/faq/general')" style="background: rgba(30,10,50,0.9); border-color: #7B4A9C; color: #ddd;">
+        📋 FAQ по клубам и вкладам
+      </button>
+
+      <div class="footer">
+        NEXUS • Dark Moon Club
       </div>
     </div>
 
-    <div class="card">
-      <button onclick="openLink('https://mangabuff.ru/clubs/dark-moon')">🔥 Мой клуб</button>
-      <button onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')">📈 Внести вклад / Вклады</button>
-      <button onclick="openLink('https://mangabuff.ru/manga/test')">🃏 Клубные карты</button>
-      <button onclick="openLink('https://mangabuff.ru/clubs')">🏆 Рейтинг клубов</button>
+    <!-- Экран ИГРЫ (бои) -->
+    <div id="game-screen" class="screen">
+      <div class="battle-header">
+        <h2 style="margin:0; color:#C084FC;">⚔️ БОЙ КАРТОЧЕК</h2>
+      </div>
+
+      <div class="battle-container">
+        <div class="pokemon-row">
+          <!-- Твой герой -->
+          <div class="pokemon">
+            <div style="font-size:28px;">🧛</div>
+            <strong>DARK LORD</strong><br>
+            <span style="color:#bb99ff;">Lv.12</span>
+            <div class="hp-bar"><div class="hp-fill" style="width:85%"></div></div>
+            <small>HP 170/200</small>
+          </div>
+
+          <!-- Враг -->
+          <div class="pokemon">
+            <div style="font-size:28px;">🐉</div>
+            <strong>SHADOW DRAGON</strong><br>
+            <span style="color:#bb99ff;">Lv.11</span>
+            <div class="hp-bar"><div class="hp-fill" style="width:45%"></div></div>
+            <small>HP 92/200</small>
+          </div>
+        </div>
+
+        <div class="log" id="battle-log">
+          Что будет делать Dark Lord?
+        </div>
+
+        <div class="action-buttons">
+          <button onclick="chooseAction('fight')">⚔️ FIGHT</button>
+          <button onclick="chooseAction('bag')">🎒 BAG</button>
+          <button onclick="chooseAction('pokemon')">🃏 POKÉMON</button>
+          <button onclick="chooseAction('run')">🏃 RUN</button>
+        </div>
+      </div>
+
+      <div style="text-align:center; font-size:13px; opacity:0.7;">
+        Выбери действие. Пока это демо — потом подключим настоящих героев и расчёт урона.
+      </div>
     </div>
 
-    <div class="card">
-      <button onclick="openLink('https://mangabuff.ru/')">📚 Новые главы</button>
-      <button onclick="openLink('https://mangabuff.ru/manga')">📖 Каталог манги</button>
-      <button onclick="openLink('https://t.me/mangabuff')">📰 Новости сайта (TG)</button>
+  </div>
+
+  <!-- Нижняя панель навигации -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab(0)">
+      <span>🔥</span>
+      Клуб
     </div>
-
-    <button onclick="openLink('https://mangabuff.ru/faq/general')" style="background: rgba(30,10,50,0.9); border-color: #7B4A9C; color: #ddd;">
-      📋 FAQ по клубам и вкладам
-    </button>
-
-    <div class="footer">
-      NEXUS • Dark Moon Club
+    <div class="nav-item" onclick="switchTab(1)">
+      <span>⚔️</span>
+      Игра
     </div>
   </div>
 
@@ -144,6 +293,39 @@
     function openLink(url) {
       tg.openLink(url);
     }
+
+    // Переключение вкладок
+    function switchTab(tabIndex) {
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+      if (tabIndex === 0) {
+        document.getElementById('club-screen').classList.add('active');
+      } else {
+        document.getElementById('game-screen').classList.add('active');
+      }
+
+      document.querySelectorAll('.nav-item')[tabIndex].classList.add('active');
+    }
+
+    // Заглушка для действий в бою (будем расширять)
+    function chooseAction(action) {
+      const log = document.getElementById('battle-log');
+      if (action === 'fight') {
+        log.innerHTML = 'Выбери навык (скоро будет список карт)';
+      } else if (action === 'bag') {
+        log.innerHTML = 'Инвентарь пока пуст';
+      } else if (action === 'pokemon') {
+        log.innerHTML = 'Смена героя (пока одна карта)';
+      } else if (action === 'run') {
+        log.innerHTML = 'Ты сбежал из боя!';
+      }
+    }
+
+    // При открытии сразу показываем клуб
+    window.onload = () => {
+      switchTab(0);
+    };
   </script>
 </body>
 </html>
