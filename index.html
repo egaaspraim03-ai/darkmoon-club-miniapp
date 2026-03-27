@@ -69,7 +69,7 @@
     </div>
 
     <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
-      🌍 Выбрать зону
+      🌍 Выбрать зону перед боем
     </button>
 
     <div id="battle-area" style="display:none;">
@@ -230,12 +230,14 @@
 
   function showLunadexSection(section) {
     const content = document.getElementById('lunadex-content');
-    if (section === 'pokedex') content.innerHTML = `<h3>📖 Lunadex</h3><p>Здесь будут все твои герои с номерами.</p>`;
-    else if (section === 'items') content.innerHTML = `<h3>🎒 Предметы</h3><p>Здесь будут все предметы.</p>`;
-    else if (section === 'myheroes') content.innerHTML = `<h3>👤 Мои герои</h3><p>Список твоих героев.</p>`;
-    else if (section === 'myitems') content.innerHTML = `<h3>📦 Мои предметы</h3><p>Твои предметы.</p>`;
-    else if (section === 'effectiveness') content.innerHTML = `<h3>📊 Таблица эффективности</h3><p>Таблица стихий скоро появится.</p>`;
-    else if (section === 'events') content.innerHTML = `<h3>🎉 Ивенты</h3><p>Активные ивенты.</p>`;
+    if (section === 'effectiveness') {
+      content.innerHTML = `
+        <h3>📊 Таблица эффективности</h3>
+        <p>Скоро здесь будет полная таблица стихий (как мы делали раньше).</p>
+      `;
+    } else {
+      content.innerHTML = `<h3>${section}</h3><p>Раздел в разработке.</p>`;
+    }
   }
 
   function openLink(url) { tg.openLink(url); }
