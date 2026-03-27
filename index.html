@@ -8,7 +8,11 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; margin:0; padding:0; background:#0a001f; color:#fff; }
-    .container { max-width:420px; margin:0 auto; padding:16px; }
+    .container { 
+      max-width:420px; 
+      margin:0 auto; 
+      padding:16px 16px 90px 16px; /* ← добавлен отступ снизу, чтобы кнопки не обрезались */
+    }
 
     .header { background:linear-gradient(135deg,#2a0055,#0f001f); border-radius:24px; padding:28px 16px 24px; text-align:center; margin-bottom:20px; box-shadow:0 0 40px rgba(155,89,182,0.6); position:relative; overflow:hidden; }
     .header::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(155,89,182,0.2)0%,transparent 70%); animation:pulse 8s infinite; }
@@ -21,6 +25,7 @@
     button { width:100%; padding:18px 16px; margin:8px 0; border:2px solid #9B59B6; border-radius:16px; font-size:18px; font-weight:700; background:linear-gradient(90deg,#6B1E9C,#9B59B6); color:white; display:flex; align-items:center; gap:14px; box-shadow:0 0 20px rgba(155,89,182,0.6); transition:all .2s; }
     button:hover { transform:scale(1.04) translateY(-3px); box-shadow:0 0 40px #9B59B6; }
 
+    /* Нижняя панель */
     .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:420px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:3px solid #9B59B6; display:flex; padding:8px 0; box-shadow:0 -4px 20px rgba(155,89,182,0.5); z-index:1000; }
     .nav-item { flex:1; text-align:center; padding:8px; color:#bb99ff; font-size:14px; font-weight:600; transition:all .3s; }
     .nav-item.active { color:#fff; text-shadow:0 0 15px #C084FC; }
@@ -29,15 +34,55 @@
     .screen { display:none; }
     .screen.active { display:block; }
 
-    .battle-container { background:rgba(20,5,45,0.95); border:3px solid #9B59B6; border-radius:20px; padding:15px; margin-bottom:20px; }
+    /* БОЙ — теперь полностью скроллится */
+    .battle-container { 
+      background:rgba(20,5,45,0.95); 
+      border:3px solid #9B59B6; 
+      border-radius:20px; 
+      padding:15px; 
+      margin-bottom:20px; 
+      max-height: calc(100vh - 220px); /* чтобы не вылезало за экран */
+      overflow-y: auto; 
+      scrollbar-width: thin;
+    }
     .pokemon-row { display:flex; justify-content:space-between; }
     .pokemon { text-align:center; width:48%; }
     .hp-bar { height:14px; background:#222; border-radius:10px; overflow:hidden; margin:8px 0; }
     .hp-fill { height:100%; background:linear-gradient(90deg,#00ff88,#00cc66); transition:width .4s; }
     .log { background:#0a001f; border:2px solid #9B59B6; border-radius:12px; padding:14px; min-height:110px; font-size:15px; margin:15px 0; line-height:1.4; }
 
-    .moves-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
-    .move-btn { background:rgba(155,89,182,0.3); border:2px solid #9B59B6; border-radius:12px; padding:12px; text-align:center; font-weight:600; }
+    .moves-list { 
+      display:grid; 
+      grid-template-columns:1fr 1fr; 
+      gap:10px; 
+      margin-top:10px; 
+    }
+    .move-btn { 
+      background:rgba(155,89,182,0.3); 
+      border:2px solid #9B59B6; 
+      border-radius:12px; 
+      padding:14px; 
+      text-align:center; 
+      font-weight:600; 
+    }
+
+    /* Таблица эффективности */
+    .effectiveness-table {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-top: 15px;
+    }
+    .eff-header { background:#2a0055; padding:8px; text-align:center; font-size:13px; font-weight:700; }
+    .eff-cell { 
+      background:rgba(155,89,182,0.2); 
+      padding:8px; 
+      text-align:center; 
+      font-size:13px; 
+      border:1px solid #9B59B6; 
+    }
+    .eff-super { background:#00ff88 !important; color:#000; font-weight:700; }
+    .eff-weak { background:#ff4444 !important; color:#000; font-weight:700; }
   </style>
 </head>
 <body>
@@ -108,6 +153,7 @@
       <button onclick="showInventorySection('items')">🎒 Предметы</button>
       <button onclick="showInventorySection('myheroes')">👤 Мои герои</button>
       <button onclick="showInventorySection('myitems')">📦 Мои предметы</button>
+      <button onclick="showInventorySection('effectiveness')">📊 Таблица эффективности (16 стихий)</button>
     </div>
     <div id="inventory-content" style="margin-top:20px;"></div>
   </div>
@@ -128,36 +174,27 @@
   function openLink(url) { tg.openLink(url); }
 
   // === ДАННЫЕ ГЕРОЕВ ===
-  let player = {
-    name: "DARK LORD",
-    level: 12,
-    season: "Лето",
-    element: "Трава",
-    hp: 200,
-    maxHp: 200,
-    atk: 85,
-    def: 70
-  };
+  let player = { name: "DARK LORD", level: 12, season: "Лето", element: "Трава", hp: 200, maxHp: 200, atk: 85, def: 70 };
+  let enemy = { name: "SHADOW DRAGON", level: 11, season: "Осень", element: "Дракон", hp: 200, maxHp: 200, atk: 110, def: 65 };
 
-  let enemy = {
-    name: "SHADOW DRAGON",
-    level: 11,
-    season: "Осень",
-    element: "Дракон",
-    hp: 200,
-    maxHp: 200,
-    atk: 110,
-    def: 65
-  };
-
-  // Таблица эффективности (стихия атакующего → стихия защищающегося)
+  // Полная таблица эффективности (16 стихий)
   const effectiveness = {
-    "Трава":   { "Огонь":0.5, "Вода":2,   "Трава":0.5, "Ядовитый":0.5, "Дракон":0.5 },
-    "Огонь":   { "Трава":2,   "Вода":0.5, "Огонь":0.5, "Лед":2,      "Дракон":0.5 },
-    "Вода":    { "Огонь":2,   "Трава":0.5,"Вода":0.5,  "Электрический":0.5 },
-    "Электрический": { "Вода":2, "Трава":0.5, "Электрический":0.5, "Дракон":0.5 },
-    "Дракон":  { "Дракон":0.5, "Тёмный":2 },
-    "Тёмный":  { "Психический":2, "Призрачный":0.5, "Тёмный":0.5 },
+    "Трава":     { "Огонь":0.5, "Вода":2,   "Трава":0.5, "Ядовитый":0.5, "Насекомое":0.5, "Дракон":0.5 },
+    "Огонь":     { "Трава":2,   "Вода":0.5, "Огонь":0.5, "Лед":2,      "Дракон":0.5, "Стальной":2 },
+    "Вода":      { "Огонь":2,   "Трава":0.5,"Вода":0.5,  "Электрический":0.5 },
+    "Электрический":{ "Вода":2, "Трава":0.5,"Электрический":0.5, "Дракон":0.5 },
+    "Лед":       { "Трава":2,   "Огонь":0.5,"Вода":0.5,  "Лед":0.5,    "Дракон":2 },
+    "Боевой":    { "Обычный":2, "Лед":2,    "Тёмный":2,  "Стальной":2, "Призрачный":0.5 },
+    "Ядовитый":  { "Трава":2,   "Ядовитый":0.5,"Насекомое":2, "Призрачный":0.5 },
+    "Земляной":  { "Огонь":2,   "Электрический":2, "Трава":0.5, "Ядовитый":2, "Летающий":0.5, "Стальной":2 },
+    "Летающий":  { "Трава":2,   "Электрический":0.5,"Боевой":2, "Насекомое":2 },
+    "Психический":{ "Боевой":2, "Тёмный":0.5, "Призрачный":0.5 },
+    "Насекомое": { "Трава":2,   "Психический":2, "Тёмный":2 },
+    "Каменный":  { "Огонь":2,   "Лед":2,    "Летающий":2, "Боевой":2 },
+    "Призрачный":{ "Психический":2, "Призрачный":2, "Тёмный":0.5 },
+    "Дракон":    { "Дракон":2,  "Тёмный":2 },
+    "Тёмный":    { "Психический":2, "Призрачный":2, "Тёмный":0.5 },
+    "Стальной":  { "Огонь":0.5, "Лед":2,    "Призрачный":2, "Тёмный":2 }
   };
 
   function getMultiplier(attEl, defEl) {
@@ -180,7 +217,6 @@
     document.getElementById('enemy-hp-text').textContent = Math.max(0, Math.floor(enemy.hp)) + '/' + enemy.maxHp;
   }
 
-  // Список доступных атак
   const moves = [
     { name: "Удар тенью", power: 55, type: "Тёмный" },
     { name: "Ядовитый шип", power: 45, type: "Ядовитый" },
@@ -191,7 +227,6 @@
   function chooseAction(action) {
     const log = document.getElementById('battle-log');
     const panel = document.getElementById('moves-panel');
-
     panel.style.display = 'none';
 
     if (action === 'attack') {
@@ -233,8 +268,6 @@
       log.innerHTML += '<br><br>🎉 <strong>ПОБЕДА!</strong> Ты победил!';
       return;
     }
-
-    // Ход врага
     setTimeout(enemyTurn, 800);
   }
 
@@ -242,13 +275,9 @@
     const log = document.getElementById('battle-log');
     const dmg = calculateDamage(enemy, player, 50);
     player.hp -= dmg;
-
     log.innerHTML = `Враг использовал Теневой удар!<br>Урон тебе: <strong>${dmg}</strong>`;
     updateHP();
-
-    if (player.hp <= 0) {
-      log.innerHTML += '<br><br>💀 Ты проиграл...';
-    }
+    if (player.hp <= 0) log.innerHTML += '<br><br>💀 Ты проиграл...';
   }
 
   // Переключение вкладок
@@ -261,9 +290,39 @@
 
   function showInventorySection(section) {
     const content = document.getElementById('inventory-content');
-    content.innerHTML = section === 'pokedex' 
-      ? `<h3>Lunadex #001 — #002</h3><p>Энциклопедия героев клуба Dark Moon.</p>` 
-      : `<h3>${section === 'myheroes' ? 'Мои герои' : 'Предметы'}</h3><p>Скоро здесь будет полный список.</p>`;
+    content.innerHTML = '';
+
+    if (section === 'pokedex') {
+      content.innerHTML = `<h3>Lunadex #001 — #002</h3><p>Энциклопедия героев клуба Dark Moon.</p>`;
+    } 
+    else if (section === 'myheroes') {
+      content.innerHTML = `<h3>Мои герои</h3><p>Скоро будет полный список твоих карточек.</p>`;
+    } 
+    else if (section === 'items' || section === 'myitems') {
+      content.innerHTML = `<h3>${section === 'items' ? 'Все предметы' : 'Мои предметы'}</h3><p>Здесь будут предметы для ловли и усиления.</p>`;
+    } 
+    else if (section === 'effectiveness') {
+      let html = `<h3>Таблица эффективности (16 стихий)</h3><div class="effectiveness-table">`;
+      
+      // Заголовки
+      const types = ["Трава","Огонь","Вода","Электрический","Лед","Боевой","Ядовитый","Земляной","Летающий","Психический","Насекомое","Каменный","Призрачный","Дракон","Тёмный","Стальной"];
+      html += `<div class="eff-header"></div>`;
+      types.forEach(t => html += `<div class="eff-header">${t}</div>`);
+      
+      // Строки
+      types.forEach(att => {
+        html += `<div class="eff-header">${att}</div>`;
+        types.forEach(def => {
+          const mult = getMultiplier(att, def);
+          let cls = '';
+          if (mult > 1) cls = 'eff-super';
+          else if (mult < 1) cls = 'eff-weak';
+          html += `<div class="eff-cell ${cls}">${mult === 1 ? '—' : mult + '×'}</div>`;
+        });
+      });
+      html += `</div>`;
+      content.innerHTML = html;
+    }
   }
 
   window.onload = () => {
