@@ -21,7 +21,6 @@
     button { width:100%; padding:18px 16px; margin:8px 0; border:2px solid #9B59B6; border-radius:16px; font-size:18px; font-weight:700; background:linear-gradient(90deg,#6B1E9C,#9B59B6); color:white; display:flex; align-items:center; gap:14px; box-shadow:0 0 20px rgba(155,89,182,0.6); transition:all .2s; }
     button:hover { transform:scale(1.04) translateY(-3px); box-shadow:0 0 40px #9B59B6; }
 
-    /* Нижняя панель */
     .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:420px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:3px solid #9B59B6; display:flex; padding:8px 0; box-shadow:0 -4px 20px rgba(155,89,182,0.5); z-index:1000; }
     .nav-item { flex:1; text-align:center; padding:8px; color:#bb99ff; font-size:14px; font-weight:600; transition:all .3s; }
     .nav-item.active { color:#fff; text-shadow:0 0 15px #C084FC; }
@@ -30,20 +29,15 @@
     .screen { display:none; }
     .screen.active { display:block; }
 
-    /* Бой */
     .battle-container { background:rgba(20,5,45,0.95); border:3px solid #9B59B6; border-radius:20px; padding:15px; margin-bottom:20px; }
     .pokemon-row { display:flex; justify-content:space-between; }
     .pokemon { text-align:center; width:48%; }
     .hp-bar { height:14px; background:#222; border-radius:10px; overflow:hidden; margin:8px 0; }
     .hp-fill { height:100%; background:linear-gradient(90deg,#00ff88,#00cc66); transition:width .4s; }
-    .log { background:#0a001f; border:2px solid #9B59B6; border-radius:12px; padding:14px; min-height:90px; font-size:15px; margin:15px 0; }
+    .log { background:#0a001f; border:2px solid #9B59B6; border-radius:12px; padding:14px; min-height:110px; font-size:15px; margin:15px 0; line-height:1.4; }
 
     .moves-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
     .move-btn { background:rgba(155,89,182,0.3); border:2px solid #9B59B6; border-radius:12px; padding:12px; text-align:center; font-weight:600; }
-
-    /* Карточки */
-    .inventory-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .stat { display:flex; justify-content:space-between; margin:4px 0; font-size:15px; }
   </style>
 </head>
 <body>
@@ -70,7 +64,7 @@
     <button onclick="openLink('https://mangabuff.ru/faq/general')" style="background:rgba(30,10,50,0.9);border-color:#7B4A9C;color:#ddd;">📋 FAQ по клубам и вкладам</button>
   </div>
 
-  <!-- ИГРА (бой) -->
+  <!-- БОЙ -->
   <div id="game-screen" class="screen">
     <h2 style="text-align:center;color:#C084FC;margin:0 0 20px;">⚔️ БОЙ КАРТОЧЕК</h2>
     <div class="battle-container">
@@ -78,15 +72,15 @@
         <div class="pokemon">
           <div style="font-size:32px;">🧛</div>
           <strong id="player-name">DARK LORD</strong><br>
-          <span style="color:#bb99ff;">Lv.12 • Лето • Трава</span>
-          <div class="hp-bar"><div class="hp-fill" id="player-hp" style="width:85%"></div></div>
+          <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
+          <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:85%"></div></div>
           <small>HP <span id="player-hp-text">170/200</span></small>
         </div>
         <div class="pokemon">
           <div style="font-size:32px;">🐉</div>
           <strong id="enemy-name">SHADOW DRAGON</strong><br>
-          <span style="color:#bb99ff;">Lv.11 • Осень • Дракон</span>
-          <div class="hp-bar"><div class="hp-fill" id="enemy-hp" style="width:46%"></div></div>
+          <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
+          <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:46%"></div></div>
           <small>HP <span id="enemy-hp-text">92/200</span></small>
         </div>
       </div>
@@ -101,17 +95,12 @@
       </div>
 
       <div id="moves-panel" style="display:none;margin-top:15px;">
-        <div class="moves-list">
-          <button class="move-btn" onclick="useMove('Удар тенью')">Удар тенью</button>
-          <button class="move-btn" onclick="useMove('Ядовитый шип')">Ядовитый шип</button>
-          <button class="move-btn" onclick="useMove('Лунный луч')">Лунный луч</button>
-          <button class="move-btn" onclick="useMove('Тёмный вихрь')">Тёмный вихрь</button>
-        </div>
+        <div class="moves-list" id="moves-list"></div>
       </div>
     </div>
   </div>
 
-  <!-- КАРТОЧКИ / LUNadex -->
+  <!-- Lunadex -->
   <div id="inventory-screen" class="screen">
     <h2 style="text-align:center;color:#C084FC;margin-bottom:20px;">🃏 Lunadex</h2>
     <div class="inventory-grid">
@@ -120,7 +109,6 @@
       <button onclick="showInventorySection('myheroes')">👤 Мои герои</button>
       <button onclick="showInventorySection('myitems')">📦 Мои предметы</button>
     </div>
-
     <div id="inventory-content" style="margin-top:20px;"></div>
   </div>
 
@@ -135,11 +123,132 @@
 
 <script>
   const tg = window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
+  tg.ready(); tg.expand();
 
-  function openLink(url) {
-    tg.openLink(url);
+  function openLink(url) { tg.openLink(url); }
+
+  // === ДАННЫЕ ГЕРОЕВ ===
+  let player = {
+    name: "DARK LORD",
+    level: 12,
+    season: "Лето",
+    element: "Трава",
+    hp: 200,
+    maxHp: 200,
+    atk: 85,
+    def: 70
+  };
+
+  let enemy = {
+    name: "SHADOW DRAGON",
+    level: 11,
+    season: "Осень",
+    element: "Дракон",
+    hp: 200,
+    maxHp: 200,
+    atk: 110,
+    def: 65
+  };
+
+  // Таблица эффективности (стихия атакующего → стихия защищающегося)
+  const effectiveness = {
+    "Трава":   { "Огонь":0.5, "Вода":2,   "Трава":0.5, "Ядовитый":0.5, "Дракон":0.5 },
+    "Огонь":   { "Трава":2,   "Вода":0.5, "Огонь":0.5, "Лед":2,      "Дракон":0.5 },
+    "Вода":    { "Огонь":2,   "Трава":0.5,"Вода":0.5,  "Электрический":0.5 },
+    "Электрический": { "Вода":2, "Трава":0.5, "Электрический":0.5, "Дракон":0.5 },
+    "Дракон":  { "Дракон":0.5, "Тёмный":2 },
+    "Тёмный":  { "Психический":2, "Призрачный":0.5, "Тёмный":0.5 },
+  };
+
+  function getMultiplier(attEl, defEl) {
+    if (!effectiveness[attEl] || effectiveness[attEl][defEl] === undefined) return 1;
+    return effectiveness[attEl][defEl];
+  }
+
+  function calculateDamage(attacker, defender, movePower) {
+    const multiplier = getMultiplier(attacker.element, defender.element);
+    let damage = Math.floor(
+      (((2 * attacker.level / 5 + 2) * attacker.atk * movePower / defender.def) / 50 + 2) * multiplier * (0.85 + Math.random() * 0.15)
+    );
+    return Math.max(1, damage);
+  }
+
+  function updateHP() {
+    document.getElementById('player-hp-bar').style.width = (player.hp / player.maxHp * 100) + '%';
+    document.getElementById('player-hp-text').textContent = Math.max(0, Math.floor(player.hp)) + '/' + player.maxHp;
+    document.getElementById('enemy-hp-bar').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
+    document.getElementById('enemy-hp-text').textContent = Math.max(0, Math.floor(enemy.hp)) + '/' + enemy.maxHp;
+  }
+
+  // Список доступных атак
+  const moves = [
+    { name: "Удар тенью", power: 55, type: "Тёмный" },
+    { name: "Ядовитый шип", power: 45, type: "Ядовитый" },
+    { name: "Лунный луч", power: 70, type: "Трава" },
+    { name: "Тёмный вихрь", power: 60, type: "Тёмный" }
+  ];
+
+  function chooseAction(action) {
+    const log = document.getElementById('battle-log');
+    const panel = document.getElementById('moves-panel');
+
+    panel.style.display = 'none';
+
+    if (action === 'attack') {
+      panel.style.display = 'block';
+      const list = document.getElementById('moves-list');
+      list.innerHTML = '';
+      moves.forEach(m => {
+        const btn = document.createElement('button');
+        btn.className = 'move-btn';
+        btn.textContent = m.name;
+        btn.onclick = () => playerAttack(m);
+        list.appendChild(btn);
+      });
+    } else if (action === 'bag') {
+      log.innerHTML = 'Рюкзак пока пуст...';
+    } else if (action === 'switch') {
+      log.innerHTML = 'Выбор героя (скоро будет список из 6)';
+    } else if (action === 'run') {
+      const chance = Math.random() * 100;
+      log.innerHTML = chance > 35 ? '✅ Ты успешно сбежал!' : '❌ Побег не удался!';
+    }
+  }
+
+  function playerAttack(move) {
+    const log = document.getElementById('battle-log');
+    const dmg = calculateDamage(player, enemy, move.power);
+    const mult = getMultiplier(player.element, enemy.element);
+
+    enemy.hp -= dmg;
+    let msg = `Ты использовал <strong>${move.name}</strong>!<br>Урон: <strong>${dmg}</strong> `;
+    if (mult > 1) msg += 'Суперэффективно! 🔥';
+    else if (mult < 1) msg += 'Не очень эффективно…';
+    log.innerHTML = msg;
+
+    updateHP();
+    document.getElementById('moves-panel').style.display = 'none';
+
+    if (enemy.hp <= 0) {
+      log.innerHTML += '<br><br>🎉 <strong>ПОБЕДА!</strong> Ты победил!';
+      return;
+    }
+
+    // Ход врага
+    setTimeout(enemyTurn, 800);
+  }
+
+  function enemyTurn() {
+    const log = document.getElementById('battle-log');
+    const dmg = calculateDamage(enemy, player, 50);
+    player.hp -= dmg;
+
+    log.innerHTML = `Враг использовал Теневой удар!<br>Урон тебе: <strong>${dmg}</strong>`;
+    updateHP();
+
+    if (player.hp <= 0) {
+      log.innerHTML += '<br><br>💀 Ты проиграл...';
+    }
   }
 
   // Переключение вкладок
@@ -150,73 +259,17 @@
     document.querySelectorAll('.nav-item')[n].classList.add('active');
   }
 
-  // БОЙ
-  function chooseAction(action) {
-    const log = document.getElementById('battle-log');
-    const movesPanel = document.getElementById('moves-panel');
-
-    movesPanel.style.display = 'none';
-
-    if (action === 'attack') {
-      movesPanel.style.display = 'block';
-      log.innerHTML = 'Выбери атаку:';
-    } else if (action === 'bag') {
-      log.innerHTML = 'Рюкзак пока пуст...';
-    } else if (action === 'switch') {
-      log.innerHTML = 'Выбор героя (1 из 6)<br>Скоро будет полный список';
-    } else if (action === 'run') {
-      const chance = Math.random() * 100;
-      log.innerHTML = chance > 35 ? '✅ Ты успешно сбежал!' : '❌ Побег не удался!';
-    }
-  }
-
-  function useMove(moveName) {
-    const log = document.getElementById('battle-log');
-    log.innerHTML = `Ты использовал <strong>${moveName}</strong>!<br>Урон врагу: 48`;
-    document.getElementById('moves-panel').style.display = 'none';
-  }
-
-  // LUNadex
-  const heroes = [
-    { id:1, name:"Dark Lord", season:"Лето", element:"Трава", hp:200, atk:85, def:70, spAtk:95, spDef:80, speed:90 },
-    { id:2, name:"Shadow Dragon", season:"Осень", element:"Дракон", hp:220, atk:110, def:65, spAtk:120, spDef:75, speed:95 }
-  ];
-
   function showInventorySection(section) {
     const content = document.getElementById('inventory-content');
-    content.innerHTML = '';
-
-    if (section === 'pokedex') {
-      content.innerHTML = `
-        <h3>Lunadex #001 — #002</h3>
-        <p>Энциклопедия героев клуба Dark Moon.<br>
-        Каждый герой привязан к своему сезону и стихии.</p>`;
-    } 
-    else if (section === 'myheroes') {
-      let html = '<h3>Мои герои</h3>';
-      heroes.forEach(h => {
-        html += `
-          <div class="card" style="padding:15px;">
-            <strong>#${h.id} ${h.name}</strong><br>
-            <small>${h.season} • ${h.element}</small><br>
-            <div class="stat"><span>HP</span><span>${h.hp}</span></div>
-            <div class="stat"><span>Атака</span><span>${h.atk}</span></div>
-            <div class="stat"><span>Защита</span><span>${h.def}</span></div>
-            <div class="stat"><span>Спец.атака</span><span>${h.spAtk}</span></div>
-            <div class="stat"><span>Спец.защита</span><span>${h.spDef}</span></div>
-            <div class="stat"><span>Скорость</span><span>${h.speed}</span></div>
-          </div>`;
-      });
-      content.innerHTML = html;
-    } 
-    else {
-      content.innerHTML = `<h3>${section === 'items' ? 'Все предметы' : 'Мои предметы'}</h3>
-        <p>Здесь будут предметы для ловли, усиления и украшения героев.</p>`;
-    }
+    content.innerHTML = section === 'pokedex' 
+      ? `<h3>Lunadex #001 — #002</h3><p>Энциклопедия героев клуба Dark Moon.</p>` 
+      : `<h3>${section === 'myheroes' ? 'Мои герои' : 'Предметы'}</h3><p>Скоро здесь будет полный список.</p>`;
   }
 
-  // Запуск
-  window.onload = () => switchTab(0);
+  window.onload = () => {
+    switchTab(0);
+    updateHP();
+  };
 </script>
 </body>
 </html>
