@@ -122,7 +122,6 @@
       </div>
     </div>
 
-    <!-- PvP блок -->
     <button onclick="openPvP()" style="margin-top:15px;background:linear-gradient(90deg,#C084FC,#9B59B6);">⚔️ PvP — Вызвать игроков</button>
   </div>
 
@@ -166,7 +165,7 @@
   let energy = 10;
   let currentZone = "Лунный лес";
 
-  const effectiveness = { /* полная таблица */ 
+  const effectiveness = {
     "Трава": { "Огонь":0.5, "Вода":2, "Трава":0.5, "Ядовитый":0.5, "Насекомое":0.5, "Дракон":0.5 },
     "Огонь": { "Трава":2, "Вода":0.5, "Огонь":0.5, "Лед":2, "Дракон":0.5, "Стальной":2 },
     "Вода": { "Огонь":2, "Трава":0.5, "Вода":0.5, "Электрический":0.5 },
@@ -279,7 +278,19 @@
     player.hp -= dmg;
     log.innerHTML = `Враг использовал Теневой удар!<br>Урон тебе: <strong>${dmg}</strong>`;
     updateHP();
-    if (player.hp <= 0) log.innerHTML += '<br><br>💀 Твой герой пал в бою.<br>Восстанови энергию или воскреси героя.';
+    if (player.hp <= 0) {
+      log.innerHTML += '<br><br>💀 Твой герой пал в бою.<br><button onclick="reviveHero()" style="margin-top:10px;">Воскресить героя (5 энергии)</button>';
+    }
+  }
+
+  function reviveHero() {
+    if (energy >= 5) {
+      energy -= 5;
+      player.hp = player.maxHp;
+      updateEnergy();
+      updateHP();
+      document.getElementById('battle-log').innerHTML = '✅ Герой воскрешён!';
+    }
   }
 
   function openPvP() {
