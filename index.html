@@ -108,10 +108,10 @@
               <small>HP <span id="enemy-hp-text">200/200</span></small>
             </div>
           </div>
-          <div class="log" id="battle-log">Что будет делать Dark Lord?</div>
+          <div class="log" id="battle-log">Дикий герой появился! Что будешь делать?</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <button onclick="chooseAction('attack')">⚔️ Атаковать</button>
-            <button onclick="chooseAction('bag')">🎒 Рюкзак</button>
+            <button onclick="playerAttack()">⚔️ Атаковать</button>
+            <button onclick="usePotion()">🧪 Зелье (10)</button>
             <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
             <button onclick="chooseAction('run')">🏃 Сбежать</button>
           </div>
@@ -148,6 +148,9 @@
 
   let energy = 10;
   let trainerNick = "";
+  let playerHp = 200;
+  let enemyHp = 200;
+  let potionCount = 10;
 
   function fillTelegramUsername() {
     const user = tg.initDataUnsafe.user;
@@ -198,16 +201,59 @@
     document.getElementById('battle-log').innerHTML = `
       Ты прибыл в <strong>${zone}</strong>.<br><br>
       Дикий герой появился!<br><br>
-      Что будет делать ${trainerNick}?
+      Что будешь делать?
     `;
+    playerHp = 200;
+    enemyHp = 200;
+    potionCount = 10;
+    updateHP();
+  }
+
+  function updateHP() {
+    document.getElementById('player-hp-bar').style.width = (playerHp / 200 * 100) + '%';
+    document.getElementById('player-hp-text').textContent = playerHp + '/200';
+    document.getElementById('enemy-hp-bar').style.width = (enemyHp / 200 * 100) + '%';
+    document.getElementById('enemy-hp-text').textContent = enemyHp + '/200';
+  }
+
+  function playerAttack() {
+    const damage = Math.floor(Math.random() * 25) + 10;
+    enemyHp = Math.max(0, enemyHp - damage);
+    document.getElementById('battle-log').innerHTML = `Ты нанёс ${damage} урона!`;
+    updateHP();
+
+    if (enemyHp <= 0) {
+      document.getElementById('battle-log').innerHTML += '<br><br>🎉 Ты победил!';
+      return;
+    }
+    setTimeout(enemyAttack, 800);
+  }
+
+  function enemyAttack() {
+    const damage = Math.floor(Math.random() * 20) + 8;
+    playerHp = Math.max(0, playerHp - damage);
+    document.getElementById('battle-log').innerHTML = `Враг нанёс тебе ${damage} урона!`;
+    updateHP();
+
+    if (playerHp <= 0) {
+      document.getElementById('battle-log').innerHTML += '<br><br>💀 Ты проиграл...';
+    }
+  }
+
+  function usePotion() {
+    if (potionCount <= 0) {
+      document.getElementById('battle-log').innerHTML = 'Зелий больше нет!';
+      return;
+    }
+    potionCount--;
+    playerHp = Math.min(200, playerHp + 50);
+    document.getElementById('battle-log').innerHTML = `Ты использовал зелье! (+50 HP)`;
+    updateHP();
   }
 
   function chooseAction(action) {
-    const log = document.getElementById('battle-log');
-    if (action === 'attack') log.innerHTML = 'Выбери атаку...';
-    else if (action === 'bag') log.innerHTML = 'Рюкзак пока пуст...';
-    else if (action === 'switch') log.innerHTML = 'Выбор героя (скоро)';
-    else if (action === 'run') log.innerHTML = 'Попытка побега...';
+    if (action === 'switch') document.getElementById('battle-log').innerHTML = 'Выбор героя (скоро)';
+    if (action === 'run') document.getElementById('battle-log').innerHTML = 'Попытка побега...';
   }
 
   function switchTab(n) {
