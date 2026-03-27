@@ -36,23 +36,7 @@
     .moves-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
     .move-btn { background:rgba(155,89,182,0.3); border:2px solid #9B59B6; border-radius:12px; padding:14px; text-align:center; font-weight:600; }
 
-    /* Экран выбора 6 героев */
-    .team-screen { background:rgba(20,5,45,0.95); border:3px solid #9B59B6; border-radius:20px; padding:15px; }
-    .team-item { display:flex; align-items:center; gap:12px; background:rgba(155,89,182,0.2); padding:12px; border-radius:12px; margin-bottom:8px; cursor:pointer; }
-    .team-item:hover { background:rgba(155,89,182,0.4); }
-
-    .effectiveness-table { display:grid; grid-template-columns: repeat(17, 38px); gap:3px; font-size:11px; overflow-x:auto; background:#1a0033; padding:8px; border-radius:12px; }
-    .eff-header { background:#2a0055; color:#fff; padding:6px 4px; text-align:center; font-weight:700; font-size:10px; writing-mode:vertical-rl; height:110px; border-radius:4px; }
-    .eff-cell { padding:8px 4px; text-align:center; border:1px solid #9B59B6; border-radius:4px; font-weight:600; }
-    .eff-super { background:#00ff88 !important; color:#000; }
-    .eff-neutral { background:#ddd !important; color:#000; }
-    .eff-weak { background:#ff4444 !important; color:#000; }
-    .eff-immune { background:#111 !important; color:#666; }
-
-    .legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:15px; font-size:14px; cursor:pointer; }
-    .legend-item { display:flex; align-items:center; gap:8px; }
-
-    .modal { position:fixed; bottom:0; left:0; right:0; background:rgba(0,0,0,0.95); padding:20px; border-radius:20px 20px 0 0; display:none; z-index:2000; }
+    .modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; padding:20px; overflow-y:auto; }
     .energy-bar { height:12px; background:#222; border-radius:10px; overflow:hidden; margin:8px 0; }
     .energy-fill { height:100%; background:linear-gradient(90deg,#C084FC,#9B59B6); }
   </style>
@@ -90,10 +74,15 @@
       <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
     </div>
 
-    <button onclick="chooseZoneBeforeBattle()" style="margin-bottom:15px;background:#6B1E9C;">
-      🌍 Выбрать зону перед боем
-    </button>
+    <!-- Выбор зоны (как перемещение по миру) -->
+    <div id="zone-selection">
+      <button onclick="selectZone('Лунный лес')" style="margin:6px 0;background:#6B1E9C;">🌲 Лунный лес (Лето)</button>
+      <button onclick="selectZone('Тёмные руины')" style="margin:6px 0;background:#6B1E9C;">🏚️ Тёмные руины (Осень)</button>
+      <button onclick="selectZone('Ледяные пики')" style="margin:6px 0;background:#6B1E9C;">❄️ Ледяные пики (Зима)</button>
+      <button onclick="selectZone('Каменные долины')" style="margin:6px 0;background:#6B1E9C;">🏔️ Каменные долины (Весна)</button>
+    </div>
 
+    <!-- Бой появляется только после встречи с противником -->
     <div id="battle-area" style="display:none;">
       <div class="battle-container">
         <div class="pokemon-row">
@@ -154,63 +143,16 @@
   <div class="nav-item" onclick="switchTab(2)"><span>🃏</span>Lunadex</div>
 </div>
 
-<!-- Модальное окно выбора 6 героев -->
-<div id="team-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; padding:20px; overflow-y:auto;">
-  <div style="background:#2a0055; border-radius:16px; padding:20px; max-width:420px; margin:0 auto;">
-    <h2 style="text-align:center;color:#C084FC;">Выбери героя</h2>
-    <div id="team-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-    <button onclick="closeTeamModal()" style="margin-top:20px;width:100%;">Отмена</button>
-  </div>
-</div>
-
 <script>
   const tg = window.Telegram.WebApp;
   tg.ready(); tg.expand();
 
   function openLink(url) { tg.openLink(url); }
 
-  let player = { id:1, name:"DARK LORD", emoji:"🧛", level:12, season:"Лето", element:"Трава", hp:200, maxHp:200, atk:85, def:70 };
-  let enemy = { name:"SHADOW DRAGON", emoji:"🐉", level:11, season:"Осень", element:"Дракон", hp:200, maxHp:200, atk:110, def:65 };
+  let player = { name:"DARK LORD", level:12, season:"Лето", element:"Трава", hp:200, maxHp:200, atk:85, def:70 };
+  let enemy = { name:"SHADOW DRAGON", level:11, season:"Осень", element:"Дракон", hp:200, maxHp:200, atk:110, def:65 };
   let energy = 10;
-  let currentZone = "Лунный лес";
-
-  let team = [
-    { id:1, name:"DARK LORD", emoji:"🧛", level:12, season:"Лето", element:"Трава", hp:200, maxHp:200 },
-    { id:2, name:"SHADOW DRAGON", emoji:"🐉", level:11, season:"Осень", element:"Дракон", hp:200, maxHp:200 },
-    { id:3, name:"MOON BLADE", emoji:"⚔️", level:14, season:"Зима", element:"Тёмный", hp:180, maxHp:180 },
-    { id:4, name:"ICE WRAITH", emoji:"❄️", level:13, season:"Зима", element:"Лед", hp:190, maxHp:190 },
-    { id:5, name:"VOID WALKER", emoji:"🌌", level:15, season:"Осень", element:"Призрачный", hp:170, maxHp:170 },
-    { id:6, name:"FIRE REAPER", emoji:"🔥", level:10, season:"Лето", element:"Огонь", hp:210, maxHp:210 }
-  ];
-
-  const effectiveness = { /* та же таблица */ 
-    "Трава": { "Огонь":0.5, "Вода":2, "Трава":0.5, "Ядовитый":0.5, "Насекомое":0.5, "Дракон":0.5 },
-    "Огонь": { "Трава":2, "Вода":0.5, "Огонь":0.5, "Лед":2, "Дракон":0.5, "Стальной":2 },
-    "Вода": { "Огонь":2, "Трава":0.5, "Вода":0.5, "Электрический":0.5 },
-    "Электрический": { "Вода":2, "Трава":0.5, "Электрический":0.5, "Дракон":0.5 },
-    "Лед": { "Трава":2, "Огонь":0.5, "Вода":0.5, "Лед":0.5, "Дракон":2 },
-    "Боевой": { "Обычный":2, "Лед":2, "Тёмный":2, "Стальной":2, "Призрачный":0.5 },
-    "Ядовитый": { "Трава":2, "Ядовитый":0.5, "Насекомое":2, "Призрачный":0.5 },
-    "Земляной": { "Огонь":2, "Электрический":2, "Трава":0.5, "Ядовитый":2, "Летающий":0.5, "Стальной":2 },
-    "Летающий": { "Трава":2, "Электрический":0.5, "Боевой":2, "Насекомое":2 },
-    "Психический": { "Боевой":2, "Тёмный":0.5, "Призрачный":0.5 },
-    "Насекомое": { "Трава":2, "Психический":2, "Тёмный":2 },
-    "Каменный": { "Огонь":2, "Лед":2, "Летающий":2, "Боевой":2 },
-    "Призрачный": { "Психический":2, "Призрачный":2, "Тёмный":0.5 },
-    "Дракон": { "Дракон":2, "Тёмный":2 },
-    "Тёмный": { "Психический":2, "Призрачный":2, "Тёмный":0.5 },
-    "Стальной": { "Огонь":0.5, "Лед":2, "Призрачный":2, "Тёмный":2 }
-  };
-
-  function getMultiplier(attEl, defEl) {
-    return effectiveness[attEl] && effectiveness[attEl][defEl] !== undefined ? effectiveness[attEl][defEl] : 1;
-  }
-
-  function calculateDamage(attacker, defender, movePower) {
-    const mult = getMultiplier(attacker.element, defender.element);
-    let dmg = Math.floor((((2 * attacker.level / 5 + 2) * attacker.atk * movePower / defender.def) / 50 + 2) * mult * (0.85 + Math.random() * 0.15));
-    return Math.max(1, dmg);
-  }
+  let currentZone = "";
 
   function updateEnergy() {
     document.getElementById('energy-text').textContent = energy;
@@ -224,12 +166,11 @@
     document.getElementById('enemy-hp-text').textContent = Math.max(0, Math.floor(enemy.hp)) + '/' + enemy.maxHp;
   }
 
-  const moves = [
-    { name: "Удар тенью", power: 55 },
-    { name: "Ядовитый шип", power: 45 },
-    { name: "Лунный луч", power: 70 },
-    { name: "Тёмный вихрь", power: 60 }
-  ];
+  function selectZone(zone) {
+    currentZone = zone;
+    document.getElementById('battle-log').innerHTML = `Ты прибыл в <strong>${zone}</strong>.<br>Ищешь противника...`;
+    document.getElementById('battle-area').style.display = 'block';
+  }
 
   function chooseAction(action) {
     const log = document.getElementById('battle-log');
@@ -245,6 +186,7 @@
       panel.style.display = 'block';
       const list = document.getElementById('moves-list');
       list.innerHTML = '';
+      const moves = [{name:"Удар тенью"},{name:"Ядовитый шип"},{name:"Лунный луч"},{name:"Тёмный вихрь"}];
       moves.forEach(m => {
         const btn = document.createElement('button');
         btn.className = 'move-btn';
@@ -253,7 +195,7 @@
         list.appendChild(btn);
       });
     } else if (action === 'bag') log.innerHTML = 'Рюкзак пока пуст...';
-    else if (action === 'switch') showTeamModal();
+    else if (action === 'switch') log.innerHTML = 'Выбор героя (скоро)';
     else if (action === 'run') {
       const chance = Math.random() * 100;
       log.innerHTML = chance > 35 ? '✅ Ты успешно сбежал!' : '❌ Побег не удался!';
@@ -264,73 +206,7 @@
     energy--;
     updateEnergy();
     const log = document.getElementById('battle-log');
-    const dmg = calculateDamage(player, enemy, move.power);
-    const mult = getMultiplier(player.element, enemy.element);
-
-    enemy.hp -= dmg;
-    let msg = `Ты использовал <strong>${move.name}</strong>!<br>Урон: <strong>${dmg}</strong> `;
-    if (mult > 1) msg += 'Суперэффективно! 🔥';
-    else if (mult < 1) msg += 'Не очень эффективно…';
-    log.innerHTML = msg;
-
-    updateHP();
-    document.getElementById('moves-panel').style.display = 'none';
-
-    if (enemy.hp <= 0) {
-      log.innerHTML += '<br><br>🎉 <strong>ПОБЕДА!</strong>';
-      return;
-    }
-    setTimeout(enemyTurn, 800);
-  }
-
-  function enemyTurn() {
-    const log = document.getElementById('battle-log');
-    const dmg = calculateDamage(enemy, player, 50);
-    player.hp -= dmg;
-    log.innerHTML = `Враг использовал Теневой удар!<br>Урон тебе: <strong>${dmg}</strong>`;
-    updateHP();
-    if (player.hp <= 0) log.innerHTML += '<br><br>💀 Твой герой пал в бою.';
-  }
-
-  function showTeamModal() {
-    const modal = document.getElementById('team-modal');
-    const list = document.getElementById('team-list');
-    list.innerHTML = '';
-
-    team.forEach(hero => {
-      const div = document.createElement('div');
-      div.className = 'team-item';
-      div.innerHTML = `
-        <div style="font-size:28px;">${hero.emoji}</div>
-        <div style="flex:1;">
-          <strong>${hero.name}</strong><br>
-          <small>Lv.${hero.level} • ${hero.season} • ${hero.element}</small>
-        </div>
-        <div>
-          <div class="hp-bar" style="width:80px;"><div class="hp-fill" style="width:100%"></div></div>
-          <small>HP ${hero.hp}/${hero.maxHp}</small>
-        </div>
-      `;
-      div.onclick = () => {
-        player = {...hero};
-        document.getElementById('player-name').textContent = player.name;
-        document.getElementById('player-emoji').textContent = player.emoji;
-        document.getElementById('player-info').textContent = `Lv.${player.level} • ${player.season} • ${player.element}`;
-        updateHP();
-        closeTeamModal();
-      };
-      list.appendChild(div);
-    });
-    modal.style.display = 'block';
-  }
-
-  function closeTeamModal() {
-    document.getElementById('team-modal').style.display = 'none';
-  }
-
-  function chooseZoneBeforeBattle() {
-    document.getElementById('battle-area').style.display = 'block';
-    document.getElementById('battle-log').innerHTML = `Зона: <strong>${currentZone}</strong><br>Что будет делать Dark Lord?`;
+    log.innerHTML = `Ты использовал <strong>${move.name}</strong>!`;
   }
 
   function openPvP() {
@@ -355,15 +231,18 @@
     document.getElementById('battle-log').innerHTML = `
       📡 <strong>Радар</strong><br>
       Нажми на цель:<br><br>
-      <button onclick="attackTarget('ShadowReaper (ИИ)')" style="margin:5px 0;">ShadowReaper (Lv.18)</button>
-      <button onclick="attackTarget('MoonBlade (ИИ)')" style="margin:5px 0;">MoonBlade (Lv.15)</button>
-      <button onclick="attackTarget('DarkVortex (ИИ)')" style="margin:5px 0;">DarkVortex (Lv.14)</button>
-      <button onclick="attackTarget('IceWraith (ИИ)')" style="margin:5px 0;">IceWraith (Lv.12)</button>
+      <button onclick="selectPvPTarget('ShadowReaper (ИИ)')" style="margin:5px 0;">ShadowReaper (Lv.18)</button>
+      <button onclick="selectPvPTarget('MoonBlade (ИИ)')" style="margin:5px 0;">MoonBlade (Lv.15)</button>
+      <button onclick="selectPvPTarget('DarkVortex (ИИ)')" style="margin:5px 0;">DarkVortex (Lv.14)</button>
+      <button onclick="selectPvPTarget('IceWraith (ИИ)')" style="margin:5px 0;">IceWraith (Lv.12)</button>
     `;
   }
 
-  function attackTarget(name) {
-    document.getElementById('battle-log').innerHTML = `🔥 Ты вызвал на бой <strong>${name}</strong>! Бой начался...`;
+  function selectPvPTarget(name) {
+    enemy.name = name;
+    document.getElementById('enemy-name').textContent = name;
+    document.getElementById('battle-log').innerHTML = `Ты вызвал на бой <strong>${name}</strong>! Бой начался...`;
+    document.getElementById('battle-area').style.display = 'block';
   }
 
   function switchTab(n) {
@@ -375,14 +254,11 @@
 
   function showInventorySection(section) {
     const content = document.getElementById('inventory-content');
-    content.innerHTML = section === 'effectiveness' 
-      ? `<h3>📊 Таблица эффективности</h3><p>Скоро будет полная таблица.</p>` 
-      : `<h3>${section === 'events' ? '🎉 Ивенты' : 'Lunadex'}</h3><p>Скоро будет полный список.</p>`;
+    content.innerHTML = `<h3>${section === 'events' ? '🎉 Ивенты' : 'Lunadex'}</h3><p>Скоро будет полный список.</p>`;
   }
 
   window.onload = () => {
     switchTab(0);
-    updateHP();
     updateEnergy();
   };
 </script>
