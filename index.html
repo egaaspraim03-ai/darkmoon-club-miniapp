@@ -36,6 +36,11 @@
     .moves-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
     .move-btn { background:rgba(155,89,182,0.3); border:2px solid #9B59B6; border-radius:12px; padding:14px; text-align:center; font-weight:600; }
 
+    /* Экран выбора 6 героев */
+    .team-screen { background:rgba(20,5,45,0.95); border:3px solid #9B59B6; border-radius:20px; padding:15px; }
+    .team-item { display:flex; align-items:center; gap:12px; background:rgba(155,89,182,0.2); padding:12px; border-radius:12px; margin-bottom:8px; cursor:pointer; }
+    .team-item:hover { background:rgba(155,89,182,0.4); }
+
     .effectiveness-table { display:grid; grid-template-columns: repeat(17, 38px); gap:3px; font-size:11px; overflow-x:auto; background:#1a0033; padding:8px; border-radius:12px; }
     .eff-header { background:#2a0055; color:#fff; padding:6px 4px; text-align:center; font-weight:700; font-size:10px; writing-mode:vertical-rl; height:110px; border-radius:4px; }
     .eff-cell { padding:8px 4px; text-align:center; border:1px solid #9B59B6; border-radius:4px; font-weight:600; }
@@ -76,49 +81,50 @@
     <button onclick="openLink('https://mangabuff.ru/faq/general')" style="background:rgba(30,10,50,0.9);border-color:#7B4A9C;color:#ddd;">📋 FAQ по клубам и вкладам</button>
   </div>
 
-  <!-- ИГРА (бой) -->
+  <!-- ИГРА -->
   <div id="game-screen" class="screen">
-    <h2 style="text-align:center;color:#C084FC;margin:0 0 10px;">⚔️ БОЙ КАРТОЧЕК</h2>
+    <h2 style="text-align:center;color:#C084FC;margin:0 0 15px;">⚔️ БОЙ КАРТОЧЕК</h2>
 
     <div style="text-align:center;margin-bottom:12px;">
       <strong>Энергия: <span id="energy-text">10</span>/10</strong>
       <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
     </div>
 
-    <!-- Кнопка выбора зоны прямо в бою -->
     <button onclick="chooseZoneBeforeBattle()" style="margin-bottom:15px;background:#6B1E9C;">
       🌍 Выбрать зону перед боем
     </button>
 
-    <div class="battle-container">
-      <div class="pokemon-row">
-        <div class="pokemon">
-          <div style="font-size:32px;">🧛</div>
-          <strong id="player-name">DARK LORD</strong><br>
-          <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
-          <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
-          <small>HP <span id="player-hp-text">200/200</span></small>
+    <div id="battle-area" style="display:none;">
+      <div class="battle-container">
+        <div class="pokemon-row">
+          <div class="pokemon">
+            <div style="font-size:32px;" id="player-emoji">🧛</div>
+            <strong id="player-name">DARK LORD</strong><br>
+            <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
+            <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
+            <small>HP <span id="player-hp-text">200/200</span></small>
+          </div>
+          <div class="pokemon">
+            <div style="font-size:32px;" id="enemy-emoji">🐉</div>
+            <strong id="enemy-name">SHADOW DRAGON</strong><br>
+            <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
+            <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
+            <small>HP <span id="enemy-hp-text">200/200</span></small>
+          </div>
         </div>
-        <div class="pokemon">
-          <div style="font-size:32px;">🐉</div>
-          <strong id="enemy-name">SHADOW DRAGON</strong><br>
-          <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
-          <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
-          <small>HP <span id="enemy-hp-text">200/200</span></small>
+
+        <div class="log" id="battle-log">Что будет делать Dark Lord?</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <button onclick="chooseAction('attack')">⚔️ Атаковать</button>
+          <button onclick="chooseAction('bag')">🎒 Рюкзак</button>
+          <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
+          <button onclick="chooseAction('run')">🏃 Сбежать</button>
         </div>
-      </div>
 
-      <div class="log" id="battle-log">Что будет делать Dark Lord?</div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <button onclick="chooseAction('attack')">⚔️ Атаковать</button>
-        <button onclick="chooseAction('bag')">🎒 Рюкзак</button>
-        <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
-        <button onclick="chooseAction('run')">🏃 Сбежать</button>
-      </div>
-
-      <div id="moves-panel" style="display:none;margin-top:15px;">
-        <div class="moves-list" id="moves-list"></div>
+        <div id="moves-panel" style="display:none;margin-top:15px;">
+          <div class="moves-list" id="moves-list"></div>
+        </div>
       </div>
     </div>
 
@@ -134,7 +140,7 @@
       <button onclick="showInventorySection('myheroes')">👤 Мои герои</button>
       <button onclick="showInventorySection('myitems')">📦 Мои предметы</button>
       <button onclick="showInventorySection('effectiveness')">📊 Таблица эффективности</button>
-      <button onclick="showInventorySection('zones')">🌍 Зоны и Ивенты</button>
+      <button onclick="showInventorySection('events')">🎉 Ивенты</button>
     </div>
     <div id="inventory-content" style="margin-top:20px;"></div>
   </div>
@@ -148,10 +154,13 @@
   <div class="nav-item" onclick="switchTab(2)"><span>🃏</span>Lunadex</div>
 </div>
 
-<!-- Модальное окно объяснения цветов -->
-<div id="modal" class="modal">
-  <div id="modal-content" style="background:#2a0055;border-radius:16px;padding:20px;color:#fff;"></div>
-  <button onclick="closeModal()" style="margin-top:15px;width:100%;">Закрыть</button>
+<!-- Модальное окно выбора 6 героев -->
+<div id="team-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; padding:20px; overflow-y:auto;">
+  <div style="background:#2a0055; border-radius:16px; padding:20px; max-width:420px; margin:0 auto;">
+    <h2 style="text-align:center;color:#C084FC;">Выбери героя</h2>
+    <div id="team-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <button onclick="closeTeamModal()" style="margin-top:20px;width:100%;">Отмена</button>
+  </div>
 </div>
 
 <script>
@@ -160,12 +169,21 @@
 
   function openLink(url) { tg.openLink(url); }
 
-  let player = { name: "DARK LORD", level: 12, season: "Лето", element: "Трава", hp: 200, maxHp: 200, atk: 85, def: 70 };
-  let enemy = { name: "SHADOW DRAGON", level: 11, season: "Осень", element: "Дракон", hp: 200, maxHp: 200, atk: 110, def: 65 };
+  let player = { id:1, name:"DARK LORD", emoji:"🧛", level:12, season:"Лето", element:"Трава", hp:200, maxHp:200, atk:85, def:70 };
+  let enemy = { name:"SHADOW DRAGON", emoji:"🐉", level:11, season:"Осень", element:"Дракон", hp:200, maxHp:200, atk:110, def:65 };
   let energy = 10;
   let currentZone = "Лунный лес";
 
-  const effectiveness = {
+  let team = [
+    { id:1, name:"DARK LORD", emoji:"🧛", level:12, season:"Лето", element:"Трава", hp:200, maxHp:200 },
+    { id:2, name:"SHADOW DRAGON", emoji:"🐉", level:11, season:"Осень", element:"Дракон", hp:200, maxHp:200 },
+    { id:3, name:"MOON BLADE", emoji:"⚔️", level:14, season:"Зима", element:"Тёмный", hp:180, maxHp:180 },
+    { id:4, name:"ICE WRAITH", emoji:"❄️", level:13, season:"Зима", element:"Лед", hp:190, maxHp:190 },
+    { id:5, name:"VOID WALKER", emoji:"🌌", level:15, season:"Осень", element:"Призрачный", hp:170, maxHp:170 },
+    { id:6, name:"FIRE REAPER", emoji:"🔥", level:10, season:"Лето", element:"Огонь", hp:210, maxHp:210 }
+  ];
+
+  const effectiveness = { /* та же таблица */ 
     "Трава": { "Огонь":0.5, "Вода":2, "Трава":0.5, "Ядовитый":0.5, "Насекомое":0.5, "Дракон":0.5 },
     "Огонь": { "Трава":2, "Вода":0.5, "Огонь":0.5, "Лед":2, "Дракон":0.5, "Стальной":2 },
     "Вода": { "Огонь":2, "Трава":0.5, "Вода":0.5, "Электрический":0.5 },
@@ -182,13 +200,6 @@
     "Дракон": { "Дракон":2, "Тёмный":2 },
     "Тёмный": { "Психический":2, "Призрачный":2, "Тёмный":0.5 },
     "Стальной": { "Огонь":0.5, "Лед":2, "Призрачный":2, "Тёмный":2 }
-  };
-
-  const typeColors = {
-    "Трава":"#78C850","Огонь":"#F08030","Вода":"#6890F0","Электрический":"#F8D030",
-    "Лед":"#98D8D8","Боевой":"#C03028","Ядовитый":"#A040A0","Земляной":"#E0C068",
-    "Летающий":"#A890F0","Психический":"#F85888","Насекомое":"#A8B820","Каменный":"#B8A038",
-    "Призрачный":"#705898","Дракон":"#7038F8","Тёмный":"#705848","Стальной":"#B8B8D0"
   };
 
   function getMultiplier(attEl, defEl) {
@@ -242,7 +253,7 @@
         list.appendChild(btn);
       });
     } else if (action === 'bag') log.innerHTML = 'Рюкзак пока пуст...';
-    else if (action === 'switch') log.innerHTML = 'Выбор героя (скоро будет список из 6)';
+    else if (action === 'switch') showTeamModal();
     else if (action === 'run') {
       const chance = Math.random() * 100;
       log.innerHTML = chance > 35 ? '✅ Ты успешно сбежал!' : '❌ Побег не удался!';
@@ -278,19 +289,48 @@
     player.hp -= dmg;
     log.innerHTML = `Враг использовал Теневой удар!<br>Урон тебе: <strong>${dmg}</strong>`;
     updateHP();
-    if (player.hp <= 0) {
-      log.innerHTML += '<br><br>💀 Твой герой пал в бою.<br><button onclick="reviveHero()" style="margin-top:10px;">Воскресить героя (5 энергии)</button>';
-    }
+    if (player.hp <= 0) log.innerHTML += '<br><br>💀 Твой герой пал в бою.';
   }
 
-  function reviveHero() {
-    if (energy >= 5) {
-      energy -= 5;
-      player.hp = player.maxHp;
-      updateEnergy();
-      updateHP();
-      document.getElementById('battle-log').innerHTML = '✅ Герой воскрешён!';
-    }
+  function showTeamModal() {
+    const modal = document.getElementById('team-modal');
+    const list = document.getElementById('team-list');
+    list.innerHTML = '';
+
+    team.forEach(hero => {
+      const div = document.createElement('div');
+      div.className = 'team-item';
+      div.innerHTML = `
+        <div style="font-size:28px;">${hero.emoji}</div>
+        <div style="flex:1;">
+          <strong>${hero.name}</strong><br>
+          <small>Lv.${hero.level} • ${hero.season} • ${hero.element}</small>
+        </div>
+        <div>
+          <div class="hp-bar" style="width:80px;"><div class="hp-fill" style="width:100%"></div></div>
+          <small>HP ${hero.hp}/${hero.maxHp}</small>
+        </div>
+      `;
+      div.onclick = () => {
+        player = {...hero};
+        document.getElementById('player-name').textContent = player.name;
+        document.getElementById('player-emoji').textContent = player.emoji;
+        document.getElementById('player-info').textContent = `Lv.${player.level} • ${player.season} • ${player.element}`;
+        updateHP();
+        closeTeamModal();
+      };
+      list.appendChild(div);
+    });
+    modal.style.display = 'block';
+  }
+
+  function closeTeamModal() {
+    document.getElementById('team-modal').style.display = 'none';
+  }
+
+  function chooseZoneBeforeBattle() {
+    document.getElementById('battle-area').style.display = 'block';
+    document.getElementById('battle-log').innerHTML = `Зона: <strong>${currentZone}</strong><br>Что будет делать Dark Lord?`;
   }
 
   function openPvP() {
@@ -314,22 +354,16 @@
   function openRadar() {
     document.getElementById('battle-log').innerHTML = `
       📡 <strong>Радар</strong><br>
-      • ShadowReaper (Lv.18, Тёмный) (ИИ) — рядом<br>
-      • MoonBlade (Lv.15, Лед) (ИИ) — рядом<br>
-      • IceWraith (Lv.12, Зима) (ИИ) — рядом<br><br>
-      Нажми на цель, чтобы вызвать на бой:
-      <button onclick="attackTarget('ShadowReaper')" style="margin-top:10px;">Вызвать ShadowReaper</button>
-      <button onclick="attackTarget('MoonBlade')" style="margin-top:10px;">Вызвать MoonBlade</button>
+      Нажми на цель:<br><br>
+      <button onclick="attackTarget('ShadowReaper (ИИ)')" style="margin:5px 0;">ShadowReaper (Lv.18)</button>
+      <button onclick="attackTarget('MoonBlade (ИИ)')" style="margin:5px 0;">MoonBlade (Lv.15)</button>
+      <button onclick="attackTarget('DarkVortex (ИИ)')" style="margin:5px 0;">DarkVortex (Lv.14)</button>
+      <button onclick="attackTarget('IceWraith (ИИ)')" style="margin:5px 0;">IceWraith (Lv.12)</button>
     `;
   }
 
   function attackTarget(name) {
-    document.getElementById('battle-log').innerHTML = `🔥 Ты вызвал на бой <strong>${name}</strong> (ИИ)! Бой начался...`;
-  }
-
-  function chooseZoneBeforeBattle() {
-    showInventorySection('zones');
-    switchTab(2);
+    document.getElementById('battle-log').innerHTML = `🔥 Ты вызвал на бой <strong>${name}</strong>! Бой начался...`;
   }
 
   function switchTab(n) {
@@ -341,67 +375,9 @@
 
   function showInventorySection(section) {
     const content = document.getElementById('inventory-content');
-    content.innerHTML = '';
-
-    if (section === 'effectiveness') {
-      const types = ["Трава","Огонь","Вода","Электрический","Лед","Боевой","Ядовитый","Земляной","Летающий","Психический","Насекомое","Каменный","Призрачный","Дракон","Тёмный","Стальной"];
-      let html = `<h3>📊 Таблица эффективности</h3><div class="effectiveness-table">`;
-      html += `<div class="eff-header"></div>`;
-      types.forEach(t => html += `<div class="eff-header" style="background:${typeColors[t]};color:#000;">${t}</div>`);
-      types.forEach(att => {
-        html += `<div class="eff-header" style="background:${typeColors[att]};color:#000;">${att}</div>`;
-        types.forEach(def => {
-          const mult = getMultiplier(att, def);
-          let cls = mult > 1 ? 'eff-super' : mult < 1 ? 'eff-weak' : 'eff-neutral';
-          if (mult === 0) cls = 'eff-immune';
-          html += `<div class="eff-cell ${cls}">${mult === 1 ? '○' : mult + '×'}</div>`;
-        });
-      });
-      html += `</div>`;
-      html += `
-        <div class="legend">
-          <div class="legend-item" onclick="showColorInfo(1)"><span style="color:#00ff88;font-size:20px;">🟢</span> Суперэффективно</div>
-          <div class="legend-item" onclick="showColorInfo(2)"><span style="color:#ddd;font-size:20px;">⚪</span> Нейтрально</div>
-          <div class="legend-item" onclick="showColorInfo(3)"><span style="color:#ff4444;font-size:20px;">🔴</span> Неэффективно</div>
-          <div class="legend-item" onclick="showColorInfo(4)"><span style="color:#666;font-size:20px;">⚫</span> Иммунитет</div>
-        </div>`;
-      content.innerHTML = html;
-    } 
-    else if (section === 'zones') {
-      content.innerHTML = `
-        <h3>🌍 Выбор зоны</h3>
-        <p><strong>Текущая зона:</strong> <span id="current-zone-display">${currentZone}</span></p>
-        <button onclick="setZone('Лунный лес')" style="margin:6px 0;">🌲 Лунный лес (Лето)</button>
-        <button onclick="setZone('Тёмные руины')" style="margin:6px 0;">🏚️ Тёмные руины (Осень)</button>
-        <button onclick="setZone('Ледяные пики')" style="margin:6px 0;">❄️ Ледяные пики (Зима)</button>
-        <button onclick="setZone('Каменные долины')" style="margin:6px 0;">🏔️ Каменные долины (Весна)</button>
-        <p style="margin-top:15px;font-size:14px;">В выбранной зоне повышается шанс встретить героев этого сезона.</p>
-      `;
-    } 
-    else {
-      content.innerHTML = `<h3>${section === 'pokedex' ? 'Lunadex' : section === 'myheroes' ? 'Мои герои' : 'Предметы'}</h3><p>Скоро будет полный список.</p>`;
-    }
-  }
-
-  function setZone(zone) {
-    currentZone = zone;
-    document.getElementById('current-zone-display').textContent = zone;
-    document.getElementById('battle-log').innerHTML = `Зона изменена на <strong>${zone}</strong>.`;
-    switchTab(1);
-  }
-
-  function showColorInfo(type) {
-    const modal = document.getElementById('modal');
-    const content = document.getElementById('modal-content');
-    if (type === 1) content.innerHTML = `<h3>🟢 Суперэффективно</h3><p>Твой тип наносит в 2 раза больше урона этому противнику.</p>`;
-    else if (type === 2) content.innerHTML = `<h3>⚪ Нейтрально</h3><p>Обычный урон. Ни преимущества, ни слабости.</p>`;
-    else if (type === 3) content.innerHTML = `<h3>🔴 Неэффективно</h3><p>Твой тип наносит в 2 раза меньше урона.</p>`;
-    else if (type === 4) content.innerHTML = `<h3>⚫ Иммунитет</h3><p>Атака этого типа не наносит никакого урона.</p>`;
-    modal.style.display = 'block';
-  }
-
-  function closeModal() {
-    document.getElementById('modal').style.display = 'none';
+    content.innerHTML = section === 'effectiveness' 
+      ? `<h3>📊 Таблица эффективности</h3><p>Скоро будет полная таблица.</p>` 
+      : `<h3>${section === 'events' ? '🎉 Ивенты' : 'Lunadex'}</h3><p>Скоро будет полный список.</p>`;
   }
 
   window.onload = () => {
