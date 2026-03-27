@@ -14,7 +14,6 @@
     .avatar { width:110px; height:110px; border-radius:50%; border:6px solid #9B59B6; box-shadow:0 0 35px #9B59B6, 0 0 65px rgba(155,89,182,0.8); margin-bottom:14px; }
     .header h1 { font-size:42px; font-weight:900; text-shadow:0 0 25px #9B59B6, 0 0 70px #C084FC; letter-spacing:3px; }
 
-    .card { background:rgba(20,5,45,0.9); border:2px solid #9B59B6; border-radius:18px; padding:10px; margin-bottom:14px; box-shadow:0 0 25px rgba(155,89,182,0.4); }
     button { width:100%; padding:18px 16px; margin:8px 0; border:2px solid #9B59B6; border-radius:16px; font-size:18px; font-weight:700; background:linear-gradient(90deg,#6B1E9C,#9B59B6); color:white; box-shadow:0 0 20px rgba(155,89,182,0.6); transition:all .2s; }
     button:hover { transform:scale(1.04) translateY(-3px); box-shadow:0 0 40px #9B59B6; }
 
@@ -33,11 +32,8 @@
     .hp-fill { height:100%; background:linear-gradient(90deg,#00ff88,#00cc66); transition:width .4s; }
     .log { background:#0a001f; border:2px solid #9B59B6; border-radius:12px; padding:14px; min-height:110px; font-size:15px; margin:15px 0; line-height:1.4; }
 
-    .moves-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
-    .move-btn { background:rgba(155,89,182,0.3); border:2px solid #9B59B6; border-radius:12px; padding:14px; text-align:center; font-weight:600; }
-
-    .energy-bar { height:12px; background:#222; border-radius:10px; overflow:hidden; margin:8px 0; }
-    .energy-fill { height:100%; background:linear-gradient(90deg,#C084FC,#9B59B6); }
+    .modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; padding:20px; align-items:center; justify-content:center; }
+    .modal-content { background:#2a0055; border-radius:20px; padding:25px; width:100%; max-width:380px; text-align:center; }
   </style>
 </head>
 <body>
@@ -61,52 +57,64 @@
       <button onclick="openLink('https://mangabuff.ru/manga')">📖 Каталог манги</button>
       <button onclick="openLink('https://t.me/mangabuff')">📰 Новости сайта (TG)</button>
     </div>
-    <button onclick="openLink('https://mangabuff.ru/faq/general')" style="background:rgba(30,10,50,0.9);border-color:#7B4A9C;color:#ddd;">📋 FAQ по клубам и вкладам</button>
   </div>
 
   <!-- ИГРА -->
   <div id="game-screen" class="screen">
-    <h2 style="text-align:center;color:#C084FC;margin:0 0 15px;">⚔️ БОЙ КАРТОЧЕК</h2>
+    <h2 style="text-align:center;color:#C084FC;margin:0 0 15px;">🌌 Dark Moon Приключение</h2>
 
-    <div style="text-align:center;margin-bottom:12px;">
-      <strong>Энергия: <span id="energy-text">10</span>/10</strong>
-      <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
+    <!-- Регистрация -->
+    <div id="registration-screen">
+      <div class="modal" style="display:flex;">
+        <div class="modal-content">
+          <h2>Регистрация в Dark Moon</h2>
+          <p>Напиши свой ник на mangabuff.ru</p>
+          <input id="mangabuff-nick" type="text" placeholder="IMPERATOR" style="width:100%;padding:14px;margin:15px 0;border-radius:12px;border:none;font-size:18px;background:#1a0033;color:#fff;">
+
+          <p>Твой Telegram @username:</p>
+          <input id="telegram-username" type="text" style="width:100%;padding:14px;margin:15px 0;border-radius:12px;border:none;font-size:18px;background:#1a0033;color:#fff;" readonly>
+
+          <button onclick="registerUser()">Зарегистрироваться</button>
+        </div>
+      </div>
     </div>
 
-    <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
-      🌍 Выбрать зону перед боем
-    </button>
+    <!-- Приключение после регистрации -->
+    <div id="adventure-screen" style="display:none;">
+      <div style="text-align:center;margin-bottom:12px;">
+        <strong>Энергия: <span id="energy-text">10</span>/10</strong>
+        <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
+      </div>
 
-    <div id="battle-area" style="display:none;">
-      <div class="battle-container">
-        <div class="pokemon-row">
-          <div class="pokemon">
-            <div style="font-size:32px;" id="player-emoji">🧛</div>
-            <strong id="player-name">DARK LORD</strong><br>
-            <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
-            <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
-            <small>HP <span id="player-hp-text">200/200</span></small>
+      <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
+        🌍 Выбрать зону
+      </button>
+
+      <div id="battle-area" style="display:none;">
+        <div class="battle-container">
+          <div class="pokemon-row">
+            <div class="pokemon">
+              <div style="font-size:32px;" id="player-emoji">🧛</div>
+              <strong id="player-name">DARK LORD</strong><br>
+              <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
+              <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
+              <small>HP <span id="player-hp-text">200/200</span></small>
+            </div>
+            <div class="pokemon">
+              <div style="font-size:32px;" id="enemy-emoji">🐉</div>
+              <strong id="enemy-name">SHADOW DRAGON</strong><br>
+              <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
+              <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
+              <small>HP <span id="enemy-hp-text">200/200</span></small>
+            </div>
           </div>
-          <div class="pokemon">
-            <div style="font-size:32px;" id="enemy-emoji">🐉</div>
-            <strong id="enemy-name">SHADOW DRAGON</strong><br>
-            <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
-            <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
-            <small>HP <span id="enemy-hp-text">200/200</span></small>
+          <div class="log" id="battle-log">Что будет делать Dark Lord?</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <button onclick="chooseAction('attack')">⚔️ Атаковать</button>
+            <button onclick="chooseAction('bag')">🎒 Рюкзак</button>
+            <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
+            <button onclick="chooseAction('run')">🏃 Сбежать</button>
           </div>
-        </div>
-
-        <div class="log" id="battle-log">Что будет делать Dark Lord?</div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <button onclick="chooseAction('attack')">⚔️ Атаковать</button>
-          <button onclick="chooseAction('bag')">🎒 Рюкзак</button>
-          <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
-          <button onclick="chooseAction('run')">🏃 Сбежать</button>
-        </div>
-
-        <div id="moves-panel" style="display:none;margin-top:15px;">
-          <div class="moves-list" id="moves-list"></div>
         </div>
       </div>
     </div>
@@ -123,7 +131,6 @@
       <button onclick="showInventorySection('effectiveness')">📊 Таблица эффективности</button>
       <button onclick="showInventorySection('events')">🎉 Ивенты</button>
     </div>
-    <div id="inventory-content" style="margin-top:20px;"></div>
   </div>
 
 </div>
@@ -140,65 +147,59 @@
   tg.ready(); tg.expand();
 
   let energy = 10;
-  let currentZone = "";
+  let trainerNick = "";
 
-  // Класс Pokemon (аналог твоего Python-кода)
-  class Pokemon {
-    constructor(name, level = 1, season = "Лето", element = "Трава") {
-      this.name = name;
-      this.level = level;
-      this.season = season;
-      this.element = element;
-      this.hp = level * 20;
-      this.maxHp = level * 20;
-      this.attack = level * 5;
+  function fillTelegramUsername() {
+    const user = tg.initDataUnsafe.user;
+    if (user && user.username) {
+      document.getElementById('telegram-username').value = '@' + user.username;
     }
   }
 
-  // Текущий игрок и 6 героев
-  let player = new Pokemon("DARK LORD", 12, "Лето", "Трава");
+  function registerUser() {
+    const nick = document.getElementById('mangabuff-nick').value.trim();
+    const tgUsername = document.getElementById('telegram-username').value;
 
-  let team = [
-    new Pokemon("DARK LORD", 12, "Лето", "Трава"),
-    new Pokemon("SHADOW DRAGON", 11, "Осень", "Дракон"),
-    new Pokemon("MOON BLADE", 14, "Зима", "Тёмный"),
-    new Pokemon("ICE WRAITH", 13, "Зима", "Лед"),
-    new Pokemon("VOID WALKER", 15, "Осень", "Призрачный"),
-    new Pokemon("FIRE REAPER", 10, "Лето", "Огонь")
-  ];
+    if (!nick) {
+      alert("Пожалуйста, введи ник на mangabuff.ru");
+      return;
+    }
 
-  function updateEnergy() {
-    document.getElementById('energy-text').textContent = energy;
-    document.getElementById('energy-bar').style.width = (energy / 10 * 100) + '%';
-  }
+    tg.sendData(JSON.stringify({
+      action: "register",
+      mangabuff_nick: nick,
+      telegram_username: tgUsername
+    }));
 
-  function updateHP() {
-    document.getElementById('player-hp-bar').style.width = (player.hp / player.maxHp * 100) + '%';
-    document.getElementById('player-hp-text').textContent = Math.max(0, Math.floor(player.hp)) + '/' + player.maxHp;
+    trainerNick = nick;
+    document.getElementById('registration-screen').style.display = 'none';
+    document.getElementById('adventure-screen').style.display = 'block';
+
+    document.getElementById('battle-log').innerHTML = `
+      Привет, <strong>${nick}</strong>!<br><br>
+      Регистрация прошла успешно.<br>
+      Выбери зону и начни приключение.
+    `;
   }
 
   function showZoneSelection() {
     document.getElementById('battle-area').style.display = 'block';
-    document.getElementById('battle-log').innerHTML = `
-      Выбери зону:<br><br>
-      <button onclick="enterZone('Лунный лес (Лето)')" style="margin:6px 0;">🌲 Лунный лес (Лето)</button>
-      <button onclick="enterZone('Тёмные руины (Осень)')" style="margin:6px 0;">🏚️ Тёмные руины (Осень)</button>
-      <button onclick="enterZone('Ледяные пики (Зима)')" style="margin:6px 0;">❄️ Ледяные пики (Зима)</button>
-      <button onclick="enterZone('Каменные долины (Весна)')" style="margin:6px 0;">🏔️ Каменные долины (Весна)</button>
+    const log = document.getElementById('battle-log');
+    log.innerHTML = `
+      <strong>Выбери зону:</strong><br><br>
+      <button onclick="selectZone('Лунный лес (Лето)')" style="margin:6px 0;width:100%;">🌲 Лунный лес (Лето)</button>
+      <button onclick="selectZone('Тёмные руины (Осень)')" style="margin:6px 0;width:100%;">🏚️ Тёмные руины (Осень)</button>
+      <button onclick="selectZone('Ледяные пики (Зима)')" style="margin:6px 0;width:100%;">❄️ Ледяные пики (Зима)</button>
+      <button onclick="selectZone('Каменные долины (Весна)')" style="margin:6px 0;width:100%;">🏔️ Каменные долины (Весна)</button>
     `;
   }
 
-  function enterZone(zone) {
-    currentZone = zone;
+  function selectZone(zone) {
     document.getElementById('battle-log').innerHTML = `
       Ты прибыл в <strong>${zone}</strong>.<br><br>
-      <button onclick="startBattle()" style="background:#C084FC;color:#000;">🔍 Начать бой</button>
+      Дикий герой появился!<br><br>
+      Что будет делать ${trainerNick}?
     `;
-  }
-
-  function startBattle() {
-    document.getElementById('battle-log').innerHTML = `Дикий герой появился!<br><br>Что будет делать Dark Lord?`;
-    updateHP();
   }
 
   function chooseAction(action) {
@@ -216,9 +217,13 @@
     document.querySelectorAll('.nav-item')[n].classList.add('active');
   }
 
+  function openLink(url) {
+    tg.openLink(url);
+  }
+
   window.onload = () => {
     switchTab(0);
-    updateEnergy();
+    fillTelegramUsername();
   };
 </script>
 </body>
