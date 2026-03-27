@@ -61,60 +61,43 @@
 
   <!-- ИГРА -->
   <div id="game-screen" class="screen">
-    <h2 style="text-align:center;color:#C084FC;margin:0 0 15px;">🌌 Dark Moon Приключение</h2>
+    <h2 style="text-align:center;color:#C084FC;margin:0 0 15px;">⚔️ БОЙ КАРТОЧЕК</h2>
 
-    <!-- Регистрация -->
-    <div id="registration-screen">
-      <div class="modal" style="display:flex;">
-        <div class="modal-content">
-          <h2>Регистрация в Dark Moon</h2>
-          <p>Напиши свой ник на mangabuff.ru</p>
-          <input id="mangabuff-nick" type="text" placeholder="IMPERATOR" style="width:100%;padding:14px;margin:15px 0;border-radius:12px;border:none;font-size:18px;background:#1a0033;color:#fff;">
-
-          <p>Твой Telegram @username:</p>
-          <input id="telegram-username" type="text" style="width:100%;padding:14px;margin:15px 0;border-radius:12px;border:none;font-size:18px;background:#1a0033;color:#fff;" readonly>
-
-          <button onclick="registerUser()">Зарегистрироваться</button>
-        </div>
-      </div>
+    <div style="text-align:center;margin-bottom:12px;">
+      <strong>Энергия: <span id="energy-text">10</span>/10</strong>
+      <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
     </div>
 
-    <!-- Приключение после регистрации -->
-    <div id="adventure-screen" style="display:none;">
-      <div style="text-align:center;margin-bottom:12px;">
-        <strong>Энергия: <span id="energy-text">10</span>/10</strong>
-        <div class="energy-bar"><div class="energy-fill" id="energy-bar" style="width:100%"></div></div>
-      </div>
+    <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
+      🌍 Выбрать зону
+    </button>
 
-      <button onclick="showZoneSelection()" style="margin-bottom:15px;background:#6B1E9C;">
-        🌍 Выбрать зону
-      </button>
+    <div id="battle-area" style="display:none;">
+      <div class="battle-container">
+        <div class="pokemon-row">
+          <div class="pokemon">
+            <div style="font-size:32px;" id="player-emoji">🧛</div>
+            <strong id="player-name">DARK LORD</strong><br>
+            <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
+            <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
+            <small>HP <span id="player-hp-text">200/200</span></small>
+          </div>
+          <div class="pokemon">
+            <div style="font-size:32px;" id="enemy-emoji">🐉</div>
+            <strong id="enemy-name">SHADOW DRAGON</strong><br>
+            <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
+            <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
+            <small>HP <span id="enemy-hp-text">200/200</span></small>
+          </div>
+        </div>
 
-      <div id="battle-area" style="display:none;">
-        <div class="battle-container">
-          <div class="pokemon-row">
-            <div class="pokemon">
-              <div style="font-size:32px;" id="player-emoji">🧛</div>
-              <strong id="player-name">DARK LORD</strong><br>
-              <span style="color:#bb99ff;" id="player-info">Lv.12 • Лето • Трава</span>
-              <div class="hp-bar"><div class="hp-fill" id="player-hp-bar" style="width:100%"></div></div>
-              <small>HP <span id="player-hp-text">200/200</span></small>
-            </div>
-            <div class="pokemon">
-              <div style="font-size:32px;" id="enemy-emoji">🐉</div>
-              <strong id="enemy-name">SHADOW DRAGON</strong><br>
-              <span style="color:#bb99ff;" id="enemy-info">Lv.11 • Осень • Дракон</span>
-              <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
-              <small>HP <span id="enemy-hp-text">200/200</span></small>
-            </div>
-          </div>
-          <div class="log" id="battle-log">Дикий герой появился! Что будешь делать?</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <button onclick="playerAttack()">⚔️ Атаковать</button>
-            <button onclick="usePotion()">🧪 Зелье (10)</button>
-            <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
-            <button onclick="chooseAction('run')">🏃 Сбежать</button>
-          </div>
+        <div class="log" id="battle-log">Что будет делать Dark Lord?</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <button onclick="playerAttack()">⚔️ Атаковать</button>
+          <button onclick="usePotion()">🧪 Зелье (10)</button>
+          <button onclick="chooseAction('switch')">🃏 Выбор героя</button>
+          <button onclick="tryEscape()">🏃 Сбежать</button>
         </div>
       </div>
     </div>
@@ -124,13 +107,14 @@
   <div id="inventory-screen" class="screen">
     <h2 style="text-align:center;color:#C084FC;margin-bottom:20px;">🃏 Lunadex</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <button onclick="showInventorySection('pokedex')">📖 Lunadex</button>
-      <button onclick="showInventorySection('items')">🎒 Предметы</button>
-      <button onclick="showInventorySection('myheroes')">👤 Мои герои</button>
-      <button onclick="showInventorySection('myitems')">📦 Мои предметы</button>
-      <button onclick="showInventorySection('effectiveness')">📊 Таблица эффективности</button>
-      <button onclick="showInventorySection('events')">🎉 Ивенты</button>
+      <button onclick="showLunadexSection('pokedex')">📖 Lunadex</button>
+      <button onclick="showLunadexSection('items')">🎒 Предметы</button>
+      <button onclick="showLunadexSection('myheroes')">👤 Мои герои</button>
+      <button onclick="showLunadexSection('myitems')">📦 Мои предметы</button>
+      <button onclick="showLunadexSection('effectiveness')">📊 Таблица эффективности</button>
+      <button onclick="showLunadexSection('events')">🎉 Ивенты</button>
     </div>
+    <div id="lunadex-content" style="margin-top:20px;"></div>
   </div>
 
 </div>
@@ -147,42 +131,21 @@
   tg.ready(); tg.expand();
 
   let energy = 10;
-  let trainerNick = "";
+  let trainerNick = "Тренер";
   let playerHp = 200;
   let enemyHp = 200;
   let potionCount = 10;
 
-  function fillTelegramUsername() {
-    const user = tg.initDataUnsafe.user;
-    if (user && user.username) {
-      document.getElementById('telegram-username').value = '@' + user.username;
-    }
+  function updateEnergy() {
+    document.getElementById('energy-text').textContent = energy;
+    document.getElementById('energy-bar').style.width = (energy / 10 * 100) + '%';
   }
 
-  function registerUser() {
-    const nick = document.getElementById('mangabuff-nick').value.trim();
-    const tgUsername = document.getElementById('telegram-username').value;
-
-    if (!nick) {
-      alert("Пожалуйста, введи ник на mangabuff.ru");
-      return;
-    }
-
-    tg.sendData(JSON.stringify({
-      action: "register",
-      mangabuff_nick: nick,
-      telegram_username: tgUsername
-    }));
-
-    trainerNick = nick;
-    document.getElementById('registration-screen').style.display = 'none';
-    document.getElementById('adventure-screen').style.display = 'block';
-
-    document.getElementById('battle-log').innerHTML = `
-      Привет, <strong>${nick}</strong>!<br><br>
-      Регистрация прошла успешно.<br>
-      Выбери зону и начни приключение.
-    `;
+  function updateHP() {
+    document.getElementById('player-hp-bar').style.width = (playerHp / 200 * 100) + '%';
+    document.getElementById('player-hp-text').textContent = playerHp + '/200';
+    document.getElementById('enemy-hp-bar').style.width = (enemyHp / 200 * 100) + '%';
+    document.getElementById('enemy-hp-text').textContent = enemyHp + '/200';
   }
 
   function showZoneSelection() {
@@ -200,44 +163,36 @@
   function selectZone(zone) {
     document.getElementById('battle-log').innerHTML = `
       Ты прибыл в <strong>${zone}</strong>.<br><br>
-      Дикий герой появился!<br><br>
-      Что будешь делать?
+      <button onclick="startEncounter()" style="background:#C084FC;color:#000;width:100%;">🔍 Искать противника</button>
     `;
+  }
+
+  function startEncounter() {
     playerHp = 200;
     enemyHp = 200;
     potionCount = 10;
     updateHP();
-  }
-
-  function updateHP() {
-    document.getElementById('player-hp-bar').style.width = (playerHp / 200 * 100) + '%';
-    document.getElementById('player-hp-text').textContent = playerHp + '/200';
-    document.getElementById('enemy-hp-bar').style.width = (enemyHp / 200 * 100) + '%';
-    document.getElementById('enemy-hp-text').textContent = enemyHp + '/200';
+    document.getElementById('battle-log').innerHTML = `Дикий герой появился!<br><br>Что будешь делать?`;
   }
 
   function playerAttack() {
-    const damage = Math.floor(Math.random() * 25) + 10;
+    const damage = Math.floor(Math.random() * 25) + 15;
     enemyHp = Math.max(0, enemyHp - damage);
     document.getElementById('battle-log').innerHTML = `Ты нанёс ${damage} урона!`;
     updateHP();
-
     if (enemyHp <= 0) {
       document.getElementById('battle-log').innerHTML += '<br><br>🎉 Ты победил!';
       return;
     }
-    setTimeout(enemyAttack, 800);
+    setTimeout(enemyTurn, 700);
   }
 
-  function enemyAttack() {
-    const damage = Math.floor(Math.random() * 20) + 8;
+  function enemyTurn() {
+    const damage = Math.floor(Math.random() * 22) + 10;
     playerHp = Math.max(0, playerHp - damage);
     document.getElementById('battle-log').innerHTML = `Враг нанёс тебе ${damage} урона!`;
     updateHP();
-
-    if (playerHp <= 0) {
-      document.getElementById('battle-log').innerHTML += '<br><br>💀 Ты проиграл...';
-    }
+    if (playerHp <= 0) document.getElementById('battle-log').innerHTML += '<br><br>💀 Ты проиграл...';
   }
 
   function usePotion() {
@@ -246,14 +201,24 @@
       return;
     }
     potionCount--;
-    playerHp = Math.min(200, playerHp + 50);
-    document.getElementById('battle-log').innerHTML = `Ты использовал зелье! (+50 HP)`;
+    playerHp = Math.min(200, playerHp + 60);
+    document.getElementById('battle-log').innerHTML = `Ты использовал зелье! (+60 HP)`;
     updateHP();
+  }
+
+  function tryEscape() {
+    const chance = Math.random() * 100;
+    if (chance > 45) {
+      document.getElementById('battle-log').innerHTML = '✅ Ты успешно сбежал!';
+      document.getElementById('battle-area').style.display = 'none';
+    } else {
+      document.getElementById('battle-log').innerHTML = '❌ Не удалось сбежать!';
+      setTimeout(enemyTurn, 600);
+    }
   }
 
   function chooseAction(action) {
     if (action === 'switch') document.getElementById('battle-log').innerHTML = 'Выбор героя (скоро)';
-    if (action === 'run') document.getElementById('battle-log').innerHTML = 'Попытка побега...';
   }
 
   function switchTab(n) {
@@ -263,13 +228,20 @@
     document.querySelectorAll('.nav-item')[n].classList.add('active');
   }
 
-  function openLink(url) {
-    tg.openLink(url);
+  function showLunadexSection(section) {
+    const content = document.getElementById('lunadex-content');
+    if (section === 'pokedex') content.innerHTML = `<h3>📖 Lunadex</h3><p>Здесь будут все твои герои с номерами.</p>`;
+    else if (section === 'items') content.innerHTML = `<h3>🎒 Предметы</h3><p>Здесь будут все предметы.</p>`;
+    else if (section === 'myheroes') content.innerHTML = `<h3>👤 Мои герои</h3><p>Список твоих героев.</p>`;
+    else if (section === 'myitems') content.innerHTML = `<h3>📦 Мои предметы</h3><p>Твои предметы.</p>`;
+    else if (section === 'effectiveness') content.innerHTML = `<h3>📊 Таблица эффективности</h3><p>Таблица стихий скоро появится.</p>`;
+    else if (section === 'events') content.innerHTML = `<h3>🎉 Ивенты</h3><p>Активные ивенты.</p>`;
   }
+
+  function openLink(url) { tg.openLink(url); }
 
   window.onload = () => {
     switchTab(0);
-    fillTelegramUsername();
   };
 </script>
 </body>
