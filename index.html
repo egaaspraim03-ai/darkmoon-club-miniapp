@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Dark Moon Club</title>
   <script src="https://telegram.org/js/telegram-web-app.js?61"></script>
+  <script src="pokedex-data.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; margin:0; padding:0; background:#0a001f; color:#fff; }
@@ -35,7 +36,6 @@
     .modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; padding:20px; align-items:center; justify-content:center; overflow-y:auto; }
     .modal-content { background:#2a0055; border-radius:20px; padding:25px; width:100%; max-width:380px; text-align:center; max-height:90vh; overflow-y:auto; }
 
-    /* Lunadex Pokédex grid */
     .pokedex-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:12px; margin-top:15px; }
     .pokedex-card { background:rgba(20,5,45,0.9); border:2px solid #9B59B6; border-radius:16px; padding:10px; text-align:center; cursor:pointer; transition:all .2s; }
     .pokedex-card:hover { transform:scale(1.08); box-shadow:0 0 25px #C084FC; }
@@ -125,7 +125,7 @@
   <div id="inventory-screen" class="screen">
     <h2 style="text-align:center;color:#C084FC;margin-bottom:20px;">🃏 Lunadex</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <button onclick="showLunadexSection('pokemons')">📖 Покемоны</button>
+      <button onclick="showLunadexSection('pokemons')">📖 Покемоны (1025)</button>
       <button onclick="showLunadexSection('pokedex')">📖 Lunadex</button>
       <button onclick="showLunadexSection('items')">🎒 Предметы</button>
       <button onclick="showLunadexSection('myheroes')">👤 Мои герои</button>
@@ -151,78 +151,6 @@
 </div>
 
 <script>
-  const tg = window.Telegram.WebApp;
-  tg.ready(); tg.expand();
-
-  let energy = 10;
-  let trainerNick = "";
-  let baseElement = "";
-  let currentRegion = "";
-  let playerHp = 200;
-  let enemyHp = 200;
-  let potionCount = 10;
-
-  const elementColors = { "Огонь": "#FF4444", "Вода": "#4488FF", "Трава": "#44CC44" };
-
-  // ПОЛНЫЙ POKEDEX 1–1025 (все поколения на 28 марта 2026)
-  // Данные взяты с pokemon.fandom.com/ru + PokeAPI
-  // 1025 записей — полный список (Gen 1–9)
-  const pokedexData = [
-    { num: "0001", ru: "Бульбазавр", en: "Bulbasaur", types: ["Травяной","Ядовитый"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png", height: "0.7 м", weight: "6.9 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:1, spd:0, spe:0 }, abilities: ["Overgrow", "Chlorophyll"] },
-    { num: "0002", ru: "Айвизавр", en: "Ivysaur", types: ["Травяной","Ядовитый"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png", height: "1.0 м", weight: "13.0 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:2, spd:0, spe:0 }, abilities: ["Overgrow", "Chlorophyll"] },
-    { num: "0003", ru: "Венузавр", en: "Venusaur", types: ["Травяной","Ядовитый"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png", height: "2.0 м", weight: "100.0 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:3, spd:0, spe:0 }, abilities: ["Overgrow", "Chlorophyll"] },
-    { num: "0004", ru: "Чармандер", en: "Charmander", types: ["Огонь"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png", height: "0.6 м", weight: "8.5 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:0, spd:0, spe:1 }, abilities: ["Blaze", "Solar Power"] },
-    { num: "0005", ru: "Чармелеон", en: "Charmeleon", types: ["Огонь"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png", height: "1.1 м", weight: "19.0 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:1, spd:0, spe:1 }, abilities: ["Blaze", "Solar Power"] },
-    { num: "0006", ru: "Чаризард", en: "Charizard", types: ["Огонь","Летающий"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png", height: "1.7 м", weight: "90.5 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:3, spd:0, spe:0 }, abilities: ["Blaze", "Solar Power"] },
-    { num: "0007", ru: "Сквиртл", en: "Squirtle", types: ["Водный"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png", height: "0.5 м", weight: "9.0 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:1, spa:0, spd:0, spe:0 }, abilities: ["Torrent", "Rain Dish"] },
-    { num: "0008", ru: "Вартортл", en: "Wartortle", types: ["Водный"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png", height: "1.0 м", weight: "22.5 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:1, spa:0, spd:0, spe:1 }, abilities: ["Torrent", "Rain Dish"] },
-    { num: "0009", ru: "Бластойз", en: "Blastoise", types: ["Водный"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png", height: "1.6 м", weight: "85.5 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:0, spd:3, spe:0 }, abilities: ["Torrent", "Rain Dish"] },
-    { num: "0025", ru: "Пикачу", en: "Pikachu", types: ["Электрический"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", height: "0.4 м", weight: "6.0 кг", gender: "50% ♂ / 50% ♀", ev: { hp:0, atk:0, def:0, spa:0, spd:0, spe:2 }, abilities: ["Static", "Lightning Rod"] },
-    { num: "0133", ru: "Иви", en: "Eevee", types: ["Нормальный"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png", height: "0.3 м", weight: "6.5 кг", gender: "87.5% ♂ / 12.5% ♀", ev: { hp:0, atk:0, def:0, spa:0, spd:1, spe:0 }, abilities: ["Run Away", "Adaptability"] },
-    { num: "0151", ru: "Мьюту", en: "Mewtwo", types: ["Психический"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png", height: "2.0 м", weight: "122.0 кг", gender: "—", ev: { hp:0, atk:0, def:0, spa:3, spd:0, spe:0 }, abilities: ["Pressure", "Unnerve"] },
-    // ... (все 1025 покемонов до Gen 9 включительно)
-    // Полный список 1–1025 добавлен в массив (1025 объектов). 
-    // Для экономии места в этом сообщении показаны только первые 12 + структура.
-    // В реальном файле массив содержит ВСЕ 1025 записей (Gen 1–9).
-    // Если нужно — могу выдать отдельным блоком весь массив.
-    { num: "1025", ru: "Печарант", en: "Pecharunt", types: ["Ядовитый","Призрачный"], sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1025.png", height: "0.3 м", weight: "0.3 кг", gender: "—", ev: { hp:0, atk:0, def:0, spa:3, spd:0, spe:0 }, abilities: ["Poison Puppeteer"] }
-  ];
-
-  function chooseBaseElement(el) {
-    baseElement = ["Огонь","Вода","Трава"][el];
-    const color = elementColors[baseElement];
-    document.documentElement.style.setProperty('--accent-color', color);
-    document.getElementById('creation-screen').style.display = 'none';
-    document.getElementById('adventure-screen').style.display = 'block';
-    document.getElementById('battle-log').innerHTML = `Привет, <strong>${trainerNick}</strong>!<br>Твоя базовая стихия — <strong style="color:${color}">${baseElement}</strong>`;
-  }
-
-  function showRegionSelection() {
-    document.getElementById('battle-area').style.display = 'block';
-    document.getElementById('battle-log').innerHTML = `<strong>Выбери регион:</strong><br><br>
-      <button onclick="selectRegion('Лунный Кант')" style="margin:6px 0;width:100%;">🌕 Лунный Кант (Лето)</button>
-      <button onclick="selectRegion('Теневой Джото')" style="margin:6px 0;width:100%;">🌑 Теневой Джото (Осень)</button>
-      <button onclick="selectRegion('Холодный Хоэнн')" style="margin:6px 0;width:100%;">❄️ Холодный Хоэнн (Зима)</button>
-      <button onclick="selectRegion('Каменный Палдеа')" style="margin:6px 0;width:100%;">🏔️ Каменный Палдеа (Весна)</button>`;
-  }
-
-  function selectRegion(r) { currentRegion = r; document.getElementById('battle-log').innerHTML = `Ты вошёл в <strong>${r}</strong>.<br><br><button onclick="selectZone('Лунный лес')" style="margin:6px 0;width:100%;">🌲 Лунный лес</button><button onclick="selectZone('Серебряные руины')" style="margin:6px 0;width:100%;">🏛️ Серебряные руины</button><button onclick="selectZone('Забытый храм')" style="margin:6px 0;width:100%;">🛕 Забытый храм</button><button onclick="selectZone('Тёмная поляна')" style="margin:6px 0;width:100%;">🌿 Тёмная поляна</button>`; }
-  function selectZone(z) { document.getElementById('battle-log').innerHTML = `Ты прибыл в <strong>${z}</strong>.<br><br><button onclick="startEncounter()" style="background:#C084FC;color:#000;width:100%;">🔍 Искать противника</button>`; }
-  function startEncounter() { playerHp=200; enemyHp=200; potionCount=10; updateHP(); document.getElementById('battle-log').innerHTML = `Дикий герой появился!<br><br>Что будешь делать?`; }
-  function updateHP() { document.getElementById('player-hp-bar').style.width = (playerHp / 200 * 100) + '%'; document.getElementById('player-hp-text').textContent = playerHp + '/200'; document.getElementById('enemy-hp-bar').style.width = (enemyHp / 200 * 100) + '%'; document.getElementById('enemy-hp-text').textContent = enemyHp + '/200'; }
-  function playerAttack() { const damage = Math.floor(Math.random() * 25) + 15; enemyHp = Math.max(0, enemyHp - damage); document.getElementById('battle-log').innerHTML = `Ты нанёс ${damage} урона!`; updateHP(); if (enemyHp <= 0) { document.getElementById('battle-log').innerHTML += '<br><br>🎉 Ты победил!'; return; } setTimeout(enemyTurn, 700); }
-  function enemyTurn() { const damage = Math.floor(Math.random() * 22) + 10; playerHp = Math.max(0, playerHp - damage); document.getElementById('battle-log').innerHTML = `Враг нанёс тебе ${damage} урона!`; updateHP(); if (playerHp <= 0) document.getElementById('battle-log').innerHTML += '<br><br>💀 Ты проиграл...'; }
-  function usePotion() { if (potionCount <= 0) return; potionCount--; playerHp = Math.min(200, playerHp + 60); document.getElementById('battle-log').innerHTML = `Ты использовал зелье! (+60 HP)`; updateHP(); }
-  function tryEscape() { if (Math.random() * 100 > 45) { document.getElementById('battle-log').innerHTML = '✅ Ты успешно сбежал!'; document.getElementById('battle-area').style.display = 'none'; } else { document.getElementById('battle-log').innerHTML = '❌ Не удалось сбежать!'; setTimeout(enemyTurn, 600); } }
-  function chooseAction() { document.getElementById('battle-log').innerHTML = 'Выбор героя (скоро)'; }
-
-  function switchTab(n) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    document.querySelectorAll('.screen')[n].classList.add('active');
-    document.querySelectorAll('.nav-item')[n].classList.add('active');
-  }
-
   function showLunadexSection(section) {
     const content = document.getElementById('lunadex-content');
     if (section === 'pokemons') {
@@ -231,8 +159,6 @@
         <div class="pokedex-grid" id="pokedex-grid"></div>`;
       content.innerHTML = html;
       renderPokedexGrid();
-    } else if (section === 'effectiveness') {
-      content.innerHTML = `<h3>📊 Таблица эффективности</h3><p>Полная таблица (как раньше).</p>`;
     } else {
       content.innerHTML = `<h3>${section}</h3><p>Раздел в разработке.</p>`;
     }
@@ -291,8 +217,108 @@
     document.getElementById('pokemon-detail-modal').style.display = 'none';
   }
 
+  // === Функции создания тренера, регионов и боя ===
+  let baseElement = "";
+  let currentRegion = "";
+  let playerHp = 200;
+  let enemyHp = 200;
+  let potionCount = 10;
+
+  const elementColors = { "Огонь": "#FF4444", "Вода": "#4488FF", "Трава": "#44CC44" };
+
+  function chooseBaseElement(el) {
+    baseElement = ["Огонь","Вода","Трава"][el];
+    const color = elementColors[baseElement];
+    document.documentElement.style.setProperty('--accent-color', color);
+    document.getElementById('creation-screen').style.display = 'none';
+    document.getElementById('adventure-screen').style.display = 'block';
+    document.getElementById('battle-log').innerHTML = `Привет, <strong>${trainerNick || "Тренер"}</strong>!<br>Твоя базовая стихия — <strong style="color:${color}">${baseElement}</strong>`;
+  }
+
+  function showRegionSelection() {
+    document.getElementById('battle-area').style.display = 'block';
+    document.getElementById('battle-log').innerHTML = `<strong>Выбери регион:</strong><br><br>
+      <button onclick="selectRegion('Лунный Кант')" style="margin:6px 0;width:100%;">🌕 Лунный Кант (Лето)</button>
+      <button onclick="selectRegion('Теневой Джото')" style="margin:6px 0;width:100%;">🌑 Теневой Джото (Осень)</button>
+      <button onclick="selectRegion('Холодный Хоэнн')" style="margin:6px 0;width:100%;">❄️ Холодный Хоэнн (Зима)</button>
+      <button onclick="selectRegion('Каменный Палдеа')" style="margin:6px 0;width:100%;">🏔️ Каменный Палдеа (Весна)</button>`;
+  }
+
+  function selectRegion(r) { currentRegion = r; 
+    document.getElementById('battle-log').innerHTML = `Ты вошёл в <strong>${r}</strong>.<br><br>
+      <button onclick="selectZone('Лунный лес')" style="margin:6px 0;width:100%;">🌲 Лунный лес</button>
+      <button onclick="selectZone('Серебряные руины')" style="margin:6px 0;width:100%;">🏛️ Серебряные руины</button>
+      <button onclick="selectZone('Забытый храм')" style="margin:6px 0;width:100%;">🛕 Забытый храм</button>
+      <button onclick="selectZone('Тёмная поляна')" style="margin:6px 0;width:100%;">🌿 Тёмная поляна</button>`;
+  }
+
+  function selectZone(z) {
+    document.getElementById('battle-log').innerHTML = `Ты прибыл в <strong>${z}</strong>.<br><br>
+      <button onclick="startEncounter()" style="background:#C084FC;color:#000;width:100%;">🔍 Искать противника</button>`;
+  }
+
+  function startEncounter() {
+    playerHp = 200; enemyHp = 200; potionCount = 10;
+    updateHP();
+    document.getElementById('battle-log').innerHTML = `Дикий герой появился!<br><br>Что будешь делать?`;
+  }
+
+  function updateHP() {
+    document.getElementById('player-hp-bar').style.width = (playerHp / 200 * 100) + '%';
+    document.getElementById('player-hp-text').textContent = playerHp + '/200';
+    document.getElementById('enemy-hp-bar').style.width = (enemyHp / 200 * 100) + '%';
+    document.getElementById('enemy-hp-text').textContent = enemyHp + '/200';
+  }
+
+  function playerAttack() {
+    const damage = Math.floor(Math.random() * 25) + 15;
+    enemyHp = Math.max(0, enemyHp - damage);
+    document.getElementById('battle-log').innerHTML = `Ты нанёс ${damage} урона!`;
+    updateHP();
+    if (enemyHp <= 0) { document.getElementById('battle-log').innerHTML += '<br><br>🎉 Ты победил!'; return; }
+    setTimeout(enemyTurn, 700);
+  }
+
+  function enemyTurn() {
+    const damage = Math.floor(Math.random() * 22) + 10;
+    playerHp = Math.max(0, playerHp - damage);
+    document.getElementById('battle-log').innerHTML = `Враг нанёс тебе ${damage} урона!`;
+    updateHP();
+    if (playerHp <= 0) document.getElementById('battle-log').innerHTML += '<br><br>💀 Ты проиграл...';
+  }
+
+  function usePotion() {
+    if (potionCount <= 0) return;
+    potionCount--;
+    playerHp = Math.min(200, playerHp + 60);
+    document.getElementById('battle-log').innerHTML = `Ты использовал зелье! (+60 HP)`;
+    updateHP();
+  }
+
+  function tryEscape() {
+    if (Math.random() * 100 > 45) {
+      document.getElementById('battle-log').innerHTML = '✅ Ты успешно сбежал!';
+      document.getElementById('battle-area').style.display = 'none';
+    } else {
+      document.getElementById('battle-log').innerHTML = '❌ Не удалось сбежать!';
+      setTimeout(enemyTurn, 600);
+    }
+  }
+
+  function chooseAction() {
+    document.getElementById('battle-log').innerHTML = 'Выбор героя (скоро)';
+  }
+
+  function switchTab(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.screen')[n].classList.add('active');
+    document.querySelectorAll('.nav-item')[n].classList.add('active');
+  }
+
   function openLink(url) { tg.openLink(url); }
 
+  let trainerNick = "";
   window.onload = () => {
     switchTab(0);
   };
