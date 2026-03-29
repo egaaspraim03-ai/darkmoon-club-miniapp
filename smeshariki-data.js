@@ -2,7 +2,7 @@
 // Мир Смешарики — красивые пиксельные спрайты (как у покемонов)
 
 const smesharikiData = [
-  { num: "S001", ru: "Крош",     sprite: "https://i.imgur.com/0jKXzYk.png" },
+  { num: "S001", ru: "Крош",     sprite: "https://imgur.com/a/XMKUPFT" },
   { num: "S002", ru: "Ёжик",    sprite: "https://i.imgur.com/5YkZ3vL.png" },
   { num: "S003", ru: "Пин",      sprite: "https://i.imgur.com/3YkZ3vL.png" },
   { num: "S004", ru: "Лосяш",    sprite: "https://i.imgur.com/7YkZ3vL.png" },
