@@ -41,23 +41,26 @@
     .pokedex-card:hover { transform:scale(1.08); box-shadow:0 0 25px #C084FC; }
     .pokedex-card img { width:85px; height:85px; }
 
-    table { width:100%; border-collapse:collapse; margin-top:15px; }
-    th, td { padding:10px; text-align:center; border:1px solid #9B59B6; font-size:14px; }
-    th { background:#2a0055; }
+    .party-list .party-card { background:rgba(20,5,45,0.95); border:3px solid #9B59B6; border-radius:16px; padding:12px; margin-bottom:12px; display:flex; align-items:center; gap:15px; }
+    .party-card img { width:70px; height:70px; }
+    .party-info { flex:1; }
+    .party-name { font-size:18px; font-weight:700; }
+    .party-lv { font-size:14px; color:#bb99ff; }
+    .hp-bar { height:12px; background:#222; border-radius:6px; overflow:hidden; margin-top:6px; }
+    .hp-fill { height:100%; background:linear-gradient(#00ff88, #00cc66); transition:width .4s; }
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ==================== КЛУБ ==================== -->
+  <!-- КЛУБ -->
   <div id="club-screen" class="screen active">
     <div class="header">
       <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar">
       <h1 class="title">DARK MOON</h1>
       <p class="subtitle">Клуб Тьмы</p>
-      <div class="stats">107 участника • Уровень 6 • 21 место<br>Вместе в вечной тьме 🔥</div>
+      <div class="stats">103 участника • Уровень 6 • 23 место<br>Вместе в вечной тьме 🔥</div>
     </div>
-
     <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon')"><span>🔥</span> Мой клуб</div>
     <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')"><span>📈</span> Внести вклад / Вклады</div>
     <div class="big-button"><span>🃏</span> Клубные карты</div>
@@ -65,21 +68,17 @@
     <div class="big-button"><span>📚</span> Новые главы</div>
   </div>
 
-  <!-- ==================== ИГРА ==================== -->
+  <!-- ИГРА -->
   <div id="game-screen" class="screen">
     <div class="battle-header">⚔️ БОЙ КАРТОЧЕК</div>
     <div class="energy">Энергия: <b>10/10</b></div>
-    
     <div style="text-align:center;margin:30px 0;">
-      <button onclick="enterOverworld()" style="background:#6B1E9C;padding:18px 50px;font-size:19px;border-radius:9999px;">
-        🌍 Выбрать зону перед боем
-      </button>
+      <button onclick="enterOverworld()" style="background:#6B1E9C;padding:18px 50px;font-size:19px;border-radius:9999px;">🌍 Выбрать зону перед боем</button>
     </div>
-
     <div id="battle-container"></div>
   </div>
 
-  <!-- ==================== LUNADEx ==================== -->
+  <!-- LUNADEx -->
   <div id="inventory-screen" class="screen">
     <div style="text-align:center;margin-bottom:25px;">
       <span style="font-size:36px;">🃏</span>
@@ -87,7 +86,7 @@
     </div>
 
     <div class="grid-2">
-      <div class="grid-btn" onclick="showLunadexSection('all')"><span>📖</span><br>Lunadex</div>
+      <div class="grid-btn" onclick="showLunadexSection('lunadex')"><span>📖</span><br>Lunadex</div>
       <div class="grid-btn"><span>🎒</span><br>Предметы</div>
       <div class="grid-btn" onclick="showLunadexSection('my')"><span>👤</span><br>Мои герои</div>
       <div class="grid-btn"><span>📦</span><br>Мои предметы</div>
@@ -103,7 +102,7 @@
 <div class="bottom-nav">
   <div class="nav-item active" onclick="switchTab(0)"><span>🔥</span>Клуб</div>
   <div class="nav-item" onclick="switchTab(1)"><span>⚔️</span>Игра</div>
-  <div class="nav-item" onclick="switchTab(2)"><span>🃏</span>Lunadex</div>
+  <div class="nav-item" onclick="switchTab(2)"><span>📦</span>Архив Тьмы</div>
 </div>
 
 <!-- Модалка -->
@@ -111,23 +110,11 @@
 
 <script>
 // ====================== ДАННЫЕ ======================
-let myHeroes = [];
-
-// 10 кастомных героев Тьмы
-const customHeroes = [
-  { num: "DM001", ru: "Теневой Страж", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png" },
-  { num: "DM002", ru: "Лунный Разрушитель", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/359.png" },
-  { num: "DM003", ru: "Бездна Пожиратель", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/491.png" },
-  { num: "DM004", ru: "Хаос-Рагнар", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/646.png" },
-  { num: "DM005", ru: "Нокт-Клинок", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/359.png" },
-  { num: "DM006", ru: "Астрал-Призрак", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/478.png" },
-  { num: "DM007", ru: "Пантеон-Хранитель", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/643.png" },
-  { num: "DM008", ru: "Вихрь Забвения", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/645.png" },
-  { num: "DM009", ru: "Кровавый Лунник", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/359.png" },
-  { num: "DM010", ru: "Император Бездны", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/491.png" }
+let myHeroes = [
+  { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25 }
 ];
 
-const allHeroes = () => [...(typeof pokedexData !== 'undefined' ? pokedexData : []), ...customHeroes];
+let wishlist = [];
 
 // ====================== ФУНКЦИИ ======================
 function switchTab(n) {
@@ -144,33 +131,37 @@ function showLunadexSection(section) {
   const content = document.getElementById('lunadex-content');
   content.innerHTML = '';
 
-  if (section === 'all') {
-    content.innerHTML = `<h3>🌐 Все герои</h3><input id="search" placeholder="Поиск..." style="width:100%;padding:12px;border-radius:12px;border:2px solid #9B59B6;background:#1a0033;color:#fff;margin:10px 0;" onkeyup="filterHeroes()"><div class="pokedex-grid" id="all-grid"></div>`;
-    renderGrid('all-grid', allHeroes());
+  if (section === 'lunadex') {
+    content.innerHTML = `
+      <div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
+        <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
+        <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности, что прорвались сквозь Разлом Тьмы.<br>Какой мир ты хочешь узреть, Искатель?</p>
+        <button onclick="showWorld('pokemon')" style="background:#6B1E9C;width:100%;padding:18px;margin:10px 0;border-radius:16px;font-size:18px;">Мир Покемонов</button>
+      </div>`;
   } 
   else if (section === 'my') {
-    content.innerHTML = `<h3>👤 Мои герои (${myHeroes.length})</h3><div class="pokedex-grid" id="my-grid"></div>`;
-    renderGrid('my-grid', myHeroes);
+    content.innerHTML = `<h3 style="margin-bottom:15px;">👤 Мои герои (${myHeroes.length})</h3><div id="party-list"></div>`;
+    renderParty();
   } 
   else if (section === 'effectiveness') {
-    content.innerHTML = `
-      <h3>📊 Таблица эффективности</h3>
-      <table>
-        <tr><th>Тип</th><th>Супер</th><th>Слабо</th></tr>
-        <tr><td>🔥 Огонь</td><td>🌿 Трава, Лед</td><td>💧 Вода, Дракон</td></tr>
-        <tr><td>💧 Вода</td><td>🔥 Огонь, Земля</td><td>🌿 Трава, Дракон</td></tr>
-        <tr><td>🌿 Трава</td><td>💧 Вода, Земля</td><td>🔥 Огонь, Летающий</td></tr>
-        <tr><td>⚡ Электро</td><td>💧 Вода, Летающий</td><td>🌿 Трава, Дракон</td></tr>
-        <tr><td>🌑 Тьма</td><td>Призрак, Психический</td><td>Боевой, Тьма</td></tr>
-      </table>
-      <p style="text-align:center;margin-top:15px;color:#bb99ff;">Скоро будет полная таблица всех типов</p>`;
+    content.innerHTML = `<h3>📊 Таблица эффективности</h3><p>Скоро будет полная таблица всех типов</p>`;
   }
 }
 
-function renderGrid(id, list) {
-  const grid = document.getElementById(id);
+function showWorld(world) {
+  if (world === 'pokemon') {
+    document.getElementById('lunadex-content').innerHTML = `
+      <h3>🌐 Мир Покемонов</h3>
+      <input id="search" placeholder="Поиск по имени..." style="width:100%;padding:12px;border-radius:12px;border:2px solid #9B59B6;background:#1a0033;color:#fff;margin:10px 0;" onkeyup="filterWorld()">
+      <div class="pokedex-grid" id="world-grid"></div>`;
+    renderWorldGrid();
+  }
+}
+
+function renderWorldGrid() {
+  const grid = document.getElementById('world-grid');
   grid.innerHTML = '';
-  list.forEach(h => {
+  pokedexData.forEach(h => {
     const card = document.createElement('div');
     card.className = 'pokedex-card';
     card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>#${h.num}</strong><br><span>${h.ru}</span>`;
@@ -179,44 +170,69 @@ function renderGrid(id, list) {
   });
 }
 
-function filterHeroes() {
+function filterWorld() {
   const term = document.getElementById('search').value.toLowerCase();
-  const filtered = allHeroes().filter(h => h.ru.toLowerCase().includes(term));
-  renderGrid('all-grid', filtered);
+  const filtered = pokedexData.filter(h => h.ru.toLowerCase().includes(term));
+  const grid = document.getElementById('world-grid');
+  grid.innerHTML = '';
+  filtered.forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'pokedex-card';
+    card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>#${h.num}</strong><br><span>${h.ru}</span>`;
+    card.onclick = () => showHeroDetail(h);
+    grid.appendChild(card);
+  });
+}
+
+function renderParty() {
+  const container = document.getElementById('party-list');
+  container.innerHTML = '';
+  myHeroes.forEach(h => {
+    const percent = Math.floor((h.hp / h.maxHp) * 100);
+    const div = document.createElement('div');
+    div.className = 'party-card';
+    div.innerHTML = `
+      <img src="${h.sprite}" alt="${h.ru}">
+      <div class="party-info">
+        <div class="party-name">#${h.num} ${h.ru}</div>
+        <div class="party-lv">Lv.${h.level}</div>
+        <div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div>
+        <small>${h.hp}/${h.maxHp} HP</small>
+      </div>
+    `;
+    container.appendChild(div);
+  });
 }
 
 function showHeroDetail(h) {
   const caught = myHeroes.some(m => m.num === h.num);
   document.getElementById('modal-content').innerHTML = `
-    <img src="${h.sprite}" style="width:150px;height:150px;margin:15px auto;display:block;">
+    <img src="${h.sprite}" style="width:160px;height:160px;margin:15px auto;display:block;">
     <h2>#${h.num} ${h.ru}</h2>
-    ${!caught ? `<button onclick="catchHero('${h.num}')" style="background:#00cc66;width:100%;padding:16px;margin:20px 0;">🔥 Поймать героя</button>` : '<p style="color:#00cc66;font-size:18px;">✓ Уже в коллекции</p>'}
+    <p style="color:#C084FC">${h.en || ''}</p>
+    ${caught ? '<p style="color:#00cc66;">✓ Уже в твоей команде</p>' : ''}
+    ${!caught ? `<button onclick="catchHero('${h.num}')" style="background:#00cc66;width:100%;padding:16px;margin:15px 0;">🔥 Поймать</button>` : ''}
     <button onclick="closeModal()" style="width:100%;">Закрыть</button>
   `;
   document.getElementById('modal').style.display = 'flex';
 }
 
 function catchHero(num) {
-  const hero = allHeroes().find(h => h.num === num);
-  if (hero && !myHeroes.find(h => h.num === num)) myHeroes.push(hero);
-  alert(`✅ ${hero.ru} добавлен в Мои герои!`);
+  const hero = pokedexData.find(h => h.num === num);
+  if (hero && !myHeroes.find(m => m.num === num)) {
+    myHeroes.push({ ...hero, hp: 180, maxHp: 180, level: 25 });
+    alert(`✅ ${hero.ru} пойман и добавлен в Мои герои!`);
+  }
   closeModal();
+  if (document.getElementById('inventory-screen').classList.contains('active')) showLunadexSection('my');
 }
 
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-// ====================== ИГРА (карта + бой) ======================
-function enterOverworld() {
-  const container = document.getElementById('battle-container');
-  container.innerHTML = `<div style="text-align:center;padding:20px;background:#0a3d0a;border-radius:16px;color:#fff;">🌍 Карта мира в разработке<br><br>Скоро здесь будет полноценное передвижение</div>`;
-  alert("🌍 Исследование мира открыто! (в следующей версии будет карта)");
-}
-
 // ====================== ЗАПУСК ======================
 window.onload = () => {
   switchTab(0);
-  console.log('✅ NĒXUS загружен полностью!');
-  console.log('   Покемонов загружено:', typeof pokedexData !== 'undefined' ? pokedexData.length : 0);
+  console.log('✅ Полный index загружен!');
 };
 </script>
 </body>
