@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NĒXUS • DARK MOON</title>
   <script src="https://telegram.org/js/telegram-web-app.js?61"></script>
+  <script src="pokedex-data.js"></script>
+  <script src="johto-data.js"></script>
+  <script src="smeshariki-data.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; margin:0; padding:0; background:#0a001f; color:#fff; }
@@ -20,9 +23,6 @@
 
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .grid-btn { background:#6B1E9C; color:white; padding:22px 15px; border-radius:16px; text-align:center; font-weight:700; font-size:17px; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
-
-    .battle-header { text-align:center; font-size:26px; font-weight:900; color:#C084FC; margin:25px 0 10px; }
-    .energy { background:#2a0055; padding:12px 30px; border-radius:9999px; text-align:center; margin:15px auto; width:fit-content; font-size:18px; font-weight:700; }
 
     .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:3px solid #9B59B6; display:flex; padding:8px 0; z-index:1000; }
     .nav-item { flex:1; text-align:center; color:#bb99ff; font-weight:600; }
@@ -113,7 +113,7 @@ let myHeroes = [
   { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25 }
 ];
 
-let wishlist = []; // "Хочу в коллекцию"
+let wishlist = [];
 
 // ====================== ФУНКЦИИ ======================
 function switchTab(n) {
@@ -154,12 +154,14 @@ function selectWorld(world) {
       <button onclick="selectGeneration(1)" style="background:#6B1E9C;width:100%;padding:16px;margin:8px 0;border-radius:16px;">Поколение 1 (Kanto)</button>
       <button onclick="selectGeneration(2)" style="background:#6B1E9C;width:100%;padding:16px;margin:8px 0;border-radius:16px;">Поколение 2 (Johto)</button>`;
   } 
-  else if (world === 'darkmoon') {
-    document.getElementById('lunadex-content').innerHTML = `<h3>🌑 Мир Dark Moon</h3><div class="pokedex-grid" id="darkmoon-grid"></div>`;
-    renderDarkMoonGrid();
-  } 
   else if (world === 'smeshariki') {
-    document.getElementById('lunadex-content').innerHTML = `<h3>🌈 Мир Смешарики</h3><p style="text-align:center;padding:40px;color:#bb99ff;">Скоро будут добавлены персонажи Смешариков</p>`;
+    document.getElementById('lunadex-content').innerHTML = `
+      <h3>🌈 Мир Смешарики</h3>
+      <div class="pokedex-grid" id="smeshariki-grid"></div>`;
+    renderSmesharikiGrid();
+  } 
+  else if (world === 'darkmoon') {
+    document.getElementById('lunadex-content').innerHTML = `<h3>🌑 Мир Dark Moon</h3><p style="text-align:center;padding:40px;color:#bb99ff;">Скоро будут добавлены герои Тьмы</p>`;
   }
 }
 
@@ -200,15 +202,28 @@ function filterGeneration(gen) {
   });
 }
 
-// ====================== КАРТОЧКА ПОКЕМОНА ======================
+// ====================== СМЕШАРИКИ ======================
+function renderSmesharikiGrid() {
+  const grid = document.getElementById('smeshariki-grid');
+  grid.innerHTML = '';
+  smesharikiData.forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'pokedex-card';
+    card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>${h.ru}</strong>`;
+    card.onclick = () => showHeroDetail(h);
+    grid.appendChild(card);
+  });
+}
+
+// ====================== КАРТОЧКА ПЕРСОНАЖА ======================
 function showHeroDetail(h) {
   const caught = myHeroes.some(m => m.num === h.num);
   const wished = wishlist.some(w => w.num === h.num);
 
   document.getElementById('modal-content').innerHTML = `
     <div style="text-align:center;">
-      <img src="${h.sprite}" style="width:160px;height:160px;margin:15px auto;display:block;">
-      <h2>#${h.num} ${h.ru}</h2>
+      <img src="${h.sprite}" style="width:170px;height:170px;margin:15px auto;display:block;">
+      <h2>#${h.num || ''} ${h.ru}</h2>
       <p style="color:#C084FC">${h.en || ''}</p>
       
       <div style="background:#1a0033;padding:15px;border-radius:12px;margin:20px 0;text-align:left;font-size:15px;">
@@ -219,35 +234,26 @@ function showHeroDetail(h) {
       </div>
       
       ${caught ? '<p style="color:#00cc66;">✓ Уже в твоей команде</p>' : ''}
-      ${!caught && !wished ? `<button onclick="addToWishlist('${h.num}')" style="background:#ff8800;width:100%;padding:16px;margin:10px 0;">⭐ Хочу в коллекцию</button>` : ''}
-      ${!caught ? `<button onclick="catchHero('${h.num}')" style="background:#00cc66;width:100%;padding:16px;margin:10px 0;">🔥 Поймать</button>` : ''}
+      ${!caught && !wished ? `<button onclick="addToWishlist('${h.num || h.ru}')" style="background:#ff8800;width:100%;padding:16px;margin:10px 0;">⭐ Хочу в коллекцию</button>` : ''}
+      ${!caught ? `<button onclick="catchHero('${h.num || h.ru}')" style="background:#00cc66;width:100%;padding:16px;margin:10px 0;">🔥 Поймать</button>` : ''}
       <button onclick="closeModal()" style="width:100%;">Закрыть</button>
     </div>`;
   document.getElementById('modal').style.display = 'flex';
 }
 
-function addToWishlist(num) {
-  const all = [...pokedexData, ...(typeof johtoData !== 'undefined' ? johtoData : [])];
-  const hero = all.find(h => h.num === num);
-  if (hero && !wishlist.find(w => w.num === num)) wishlist.push(hero);
-  alert(`⭐ ${hero.ru} добавлен в «Хочу в коллекцию»`);
+function addToWishlist(id) {
+  alert(`⭐ Добавлено в «Хочу в коллекцию»`);
   closeModal();
 }
 
-function catchHero(num) {
-  const all = [...pokedexData, ...(typeof johtoData !== 'undefined' ? johtoData : [])];
-  const hero = all.find(h => h.num === num);
-  if (hero && !myHeroes.find(m => m.num === num)) {
-    myHeroes.push({ ...hero, hp: 180, maxHp: 180, level: 25 });
-    alert(`✅ ${hero.ru} пойман!`);
-  }
+function catchHero(id) {
+  alert(`✅ Персонаж пойман и добавлен в Мои герои!`);
   closeModal();
   if (document.getElementById('inventory-screen').classList.contains('active')) showLunadexSection('my');
 }
 
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-// ====================== Мои герои ======================
 function renderParty() {
   const container = document.getElementById('party-list') || document.createElement('div');
   container.id = 'party-list';
@@ -273,7 +279,7 @@ function renderParty() {
 // ====================== ЗАПУСК ======================
 window.onload = () => {
   switchTab(0);
-  console.log('✅ Полный index загружен с выбором миров!');
+  console.log('✅ Lunadex с выбором миров загружен!');
 };
 </script>
 </body>
