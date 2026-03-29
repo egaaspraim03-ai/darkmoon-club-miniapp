@@ -8,6 +8,7 @@
   <script src="pokedex-data.js"></script>
   <script src="johto-data.js"></script>
   <script src="smeshariki-data.js"></script>
+  <script src="darkmoon-data.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; margin:0; padding:0; background:#0a001f; color:#fff; }
@@ -161,7 +162,13 @@ function selectWorld(world) {
     renderSmesharikiGrid();
   } 
   else if (world === 'darkmoon') {
-    document.getElementById('lunadex-content').innerHTML = `<h3>🌑 Мир Dark Moon</h3><p style="text-align:center;padding:40px;color:#bb99ff;">Скоро будут добавлены герои Тьмы</p>`;
+    document.getElementById('lunadex-content').innerHTML = `
+      <h3>🌑 Мир Dark Moon</h3>
+      <input id="search" placeholder="Поиск по имени..." 
+             style="width:100%;padding:12px;border-radius:12px;border:2px solid #9B59B6;background:#1a0033;color:#fff;margin:10px 0;" 
+             onkeyup="filterDarkMoon()">
+      <div class="pokedex-grid" id="darkmoon-grid"></div>`;
+    renderDarkMoonGrid();
   }
 }
 
@@ -210,6 +217,33 @@ function renderSmesharikiGrid() {
     const card = document.createElement('div');
     card.className = 'pokedex-card';
     card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>${h.ru}</strong>`;
+    card.onclick = () => showHeroDetail(h);
+    grid.appendChild(card);
+  });
+}
+
+// ====================== DARK MOON ======================
+function renderDarkMoonGrid() {
+  const grid = document.getElementById('darkmoon-grid');
+  grid.innerHTML = '';
+  darkmoonData.forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'pokedex-card';
+    card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>#${h.num}</strong><br><span>${h.ru}</span>`;
+    card.onclick = () => showHeroDetail(h);
+    grid.appendChild(card);
+  });
+}
+
+function filterDarkMoon() {
+  const term = document.getElementById('search').value.toLowerCase();
+  const filtered = darkmoonData.filter(h => h.ru.toLowerCase().includes(term));
+  const grid = document.getElementById('darkmoon-grid');
+  grid.innerHTML = '';
+  filtered.forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'pokedex-card';
+    card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>#${h.num}</strong><br><span>${h.ru}</span>`;
     card.onclick = () => showHeroDetail(h);
     grid.appendChild(card);
   });
@@ -279,7 +313,7 @@ function renderParty() {
 // ====================== ЗАПУСК ======================
 window.onload = () => {
   switchTab(0);
-  console.log('✅ Lunadex с выбором миров загружен!');
+  console.log('✅ Lunadex с выбором миров и Dark Moon загружен!');
 };
 </script>
 </body>
