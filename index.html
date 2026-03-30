@@ -21,8 +21,7 @@
     .subtitle { color:#bb99ff; font-size:18px; margin:5px 0 15px; }
     .stats { font-size:15px; color:#bb99ff; }
 
-    .big-button { background:#6B1E9C; color:white; width:100%; padding:18px; margin:8px 0; border-radius:16px; font-size:18px; font-weight:700; display:flex; align-items:center; gap:12px; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
-
+    .big-button, .zone-btn { background:#6B1E9C; color:white; width:100%; padding:18px; margin:8px 0; border-radius:16px; font-size:18px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .grid-btn { background:#6B1E9C; color:white; padding:22px 15px; border-radius:16px; text-align:center; font-weight:700; font-size:17px; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
 
@@ -50,12 +49,11 @@
     .hp-bar { height:12px; background:#222; border-radius:6px; overflow:hidden; margin-top:6px; }
     .hp-fill { height:100%; background:linear-gradient(#00ff88, #00cc66); transition:width .4s; }
 
-    /* === OVERWORLD STYLES === */
     #overworld-container { width:320px; margin:20px auto; border:6px solid #9B59B6; border-radius:20px; overflow:hidden; box-shadow:0 0 40px rgba(155,89,182,0.6); background:#0a001f; }
-    .zone-selector { display:flex; flex-wrap:wrap; gap:10px; padding:15px; justify-content:center; }
-    .zone-btn { background:#6B1E9C; color:white; padding:14px 20px; border-radius:9999px; font-weight:700; font-size:16px; white-space:nowrap; }
-    .zone-btn.active { background:#C084FC; color:#0a001f; }
-    .game-header { text-align:center; padding:10px; font-size:18px; color:#C084FC; }
+    .game-header { background:linear-gradient(135deg,#2a0055,#0f001f); border-radius:24px; padding:15px; text-align:center; margin-bottom:15px; font-size:20px; color:#C084FC; }
+    .controls { display:flex; flex-direction:column; align-items:center; gap:8px; margin:15px auto; max-width:320px; }
+    .control-btn { background:#6B1E9C; color:white; width:70px; height:70px; border-radius:16px; font-size:32px; box-shadow:0 6px 20px rgba(155,89,182,0.5); transition:all 0.1s; }
+    .control-btn:active { transform:scale(0.92); }
   </style>
 </head>
 <body>
@@ -76,10 +74,13 @@
     <div class="big-button"><span>📚</span> Новые главы</div>
   </div>
 
-  <!-- ИГРА (OVERWORLD) -->
+  <!-- ИГРА -->
   <div id="game-screen" class="screen">
-    <div id="zone-selection" class="zone-selector">
-      <div class="game-header">🌍 Выбери зону для исследования</div>
+    <div id="zone-selection">
+      <div class="game-header">
+        <span style="font-size:40px;">🌍</span><br>
+        Выбери зону для исследования
+      </div>
       <button class="zone-btn" onclick="startOverworld('pokemon')">🌲 Лес Покемонов</button>
       <button class="zone-btn" onclick="startOverworld('smeshariki')">🌼 Ромашковая Долина</button>
       <button class="zone-btn" onclick="startOverworld('darkmoon')">🌑 Бездна Dark Moon</button>
@@ -88,13 +89,23 @@
     <div id="overworld-wrapper" style="display:none;">
       <div class="game-header" id="current-zone-name"></div>
       <div id="overworld-container"></div>
-      <div style="text-align:center;margin:15px 0;">
+
+      <div class="controls">
+        <button class="control-btn" onclick="moveDirection('up')">↑</button>
+        <div style="display:flex; gap:12px;">
+          <button class="control-btn" onclick="moveDirection('left')">←</button>
+          <button class="control-btn" onclick="moveDirection('down')">↓</button>
+          <button class="control-btn" onclick="moveDirection('right')">→</button>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:10px;">
         <button onclick="exitOverworld()" style="background:#9B59B6;padding:14px 40px;border-radius:9999px;font-size:17px;">⬅️ Выйти из карты</button>
       </div>
     </div>
   </div>
 
-  <!-- LUNADEx -->
+  <!-- LUNADEx / АРХИВ ТЬМЫ -->
   <div id="inventory-screen" class="screen">
     <div style="text-align:center;margin-bottom:25px;">
       <span style="font-size:36px;">🃏</span>
@@ -121,11 +132,11 @@
   <div class="nav-item" onclick="switchTab(2)"><span>📦</span>Архив Тьмы</div>
 </div>
 
-<!-- Модалка (детали + бой/поимка) -->
+<!-- Модалка -->
 <div id="modal" class="modal"><div class="modal-content" id="modal-content"></div></div>
 
 <script>
-// ====================== УНИВЕРСАЛЬНЫЕ ДАННЫЕ (как в твоём образце) ======================
+// ====================== УНИВЕРСАЛЬНЫЕ ДАННЫЕ ======================
 const gameData = {
   universes: {
     pokemon: [...(typeof pokedexData !== 'undefined' ? pokedexData : []), ...(typeof johtoData !== 'undefined' ? johtoData : [])],
@@ -134,9 +145,6 @@ const gameData = {
   }
 };
 
-console.log(`✅ gameData загружен — Pokémon: ${gameData.universes.pokemon.length} | Смешарики: ${gameData.universes.smeshriki.length} | Dark Moon: ${gameData.universes.darkmoon.length}`);
-
-// ====================== СОХРАНЕНИЕ МОИХ ГЕРОЕВ ======================
 let myHeroes = JSON.parse(localStorage.getItem('myHeroes')) || [
   { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25 }
 ];
@@ -153,7 +161,9 @@ function switchTab(n) {
   document.querySelectorAll('.nav-item')[n].classList.add('active');
 }
 
-function openLink(url) { Telegram.WebApp.openLink(url); }
+function openLink(url) {
+  Telegram.WebApp.openLink(url);
+}
 
 // ====================== LUNADEx ======================
 function showLunadexSection(section) {
@@ -165,33 +175,167 @@ function showLunadexSection(section) {
       <div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
         <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
         <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности, что прорвались сквозь Разлом Тьмы.<br>Какой мир ты хочешь узреть, Искатель?</p>
-        
-        <button onclick="selectWorld('pokemon')" style="background:#6B1E9C;width:100%;padding:18px;margin:8px 0;border-radius:16px;font-size:18px;">Мир Покемонов</button>
-        <button onclick="selectWorld('smeshariki')" style="background:#6B1E9C;width:100%;padding:18px;margin:8px 0;border-radius:16px;font-size:18px;">Мир Смешарики</button>
-        <button onclick="selectWorld('darkmoon')" style="background:#6B1E9C;width:100%;padding:18px;margin:8px 0;border-radius:16px;font-size:18px;">Мир Dark Moon</button>
+        <button onclick="selectWorld('pokemon')" class="big-button">Мир Покемонов</button>
+        <button onclick="selectWorld('smeshariki')" class="big-button">Мир Смешарики</button>
+        <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
       </div>`;
   } else if (section === 'my') {
     content.innerHTML = `<h3 style="margin-bottom:15px;">👤 Мои герои (${myHeroes.length})</h3><div id="party-list"></div>`;
     renderParty();
+  } else if (section === 'effectiveness') {
+    content.innerHTML = `<h3 style="text-align:center;color:#C084FC;">📊 Таблица эффективности (в разработке)</h3>`;
   }
 }
 
-function selectWorld(world) { /* существующий код без изменений */ }
-function renderGenerationGrid(data) { /* существующий код */ }
-function filterGeneration(gen) { /* существующий код */ }
-function renderSmesharikiGrid() { /* существующий код */ }
-function renderDarkMoonGrid() { /* существующий код */ }
-function filterDarkMoon() { /* существующий код */ }
-function showHeroDetail(h) { /* существующий код */ }
-function addToWishlist(id) { /* существующий код */ }
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function selectWorld(world) {
+  const content = document.getElementById('lunadex-content');
+  content.innerHTML = `<h3 style="margin-bottom:15px;">🌐 ${world === 'pokemon' ? 'Мир Покемонов' : world === 'smeshariki' ? 'Мир Смешарики' : 'Мир Dark Moon'}</h3>`;
+  
+  const grid = document.createElement('div');
+  grid.className = 'pokedex-grid';
+  grid.id = 'world-grid';
+  content.appendChild(grid);
+  renderWorldGrid(world);
+}
 
-function catchHero(hero) {
-  myHeroes.push({...hero, hp: 180, maxHp: 180, level: 1});
+function renderWorldGrid(world) {
+  const grid = document.getElementById('world-grid');
+  grid.innerHTML = '';
+  const data = gameData.universes[world];
+  data.forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'pokedex-card';
+    card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>${h.num || ''}</strong><br><span>${h.ru}</span>`;
+    card.onclick = () => showHeroDetail(h);
+    grid.appendChild(card);
+  });
+}
+
+function showHeroDetail(h) {
+  const caught = myHeroes.some(m => m.num === h.num);
+  const modalContent = document.getElementById('modal-content');
+  modalContent.innerHTML = `
+    <div style="text-align:center;">
+      <img src="${h.sprite}" style="width:170px;height:170px;margin:15px auto;display:block;">
+      <h2>#${h.num || ''} ${h.ru}</h2>
+      <p style="color:#C084FC">${h.en || ''}</p>
+      ${caught ? '<p style="color:#00cc66;">✓ Уже в Архиве Тьмы</p>' : ''}
+      ${!caught ? `<button onclick="catchHeroFromLunadex('${h.num || h.ru}', '${h.ru}', '${h.sprite}')" style="background:#00cc66;width:100%;padding:18px;margin:10px 0;border-radius:16px;font-size:18px;">🔥 Поймать</button>` : ''}
+      <button onclick="closeModal()" style="width:100%;">Закрыть</button>
+    </div>`;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function catchHeroFromLunadex(num, ru, sprite) {
+  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1});
   saveMyHeroes();
-  alert(`✅ ${hero.ru} пойман и добавлен в Архив Тьмы!`);
   closeModal();
-  if (document.getElementById('inventory-screen').classList.contains('active')) showLunadexSection('my');
+  alert(`✅ ${ru} добавлен в Архив Тьмы!`);
+}
+
+// ====================== OVERWORLD (Phaser 3) ======================
+let phaserGame = null;
+let currentZone = null;
+let playerGridX = 5;
+let playerGridY = 5;
+let playerSprite = null;
+
+const mapData = [
+  [1,1,1,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,1],
+  [1,0,1,1,0,0,1,0,0,1],
+  [1,0,0,0,0,1,0,0,0,1],
+  [1,0,0,0,0,0,0,1,0,1],
+  [1,0,1,0,0,0,0,0,0,1],
+  [1,0,0,0,1,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1]
+];
+
+class OverworldScene extends Phaser.Scene {
+  constructor() { super('OverworldScene'); }
+  create() {
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
+        const color = mapData[y][x] === 0 ? 0x228B22 : 0x8B4513;
+        this.add.rectangle(x * 32 + 16, y * 32 + 16, 32, 32, color).setStrokeStyle(3, 0x000000);
+      }
+    }
+    playerSprite = this.add.rectangle(playerGridX * 32 + 16, playerGridY * 32 + 16, 28, 28, 0x1E90FF).setStrokeStyle(6, 0xFFFFFF);
+  }
+}
+
+function startOverworld(zone) {
+  currentZone = zone;
+  document.getElementById('zone-selection').style.display = 'none';
+  document.getElementById('overworld-wrapper').style.display = 'block';
+  document.getElementById('current-zone-name').innerHTML = `🌍 ${zone === 'pokemon' ? 'Лес Покемонов' : zone === 'smeshariki' ? 'Ромашковая Долина' : 'Бездна Dark Moon'}`;
+
+  if (phaserGame) phaserGame.destroy(true);
+
+  phaserGame = new Phaser.Game({
+    type: Phaser.AUTO,
+    width: 320,
+    height: 320,
+    parent: 'overworld-container',
+    backgroundColor: '#0a001f',
+    scene: OverworldScene
+  });
+
+  window.moveDirection = function (dir) {
+    if (!playerSprite) return;
+    let nx = playerGridX, ny = playerGridY;
+    if (dir === 'up') ny--;
+    if (dir === 'down') ny++;
+    if (dir === 'left') nx--;
+    if (dir === 'right') nx++;
+
+    if (nx < 0 || nx > 9 || ny < 0 || ny > 9 || mapData[ny][nx] === 1) return;
+
+    playerGridX = nx;
+    playerGridY = ny;
+    playerSprite.x = playerGridX * 32 + 16;
+    playerSprite.y = playerGridY * 32 + 16;
+
+    if (mapData[ny][nx] === 0 && Math.random() < 0.10) {
+      spawnHero(currentZone);
+    }
+  };
+}
+
+function spawnHero(zone) {
+  const pool = gameData.universes[zone];
+  const hero = pool[Math.floor(Math.random() * pool.length)];
+  const modalContent = document.getElementById('modal-content');
+  modalContent.innerHTML = `
+    <div style="text-align:center;">
+      <h2 style="color:#ff8800;">🐾 Дикий ${hero.ru} появился!</h2>
+      <img src="${hero.sprite}" style="width:160px;height:160px;margin:20px 0;">
+      <button onclick="catchHeroFromEncounter('${hero.num || hero.ru}', '${hero.ru}', '${hero.sprite}')" style="background:#00cc66;width:100%;padding:18px;margin:10px 0;border-radius:16px;font-size:18px;">🔥 Поймать!</button>
+      <button onclick="closeModal()" style="width:100%;">Убежать</button>
+    </div>`;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function catchHeroFromEncounter(num, ru, sprite) {
+  myHeroes.push({num, ru, sprite, hp:150, maxHp:150, level:1});
+  saveMyHeroes();
+  closeModal();
+  alert(`✅ ${ru} пойман и добавлен в Архив Тьмы!`);
+}
+
+function exitOverworld() {
+  if (phaserGame) phaserGame.destroy(true);
+  phaserGame = null;
+  playerSprite = null;
+  document.getElementById('overworld-wrapper').style.display = 'none';
+  document.getElementById('zone-selection').style.display = 'block';
+  currentZone = null;
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
 }
 
 function renderParty() {
@@ -209,142 +353,17 @@ function renderParty() {
         <div class="party-lv">Lv.${h.level}</div>
         <div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div>
         <small>${h.hp}/${h.maxHp} HP</small>
-      </div>
-    `;
+      </div>`;
     container.appendChild(div);
   });
   if (!document.getElementById('party-list')) document.getElementById('lunadex-content').appendChild(container);
 }
 
-// ====================== OVERWORLD (Phaser 3) ======================
-let phaserGame = null;
-let currentZone = null;
-let playerGridX = 5;
-let playerGridY = 5;
-let playerSprite = null;
-
-// Карта 10×10 (0 = трава, 1 = стена)
-const mapData = [
-  [1,1,1,1,1,1,1,1,1,1],
-  [1,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,1],
-  [1,0,1,1,0,0,1,0,0,1],
-  [1,0,0,0,0,1,0,0,0,1],
-  [1,0,0,0,0,0,0,1,0,1],
-  [1,0,1,0,0,0,0,0,0,1],
-  [1,0,0,0,1,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,1],
-  [1,1,1,1,1,1,1,1,1,1]
-];
-
-class OverworldScene extends Phaser.Scene {
-  constructor() { super('OverworldScene'); }
-
-  create() {
-    // Рисуем карту
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
-        const color = mapData[y][x] === 0 ? 0x228B22 : 0x8B4513;
-        const tile = this.add.rectangle(x * 32 + 16, y * 32 + 16, 32, 32, color);
-        tile.setStrokeStyle(3, 0x000000);
-      }
-    }
-
-    // Персонаж
-    playerSprite = this.add.rectangle(playerGridX * 32 + 16, playerGridY * 32 + 16, 28, 28, 0x1E90FF);
-    playerSprite.setStrokeStyle(6, 0xFFFFFF);
-
-    console.log('%c✅ Overworld запущен для зоны: ' + currentZone, 'color:#C084FC;font-weight:700');
-  }
-}
-
-function startOverworld(zone) {
-  currentZone = zone;
-  document.getElementById('zone-selection').style.display = 'none';
-  document.getElementById('overworld-wrapper').style.display = 'block';
-  document.getElementById('current-zone-name').innerHTML = `🌍 ${zone === 'pokemon' ? 'Лес Покемонов' : zone === 'smeshariki' ? 'Ромашковая Долина' : 'Бездна Dark Moon'}`;
-
-  if (phaserGame) phaserGame.destroy(true);
-
-  const config = {
-    type: Phaser.AUTO,
-    width: 320,
-    height: 320,
-    parent: 'overworld-container',
-    backgroundColor: '#0a001f',
-    scene: OverworldScene,
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH }
-  };
-
-  phaserGame = new Phaser.Game(config);
-
-  // Глобальная функция движения (вызывается кнопками)
-  window.moveDirection = function (dir) {
-    if (!playerSprite) return;
-    let nx = playerGridX, ny = playerGridY;
-
-    if (dir === 'up') ny--;
-    if (dir === 'down') ny++;
-    if (dir === 'left') nx--;
-    if (dir === 'right') nx++;
-
-    if (nx < 0 || nx > 9 || ny < 0 || ny > 9) return;
-    if (mapData[ny][nx] === 1) return; // стена
-
-    playerGridX = nx;
-    playerGridY = ny;
-    playerSprite.x = playerGridX * 32 + 16;
-    playerSprite.y = playerGridY * 32 + 16;
-
-    // 10% шанс встречи на траве
-    if (mapData[ny][nx] === 0 && Math.random() < 0.10) {
-      spawnHero(currentZone);
-    }
-  };
-}
-
-function spawnHero(zoneKey) {
-  const pool = gameData.universes[zoneKey] || gameData.universes.pokemon;
-  const hero = pool[Math.floor(Math.random() * pool.length)];
-
-  // Экран встречи
-  const modalContent = document.getElementById('modal-content');
-  modalContent.innerHTML = `
-    <div style="text-align:center;">
-      <h2 style="color:#ff8800;">🐾 Дикий ${hero.ru} появился!</h2>
-      <img src="${hero.sprite}" style="width:160px;height:160px;margin:20px 0;">
-      <p style="font-size:18px;">${hero.ru} (${hero.en || ''})</p>
-      <button onclick="catchHeroFromEncounter('${hero.num || hero.ru}', '${hero.ru}', '${hero.sprite}')" style="background:#00cc66;width:100%;padding:18px;margin:10px 0;border-radius:16px;font-size:18px;">🔥 Поймать!</button>
-      <button onclick="closeModal()" style="width:100%;">Убежать</button>
-    </div>`;
-  document.getElementById('modal').style.display = 'flex';
-}
-
-function catchHeroFromEncounter(num, ru, sprite) {
-  const hero = { num, ru, sprite, hp: 150, maxHp: 150, level: 1 };
-  myHeroes.push(hero);
-  saveMyHeroes();
-  closeModal();
-  alert(`✅ ${ru} пойман и добавлен в Архив Тьмы!`);
-}
-
-// ====================== ВЫХОД ИЗ КАРТЫ ======================
-function exitOverworld() {
-  if (phaserGame) {
-    phaserGame.destroy(true);
-    phaserGame = null;
-  }
-  playerSprite = null;
-  document.getElementById('overworld-wrapper').style.display = 'none';
-  document.getElementById('zone-selection').style.display = 'flex';
-  currentZone = null;
-}
-
 // ====================== ЗАПУСК ======================
 window.onload = () => {
   switchTab(0);
-  console.log('✅ Полный проект Dark Moon + Phaser Overworld загружен!');
-  console.log('🎮 Кликни «Игра» → выбери зону → ходи стрелками → 10% шанс встречи!');
+  console.log('✅ NĒXUS • DARK MOON полностью загружен и готов к работе!');
+  console.log('🎮 Перейди в "Игра" → выбери зону → используй стрелки');
 };
 </script>
 </body>
