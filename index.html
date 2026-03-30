@@ -18,50 +18,16 @@
     body { font-family: 'Inter', system-ui, sans-serif; margin:0; padding:0; background:#0a001f; color:#fff; }
     .container { max-width:480px; margin:0 auto; padding:16px 16px 130px; min-height:100vh; }
 
-    .header { 
-      background:linear-gradient(135deg,#2a0055,#0f001f); 
-      border:5px solid #C084FC; 
-      border-radius:28px; 
-      padding:30px 20px; 
-      text-align:center; 
-      margin-bottom:25px; 
-      box-shadow:0 0 60px rgba(192,132,252,0.7);
-    }
+    .header { background:linear-gradient(135deg,#2a0055,#0f001f); border:5px solid #C084FC; border-radius:28px; padding:30px 20px; text-align:center; margin-bottom:25px; box-shadow:0 0 60px rgba(192,132,252,0.7); }
     .avatar { width:140px; height:140px; border-radius:50%; border:8px solid #C084FC; box-shadow:0 0 50px #C084FC; margin-bottom:15px; }
     .title { font-size:52px; font-weight:900; color:#C084FC; letter-spacing:4px; margin:0; text-shadow:0 0 25px #C084FC; }
-    .subtitle { font-size:19px; color:#bb99ff; margin:8px 0 18px; }
-    .stats { font-size:15px; color:#bb99ff; line-height:1.4; }
 
-    .club-section { 
-      background:#1a0033; 
-      border:4px solid #C084FC; 
-      border-radius:24px; 
-      padding:20px; 
-      margin-bottom:25px; 
-      box-shadow:0 0 50px rgba(192,132,252,0.5);
-    }
+    .club-section { background:#1a0033; border:4px solid #C084FC; border-radius:24px; padding:20px; margin-bottom:25px; box-shadow:0 0 50px rgba(192,132,252,0.5); }
 
-    .big-button { 
-      background:#6B1E9C; color:white; width:100%; padding:19px 20px; margin:10px 0; 
-      border-radius:18px; font-size:18.5px; font-weight:700; 
-      box-shadow:0 6px 20px rgba(155,89,182,0.5); 
-      display:flex; align-items:center; gap:16px; 
-      transition: all 0.25s;
-    }
+    .big-button { background:#6B1E9C; color:white; width:100%; padding:19px 20px; margin:10px 0; border-radius:18px; font-size:18.5px; font-weight:700; box-shadow:0 6px 20px rgba(155,89,182,0.5); display:flex; align-items:center; gap:16px; transition: all 0.25s; }
     .big-button:hover, .big-button:active { transform:scale(1.03); box-shadow:0 0 35px #C084FC; }
 
-    .section-title { 
-      color:#C084FC; font-size:17px; font-weight:700; 
-      margin:15px 0 10px; text-align:center; 
-      text-shadow:0 0 10px #C084FC;
-    }
-
-    .bottom-nav { 
-      position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; 
-      background:linear-gradient(90deg,#1a0033,#2a0055); 
-      border-top:4px solid #C084FC; 
-      display:flex; padding:10px 0; z-index:1000; 
-    }
+    .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:4px solid #C084FC; display:flex; padding:10px 0; z-index:1000; }
     .nav-item { flex:1; text-align:center; color:#bb99ff; font-weight:600; }
     .nav-item.active { color:#fff; text-shadow:0 0 15px #C084FC; }
     .nav-item span { font-size:28px; display:block; margin-bottom:3px; }
@@ -69,90 +35,89 @@
     .screen { display:none; }
     .screen.active { display:block; }
 
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; align-items:center; justify-content:center; padding:20px; }
-    .modal-content { background:#1a0033; border-radius:20px; padding:20px; width:100%; max-width:440px; max-height:92vh; overflow-y:auto; box-shadow:0 0 40px #C084FC; }
+    /* ==================== LUNADEx СЕТКА ==================== */
+    .lunadex-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; padding:0 10px; }
+    .lunadex-card { background:#6B1E9C; border-radius:20px; padding:20px 15px; text-align:center; font-weight:700; font-size:17px; box-shadow:0 6px 20px rgba(155,89,182,0.5); transition:0.2s; }
+    .lunadex-card:hover { transform:scale(1.05); box-shadow:0 0 30px #C084FC; }
+
+    /* ==================== ДЖОЙСТИК ==================== */
+    #joystick-container { width:200px; height:200px; margin:20px auto; position:relative; }
+    #joystick-base { width:200px; height:200px; background:rgba(192,132,252,0.15); border:6px solid #C084FC; border-radius:50%; position:relative; box-shadow:0 0 30px #C084FC; }
+    #joystick-thumb { width:70px; height:70px; background:#C084FC; border-radius:50%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); box-shadow:0 0 25px #C084FC; transition:transform 0.05s; }
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ==================== КЛУБ ==================== -->
+  <!-- КЛУБ (с обводкой) -->
   <div id="club-screen" class="screen active">
     <div class="header">
       <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar">
       <h1 class="title">DARK MOON</h1>
-      <p class="subtitle">Клуб Тьмы</p>
-      <div class="stats">103 участника • Уровень 6 • 23 место<br>Вместе в вечной тьме 🔥</div>
+      <p style="color:#bb99ff;margin:8px 0 18px;">Клуб Тьмы</p>
+      <div style="font-size:15px;color:#bb99ff;">103 участника • Уровень 6 • 23 место<br>Вместе в вечной тьме 🔥</div>
     </div>
 
-    <!-- Основной блок сайта (внутри одной рамки) -->
     <div class="club-section">
-      <div class="section-title">🌐 Mangabuff.ru</div>
+      <div style="color:#C084FC;font-weight:700;margin-bottom:12px;text-align:center;">🌐 Mangabuff.ru</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon')"><span>🔥</span> Мой клуб</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')"><span>📈</span> Внести вклад / Вклады</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/manga/test')"><span>🃏</span> Клубные карты</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs')"><span>🏆</span> Рейтинг клубов</div>
     </div>
 
-    <!-- Отдельный блок Telegram (тоже строго в рамке) -->
     <div class="club-section">
-      <div class="section-title">📱 Telegram</div>
+      <div style="color:#C084FC;font-weight:700;margin-bottom:12px;text-align:center;">📱 Telegram</div>
       <div class="big-button" onclick="openLink('https://t.me/mangabuff')"><span>📰</span> Официальные новости</div>
       <div class="big-button" onclick="openLink('https://t.me/modermangabuff')"><span>👥</span> Чатик модераторов</div>
       <div class="big-button" onclick="openLink('https://t.me/podmbff')"><span>👂</span> Подслушано на mangabuff</div>
     </div>
   </div>
 
-  <!-- ==================== ИГРА ==================== -->
+  <!-- ИГРА (с джойстиком) -->
   <div id="game-screen" class="screen">
-    <div id="zone-selection" style="text-align:center;padding:20px 0;">
-      <h2 style="color:#C084FC;margin-bottom:20px;">🌍 Выбери зону для исследования</h2>
-      <button onclick="startOverworld('pokemon')" class="big-button" style="margin:10px auto;width:90%;justify-content:center;">🌲 Лес Покемонов</button>
-      <button onclick="startOverworld('smeshariki')" class="big-button" style="margin:10px auto;width:90%;justify-content:center;">🌼 Ромашковая Долина</button>
-      <button onclick="startOverworld('darkmoon')" class="big-button" style="margin:10px auto;width:90%;justify-content:center;">🌑 Бездна Dark Moon</button>
+    <div id="zone-selection" style="text-align:center;padding:30px 20px;">
+      <h2 style="color:#C084FC;">🌍 Выбери зону</h2>
+      <button onclick="startOverworld('pokemon')" class="big-button" style="width:90%;margin:12px auto;">🌲 Лес Покемонов</button>
+      <button onclick="startOverworld('smeshariki')" class="big-button" style="width:90%;margin:12px auto;">🌼 Ромашковая Долина</button>
+      <button onclick="startOverworld('darkmoon')" class="big-button" style="width:90%;margin:12px auto;">🌑 Бездна Dark Moon</button>
     </div>
 
     <div id="overworld-wrapper" style="display:none;">
       <div id="current-zone-name" style="text-align:center;font-size:22px;color:#C084FC;margin:10px 0;"></div>
       <div id="overworld-container" style="width:320px;height:320px;margin:0 auto;background:#000;border:4px solid #C084FC;border-radius:12px;"></div>
-      <div style="text-align:center;margin:15px 0 10px;">
-        <button onclick="moveDirection('up')" class="big-button" style="width:80px;height:80px;font-size:32px;margin:0 auto;display:block;">↑</button>
-        <div style="display:flex;justify-content:center;gap:15px;">
-          <button onclick="moveDirection('left')" class="big-button" style="width:80px;height:80px;font-size:32px;">←</button>
-          <button onclick="moveDirection('down')" class="big-button" style="width:80px;height:80px;font-size:32px;">↓</button>
-          <button onclick="moveDirection('right')" class="big-button" style="width:80px;height:80px;font-size:32px;">→</button>
+
+      <!-- ДЖОЙСТИК -->
+      <div id="joystick-container">
+        <div id="joystick-base">
+          <div id="joystick-thumb"></div>
         </div>
       </div>
-      <div style="text-align:center;">
-        <button onclick="exitOverworld()" style="background:#9B59B6;color:white;padding:14px 50px;border-radius:9999px;font-size:17px;font-weight:700;">⬅️ Выйти из карты</button>
+
+      <div style="text-align:center;margin-top:10px;">
+        <button onclick="exitOverworld()" style="background:#9B59B6;padding:14px 50px;border-radius:9999px;font-size:17px;">⬅️ Выйти из карты</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== АРХИВ ТЬМЫ (Lunadex) ==================== -->
-  <div id="inventory-screen" class="screen">
-    <div style="text-align:center;margin-bottom:25px;">
-      <span style="font-size:42px;">🃏</span>
-      <h2 style="color:#C084FC;margin:8px 0 5px;">Lunadex</h2>
-      <p style="color:#bb99ff;">Архив Тьмы</p>
+  <!-- АРХИВ ТЬМЫ (LUNADEx) — ИСПРАВЛЕННЫЙ -->
+  <div id="inventory-screen" class="screen active">
+    <div style="text-align:center;margin:20px 0 30px;">
+      <img src="https://i.ibb.co/0jKz8zK/joker-card.png" width="80" style="margin-bottom:10px;">
+      <h1 style="color:#C084FC;font-size:42px;margin:0;">Lunadex</h1>
+      <p style="color:#bb99ff;font-size:20px;">Архив Тьмы</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 10px;">
-      <div onclick="showLunadexSection('lunadex')" class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
-        📖<br>Lunadex
-      </div>
-      <div onclick="showLunadexSection('my')" class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
-        👤<br>Мои герои
-      </div>
-      <div class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
-        🎒<br>Предметы
-      </div>
-      <div onclick="showLunadexSection('effectiveness')" class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
-        📊<br>Таблица типов
-      </div>
+    <div class="lunadex-grid">
+      <div onclick="showLunadexSection('lunadex')" class="lunadex-card">📖<br>Lunadex</div>
+      <div onclick="showLunadexSection('items')" class="lunadex-card">🎒<br>Предметы</div>
+      <div onclick="showLunadexSection('my')" class="lunadex-card">👤<br>Мои герои</div>
+      <div onclick="showLunadexSection('myitems')" class="lunadex-card">📦<br>Мои предметы</div>
+      <div onclick="showLunadexSection('effectiveness')" class="lunadex-card">📊<br>Таблица типов</div>
+      <div onclick="showLunadexSection('events')" class="lunadex-card">🎉<br>Ивенты</div>
     </div>
 
-    <div id="lunadex-content" style="margin-top:25px;min-height:300px;"></div>
+    <div id="lunadex-content" style="margin-top:30px;"></div>
   </div>
 </div>
 
@@ -163,7 +128,42 @@
   <div class="nav-item" onclick="switchTab(2)"><span>📦</span>Архив Тьмы</div>
 </div>
 
-<!-- Модальное окно -->
 <div id="modal" class="modal"><div class="modal-content" id="modal-content"></div></div>
+
+<script>
+// Простой джойстик (работает на тач)
+let joystickActive = false;
+const base = document.getElementById('joystick-base');
+const thumb = document.getElementById('joystick-thumb');
+
+function updateJoystick(e) {
+  if (!joystickActive) return;
+  const rect = base.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  let dx = e.touches ? e.touches[0].clientX - centerX : e.clientX - centerX;
+  let dy = e.touches ? e.touches[0].clientY - centerY : e.clientY - centerY;
+  const dist = Math.min(65, Math.sqrt(dx*dx + dy*dy));
+  const angle = Math.atan2(dy, dx);
+  dx = dist * Math.cos(angle);
+  dy = dist * Math.sin(angle);
+  thumb.style.transform = `translate(${dx}px, ${dy}px)`;
+
+  // Определяем направление
+  const dir = Math.round((angle * 180 / Math.PI + 360) % 360);
+  if (dir > 315 || dir <= 45) moveDirection('right');
+  else if (dir > 45 && dir <= 135) moveDirection('down');
+  else if (dir > 135 && dir <= 225) moveDirection('left');
+  else moveDirection('up');
+}
+
+base.addEventListener('touchstart', () => { joystickActive = true; });
+base.addEventListener('touchmove', updateJoystick);
+base.addEventListener('touchend', () => { joystickActive = false; thumb.style.transform = 'translate(-50%,-50%)'; });
+
+base.addEventListener('mousedown', () => { joystickActive = true; });
+document.addEventListener('mousemove', updateJoystick);
+document.addEventListener('mouseup', () => { joystickActive = false; thumb.style.transform = 'translate(-50%,-50%)'; });
+</script>
 </body>
 </html>
