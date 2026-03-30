@@ -1,12 +1,11 @@
-// lunadex.js — логика Lunadex и Архива Тьмы
-
+// lunadex.js
 function showLunadexSection(section) {
   const content = document.getElementById('lunadex-content');
   content.innerHTML = '';
   if (section === 'lunadex') {
     content.innerHTML = `<div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
       <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
-      <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности, что прорвались сквозь Разлом Тьмы.<br>Какой мир ты хочешь узреть, Искатель?</p>
+      <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности...<br>Какой мир ты хочешь узреть?</p>
       <button onclick="selectWorld('pokemon')" class="big-button">Мир Покемонов</button>
       <button onclick="selectWorld('smeshariki')" class="big-button">Мир Смешарики</button>
       <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
