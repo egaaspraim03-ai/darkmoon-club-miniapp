@@ -6,10 +6,15 @@
   <title>NĒXUS • DARK MOON</title>
   <script src="https://telegram.org/js/telegram-web-app.js?61"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-  <script src="pokedex-data.js"></script>
-  <script src="johto-data.js"></script>
-  <script src="smeshariki-data.js"></script>
-  <script src="darkmoon-data.js"></script>
+
+  <!-- Данные (должен быть первым) -->
+  <script src="data.js"></script>
+
+  <!-- Логика -->
+  <script src="main.js"></script>
+  <script src="lunadex.js"></script>
+  <script src="overworld.js"></script>
+  <script src="battle.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
@@ -34,7 +39,6 @@
     .modal { position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; align-items:center; justify-content:center; padding:20px; }
     .modal-content { background:#1a0033; border-radius:20px; padding:20px; width:100%; max-width:440px; max-height:92vh; overflow-y:auto; box-shadow:0 0 40px #C084FC; }
 
-    /* LUNADEx */
     .pokedex-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:12px; margin-top:15px; }
     .pokedex-card { background:rgba(20,5,45,0.9); border:3px solid #9B59B6; border-radius:16px; padding:10px; text-align:center; cursor:pointer; transition:all .2s; }
     .pokedex-card:hover { transform:scale(1.08); box-shadow:0 0 25px #C084FC; }
@@ -54,7 +58,6 @@
     .control-btn { background:#6B1E9C; color:white; width:70px; height:70px; border-radius:16px; font-size:32px; box-shadow:0 6px 20px rgba(155,89,182,0.5); transition:all 0.1s; }
     .control-btn:active { transform:scale(0.92); }
 
-    /* БОЙ */
     .battle-field { position:relative; height:240px; background:linear-gradient(#112200, #003300); border-radius:12px; overflow:hidden; margin-bottom:15px; }
     .enemy-sprite, .player-sprite { position:absolute; width:110px; height:110px; transition:all 0.3s; }
     .enemy-sprite { top:30px; right:40px; }
@@ -71,7 +74,6 @@
 </head>
 <body>
 <div class="container">
-
   <!-- КЛУБ -->
   <div id="club-screen" class="screen active">
     <div class="header">
@@ -140,57 +142,5 @@
 
 <!-- МОДАЛКА -->
 <div id="modal" class="modal"><div class="modal-content" id="modal-content"></div></div>
-
-<script>
-// ====================== ДАННЫЕ ======================
-const gameData = {
-  universes: {
-    pokemon: [...(typeof pokedexData !== 'undefined' ? pokedexData : []), ...(typeof johtoData !== 'undefined' ? johtoData : [])].map(p => ({...p, type: 'nature'})),
-    smeshariki: (typeof smesharikiData !== 'undefined' ? smesharikiData : []).map(s => ({...s, type: 'toon'})),
-    darkmoon: (typeof darkmoonData !== 'undefined' ? darkmoonData : []).map(d => ({...d, type: 'chaos'}))
-  }
-};
-
-let myHeroes = JSON.parse(localStorage.getItem('myHeroes')) || [
-  { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25, attack: 55, defense: 40, exp: 0, type: 'nature' }
-];
-
-function saveMyHeroes() { localStorage.setItem('myHeroes', JSON.stringify(myHeroes)); }
-
-// ====================== ОСНОВНЫЕ ФУНКЦИИ ======================
-function switchTab(n) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-  document.querySelectorAll('.screen')[n].classList.add('active');
-  document.querySelectorAll('.nav-item')[n].classList.add('active');
-}
-function openLink(url) { Telegram.WebApp.openLink(url); }
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
-// ====================== LUNADEx ======================
-function showLunadexSection(section) {
-  const content = document.getElementById('lunadex-content');
-  content.innerHTML = '';
-  if (section === 'lunadex') {
-    content.innerHTML = `<div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
-      <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
-      <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности...<br>Какой мир ты хочешь узреть?</p>
-      <button onclick="selectWorld('pokemon')" class="big-button">Мир Покемонов</button>
-      <button onclick="selectWorld('smeshariki')" class="big-button">Мир Смешарики</button>
-      <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
-    </div>`;
-  } else if (section === 'my') {
-    content.innerHTML = `<h3 style="margin-bottom:15px;">👤 Мои герои (${myHeroes.length})</h3><div id="party-list"></div>`;
-    renderParty();
-  }
-}
-
-// ... (остальные функции Lunadex, Overworld и Battle такие же как в предыдущем сообщении)
-
-window.onload = () => {
-  switchTab(0);
-  console.log('✅ Полная версия загружена');
-};
-</script>
 </body>
 </html>
