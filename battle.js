@@ -1,4 +1,5 @@
-// battle.js
+// battle.js — полный бой
+
 let currentBattle = null;
 
 function spawnBattle() {
@@ -50,10 +51,10 @@ function addLog(text) {
 }
 
 function updateHPBars() {
-  const pPercent = Math.max(0, Math.floor((currentBattle.player.hp / currentBattle.player.maxHp) * 100));
-  const ePercent = Math.max(0, Math.floor((currentBattle.enemy.hp / currentBattle.enemy.maxHp) * 100));
-  document.getElementById('player-hp-bar').style.width = pPercent + '%';
-  document.getElementById('enemy-hp-bar').style.width = ePercent + '%';
+  const p = Math.max(0, Math.floor((currentBattle.player.hp / currentBattle.player.maxHp) * 100));
+  const e = Math.max(0, Math.floor((currentBattle.enemy.hp / currentBattle.enemy.maxHp) * 100));
+  document.getElementById('player-hp-bar').style.width = p + '%';
+  document.getElementById('enemy-hp-bar').style.width = e + '%';
 }
 
 function battleAction(action) {
