@@ -1,5 +1,4 @@
-// battle.js — полный бой
-
+// battle.js
 let currentBattle = null;
 
 function spawnBattle() {
@@ -66,7 +65,6 @@ function battleAction(action) {
     const multiplier = getDamageMultiplier(player.type, enemy.type);
     let damage = Math.max(1, Math.floor((player.attack * multiplier) - (enemy.defense / 2)));
     if (action === 'skill') damage = Math.floor(damage * 1.4);
-
     enemy.hp = Math.max(0, enemy.hp - damage);
 
     const enemySprite = document.getElementById('enemy-sprite');
@@ -107,7 +105,6 @@ function battleAction(action) {
     player.hp = Math.max(0, player.hp - enemyDamage);
     addLog(`💥 ${enemy.ru} атакует! (-${enemyDamage} HP)`);
     updateHPBars();
-
     if (player.hp <= 0) {
       addLog(`💀 Ты проиграл...`);
       setTimeout(() => showBattleResult(false), 900);
@@ -141,7 +138,6 @@ function endBattle(won) {
   currentBattle = null;
 }
 
-// Таблица эффективности (нужна для battleAction)
 const getDamageMultiplier = (attackerType, defenderType) => {
   if (attackerType === 'chaos' && defenderType === 'nature') return 1.5;
   if (attackerType === 'nature' && defenderType === 'toon') return 1.5;
