@@ -22,19 +22,43 @@
     body { font-family: 'Inter', system-ui, sans-serif; margin:0; padding:0; background:#0a001f; color:#fff; }
     .container { max-width:480px; margin:0 auto; padding:16px 16px 130px; min-height:100vh; }
 
-    .header { background:linear-gradient(135deg,#2a0055,#0f001f); border-radius:24px; padding:30px 20px; text-align:center; margin-bottom:20px; }
-    .avatar { width:130px; height:130px; border-radius:50%; border:8px solid #C084FC; box-shadow:0 0 50px #C084FC; margin-bottom:15px; }
-    .title { font-size:48px; font-weight:900; color:#C084FC; letter-spacing:4px; margin:0; text-shadow:0 0 20px #C084FC; }
-    .subtitle { font-size:18px; color:#bb99ff; margin:8px 0 20px; }
+    .header { 
+      background:linear-gradient(135deg,#2a0055,#0f001f); 
+      border:4px solid #C084FC; 
+      border-radius:28px; 
+      padding:30px 20px; 
+      text-align:center; 
+      margin-bottom:25px; 
+      box-shadow:0 0 60px rgba(192,132,252,0.6);
+    }
+    .avatar { 
+      width:140px; height:140px; border-radius:50%; 
+      border:8px solid #C084FC; 
+      box-shadow:0 0 50px #C084FC; 
+      margin-bottom:15px; 
+    }
+    .title { font-size:52px; font-weight:900; color:#C084FC; letter-spacing:4px; margin:0; text-shadow:0 0 25px #C084FC; }
+    .subtitle { font-size:19px; color:#bb99ff; margin:8px 0 18px; }
+
+    .stats { font-size:15px; color:#bb99ff; line-height:1.4; }
+
+    .club-buttons { 
+      background:#1a0033; 
+      border:3px solid #C084FC; 
+      border-radius:24px; 
+      padding:15px; 
+      margin-bottom:20px; 
+      box-shadow:0 0 40px rgba(192,132,252,0.4);
+    }
 
     .big-button { 
-      background:#6B1E9C; color:white; width:100%; padding:20px 20px; margin:12px 0; 
-      border-radius:20px; font-size:19px; font-weight:700; 
-      box-shadow:0 8px 25px rgba(155,89,182,0.5); 
+      background:#6B1E9C; color:white; width:100%; padding:19px 20px; margin:10px 0; 
+      border-radius:18px; font-size:18.5px; font-weight:700; 
+      box-shadow:0 6px 20px rgba(155,89,182,0.5); 
       display:flex; align-items:center; gap:16px; 
-      transition: all 0.2s;
+      transition: all 0.25s;
     }
-    .big-button:hover, .big-button:active { transform:scale(1.03); box-shadow:0 0 30px #C084FC; }
+    .big-button:hover, .big-button:active { transform:scale(1.04); box-shadow:0 0 35px #C084FC; }
 
     .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:4px solid #C084FC; display:flex; padding:10px 0; z-index:1000; }
     .nav-item { flex:1; text-align:center; color:#bb99ff; font-weight:600; }
@@ -60,19 +84,24 @@
       <div class="stats">103 участника • Уровень 6 • 23 место<br>Вместе в вечной тьме 🔥</div>
     </div>
 
-    <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon')"><span>🔥</span> Мой клуб</div>
-    <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')"><span>📈</span> Внести вклад / Вклады</div>
-    <div class="big-button" onclick="openLink('https://mangabuff.ru/manga/test')"><span>🃏</span> Клубные карты</div>
-    <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs')"><span>🏆</span> Рейтинг клубов</div>
+    <div class="club-buttons">
+      <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon')"><span>🔥</span> Мой клуб</div>
+      <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')"><span>📈</span> Внести вклад / Вклады</div>
+      <div class="big-button" onclick="openLink('https://mangabuff.ru/manga/test')"><span>🃏</span> Клубные карты</div>
+      <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs')"><span>🏆</span> Рейтинг клубов</div>
+    </div>
 
-    <div class="big-button" onclick="openLink('https://t.me/mangabuff')"><span>📰</span> Официальные новости</div>
-    <div class="big-button" onclick="openLink('https://t.me/modermangabuff')"><span>👥</span> Чатик модераторов</div>
-    <div class="big-button" onclick="openLink('https://t.me/podmbff')"><span>👂</span> Подслушано на mangabuff</div>
+    <!-- Telegram-раздел (отделён обводкой) -->
+    <div class="club-buttons" style="margin-top:10px;">
+      <div class="big-button" onclick="openLink('https://t.me/mangabuff')"><span>📰</span> Официальные новости</div>
+      <div class="big-button" onclick="openLink('https://t.me/modermangabuff')"><span>👥</span> Чатик модераторов</div>
+      <div class="big-button" onclick="openLink('https://t.me/podmbff')"><span>👂</span> Подслушано на mangabuff</div>
+    </div>
   </div>
 
-  <!-- ИГРА и LUNADEx (оставил как было раньше) -->
-  <div id="game-screen" class="screen"> ... (твой код игры) ... </div>
-  <div id="inventory-screen" class="screen"> ... (твой код Lunadex) ... </div>
+  <!-- ИГРА и LUNADEx (без изменений) -->
+  <div id="game-screen" class="screen">... (твой код игры)</div>
+  <div id="inventory-screen" class="screen">... (твой код Lunadex)</div>
 </div>
 
 <!-- Нижняя панель -->
