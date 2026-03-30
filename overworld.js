@@ -1,5 +1,4 @@
-// overworld.js — карта + движение + встречи
-
+// overworld.js
 let phaserGame = null, currentZone = null, playerGridX = 5, playerGridY = 5, playerSprite = null;
 const mapData = [[1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,0,1,0,0,1],[1,0,0,0,0,1,0,0,0,1],[1,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,1],[1,0,0,0,1,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1]];
 
@@ -21,9 +20,20 @@ class OverworldScene extends Phaser.Scene {
 
 function startOverworld(zone) {
   currentZone = zone;
+  document.getElementById('zone-selection').style.display = 'none';
+  document.getElementById('overworld-wrapper').style.display = 'block';
   document.getElementById('current-zone-name').innerHTML = `🌍 ${zone === 'pokemon' ? 'Лес Покемонов' : zone === 'smeshariki' ? 'Ромашковая Долина' : 'Бездна Dark Moon'}`;
+
   if (phaserGame) phaserGame.destroy(true);
-  phaserGame = new Phaser.Game({type: Phaser.AUTO, width: 320, height: 320, parent: 'overworld-container', backgroundColor: '#0a001f', scene: OverworldScene});
+
+  phaserGame = new Phaser.Game({
+    type: Phaser.AUTO,
+    width: 320,
+    height: 320,
+    parent: 'overworld-container',
+    backgroundColor: '#0a001f',
+    scene: OverworldScene
+  });
 
   window.moveDirection = function(dir) {
     if (!playerSprite) return;
@@ -42,4 +52,5 @@ function exitOverworld() {
   if (phaserGame) phaserGame.destroy(true);
   phaserGame = null; playerSprite = null;
   document.getElementById('overworld-wrapper').style.display = 'none';
+  document.getElementById('zone-selection').style.display = 'block';
 }
