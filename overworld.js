@@ -1,5 +1,4 @@
-// overworld.js — карта + движение + система встреч
-
+// overworld.js
 let phaserGame = null, currentZone = null, playerGridX = 5, playerGridY = 5, playerSprite = null;
 const mapData = [[1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,0,1,0,0,1],[1,0,0,0,0,1,0,0,0,1],[1,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,1],[1,0,0,0,1,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1]];
 
@@ -10,9 +9,7 @@ class OverworldScene extends Phaser.Scene {
       const color = mapData[y][x] === 0 ? 0x228B22 : 0x8B4513;
       this.add.rectangle(x*32+16, y*32+16, 32, 32, color).setStrokeStyle(3, 0x000000);
     }
-    // СПРАЙТ ПЕРСОНАЖА (можно менять)
-    playerSprite = this.add.image(playerGridX*32+16, playerGridY*32+16, 'player');
-    playerSprite.setDisplaySize(32, 32);
+    playerSprite = this.add.rectangle(playerGridX*32+16, playerGridY*32+16, 28, 28, 0x1E90FF).setStrokeStyle(6, 0xFFFFFF);
   }
 }
 
@@ -26,7 +23,7 @@ function startOverworld(zone) {
 
   phaserGame = new Phaser.Game({type: Phaser.AUTO, width: 320, height: 320, parent: 'overworld-container', backgroundColor: '#0a001f', scene: OverworldScene});
 
-  window.moveDirection = function (dir) {
+  window.moveDirection = function(dir) {
     if (!playerSprite) return;
     let nx = playerGridX, ny = playerGridY;
     if (dir==='up') ny--; if (dir==='down') ny++; if (dir==='left') nx--; if (dir==='right') nx++;
