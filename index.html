@@ -34,7 +34,7 @@
     .screen.active { display:block; }
 
     .modal { position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; z-index:3000; align-items:center; justify-content:center; padding:20px; }
-    .modal-content { background:#2a0055; border-radius:20px; padding:25px; width:100%; max-width:440px; max-height:90vh; overflow-y:auto; }
+    .modal-content { background:#1a0033; border-radius:20px; padding:20px; width:100%; max-width:440px; max-height:92vh; overflow-y:auto; box-shadow:0 0 40px #C084FC; }
 
     .pokedex-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:12px; margin-top:15px; }
     .pokedex-card { background:rgba(20,5,45,0.9); border:3px solid #9B59B6; border-radius:16px; padding:10px; text-align:center; cursor:pointer; transition:all .2s; }
@@ -54,6 +54,17 @@
     .controls { display:flex; flex-direction:column; align-items:center; gap:8px; margin:15px auto; max-width:320px; }
     .control-btn { background:#6B1E9C; color:white; width:70px; height:70px; border-radius:16px; font-size:32px; box-shadow:0 6px 20px rgba(155,89,182,0.5); transition:all 0.1s; }
     .control-btn:active { transform:scale(0.92); }
+
+    /* ====================== БОЙ ====================== */
+    .battle-container { background:#0a001f; border-radius:16px; padding:15px; position:relative; }
+    .battle-field { position:relative; height:220px; background:linear-gradient(#112200, #003300); border-radius:12px; overflow:hidden; margin-bottom:15px; }
+    .enemy-sprite { position:absolute; top:20px; right:40px; width:110px; height:110px; transition:all 0.3s; }
+    .player-sprite { position:absolute; bottom:20px; left:40px; width:110px; height:110px; transition:all 0.3s; }
+    .hp-bar-outer { height:18px; background:#111; border:2px solid #fff; border-radius:9999px; margin:8px 0; overflow:hidden; }
+    .hp-bar-inner { height:100%; transition:width 0.4s ease; }
+    .log { background:#111; color:#0f0; font-family:monospace; padding:12px; height:120px; overflow-y:auto; border-radius:12px; font-size:14px; line-height:1.4; }
+    .battle-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .battle-btn { background:#6B1E9C; color:white; padding:16px; border-radius:12px; font-weight:700; font-size:17px; text-align:center; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
   </style>
 </head>
 <body>
@@ -77,10 +88,7 @@
   <!-- ИГРА -->
   <div id="game-screen" class="screen">
     <div id="zone-selection">
-      <div class="game-header">
-        <span style="font-size:40px;">🌍</span><br>
-        Выбери зону для исследования
-      </div>
+      <div class="game-header"><span style="font-size:40px;">🌍</span><br>Выбери зону для исследования</div>
       <button class="zone-btn" onclick="startOverworld('pokemon')">🌲 Лес Покемонов</button>
       <button class="zone-btn" onclick="startOverworld('smeshariki')">🌼 Ромашковая Долина</button>
       <button class="zone-btn" onclick="startOverworld('darkmoon')">🌑 Бездна Dark Moon</button>
@@ -89,7 +97,6 @@
     <div id="overworld-wrapper" style="display:none;">
       <div class="game-header" id="current-zone-name"></div>
       <div id="overworld-container"></div>
-
       <div class="controls">
         <button class="control-btn" onclick="moveDirection('up')">↑</button>
         <div style="display:flex; gap:12px;">
@@ -98,20 +105,18 @@
           <button class="control-btn" onclick="moveDirection('right')">→</button>
         </div>
       </div>
-
       <div style="text-align:center;margin-top:10px;">
         <button onclick="exitOverworld()" style="background:#9B59B6;padding:14px 40px;border-radius:9999px;font-size:17px;">⬅️ Выйти из карты</button>
       </div>
     </div>
   </div>
 
-  <!-- LUNADEx / АРХИВ ТЬМЫ -->
+  <!-- LUNADEx -->
   <div id="inventory-screen" class="screen">
     <div style="text-align:center;margin-bottom:25px;">
       <span style="font-size:36px;">🃏</span>
       <h2 style="color:#C084FC;margin:0;">Lunadex</h2>
     </div>
-
     <div class="grid-2">
       <div class="grid-btn" onclick="showLunadexSection('lunadex')"><span>📖</span><br>Lunadex</div>
       <div class="grid-btn"><span>🎒</span><br>Предметы</div>
@@ -120,7 +125,6 @@
       <div class="grid-btn" onclick="showLunadexSection('effectiveness')"><span>📊</span><br>Таблица эффективности</div>
       <div class="grid-btn"><span>🎉</span><br>Ивенты</div>
     </div>
-
     <div id="lunadex-content" style="margin-top:25px;"></div>
   </div>
 </div>
@@ -132,8 +136,10 @@
   <div class="nav-item" onclick="switchTab(2)"><span>📦</span>Архив Тьмы</div>
 </div>
 
-<!-- Модалка -->
-<div id="modal" class="modal"><div class="modal-content" id="modal-content"></div></div>
+<!-- МОДАЛКА (теперь используется и для Lunadex, и для БОЯ) -->
+<div id="modal" class="modal">
+  <div class="modal-content" id="modal-content"></div>
+</div>
 
 <script>
 // ====================== УНИВЕРСАЛЬНЫЕ ДАННЫЕ ======================
@@ -146,12 +152,10 @@ const gameData = {
 };
 
 let myHeroes = JSON.parse(localStorage.getItem('myHeroes')) || [
-  { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25 }
+  { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25, attack: 55, defense: 40 }
 ];
 
-function saveMyHeroes() {
-  localStorage.setItem('myHeroes', JSON.stringify(myHeroes));
-}
+function saveMyHeroes() { localStorage.setItem('myHeroes', JSON.stringify(myHeroes)); }
 
 // ====================== ОСНОВНЫЕ ФУНКЦИИ ======================
 function switchTab(n) {
@@ -160,49 +164,37 @@ function switchTab(n) {
   document.querySelectorAll('.screen')[n].classList.add('active');
   document.querySelectorAll('.nav-item')[n].classList.add('active');
 }
-
-function openLink(url) {
-  Telegram.WebApp.openLink(url);
-}
+function openLink(url) { Telegram.WebApp.openLink(url); }
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
 // ====================== LUNADEx ======================
 function showLunadexSection(section) {
   const content = document.getElementById('lunadex-content');
   content.innerHTML = '';
-
   if (section === 'lunadex') {
-    content.innerHTML = `
-      <div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
-        <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
-        <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности, что прорвались сквозь Разлом Тьмы.<br>Какой мир ты хочешь узреть, Искатель?</p>
-        <button onclick="selectWorld('pokemon')" class="big-button">Мир Покемонов</button>
-        <button onclick="selectWorld('smeshariki')" class="big-button">Мир Смешарики</button>
-        <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
-      </div>`;
+    content.innerHTML = `<div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
+      <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
+      <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности, что прорвались сквозь Разлом Тьмы.<br>Какой мир ты хочешь узреть, Искатель?</p>
+      <button onclick="selectWorld('pokemon')" class="big-button">Мир Покемонов</button>
+      <button onclick="selectWorld('smeshariki')" class="big-button">Мир Смешарики</button>
+      <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
+    </div>`;
   } else if (section === 'my') {
     content.innerHTML = `<h3 style="margin-bottom:15px;">👤 Мои герои (${myHeroes.length})</h3><div id="party-list"></div>`;
     renderParty();
-  } else if (section === 'effectiveness') {
-    content.innerHTML = `<h3 style="text-align:center;color:#C084FC;">📊 Таблица эффективности (в разработке)</h3>`;
   }
 }
-
 function selectWorld(world) {
   const content = document.getElementById('lunadex-content');
   content.innerHTML = `<h3 style="margin-bottom:15px;">🌐 ${world === 'pokemon' ? 'Мир Покемонов' : world === 'smeshariki' ? 'Мир Смешарики' : 'Мир Dark Moon'}</h3>`;
-  
-  const grid = document.createElement('div');
-  grid.className = 'pokedex-grid';
-  grid.id = 'world-grid';
+  const grid = document.createElement('div'); grid.className = 'pokedex-grid'; grid.id = 'world-grid';
   content.appendChild(grid);
   renderWorldGrid(world);
 }
-
 function renderWorldGrid(world) {
   const grid = document.getElementById('world-grid');
   grid.innerHTML = '';
-  const data = gameData.universes[world];
-  data.forEach(h => {
+  gameData.universes[world].forEach(h => {
     const card = document.createElement('div');
     card.className = 'pokedex-card';
     card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>${h.num || ''}</strong><br><span>${h.ru}</span>`;
@@ -210,11 +202,9 @@ function renderWorldGrid(world) {
     grid.appendChild(card);
   });
 }
-
 function showHeroDetail(h) {
   const caught = myHeroes.some(m => m.num === h.num);
-  const modalContent = document.getElementById('modal-content');
-  modalContent.innerHTML = `
+  document.getElementById('modal-content').innerHTML = `
     <div style="text-align:center;">
       <img src="${h.sprite}" style="width:170px;height:170px;margin:15px auto;display:block;">
       <h2>#${h.num || ''} ${h.ru}</h2>
@@ -225,145 +215,182 @@ function showHeroDetail(h) {
     </div>`;
   document.getElementById('modal').style.display = 'flex';
 }
-
 function catchHeroFromLunadex(num, ru, sprite) {
-  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1});
+  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1, attack:50, defense:40});
   saveMyHeroes();
   closeModal();
   alert(`✅ ${ru} добавлен в Архив Тьмы!`);
 }
-
-// ====================== OVERWORLD (Phaser 3) ======================
-let phaserGame = null;
-let currentZone = null;
-let playerGridX = 5;
-let playerGridY = 5;
-let playerSprite = null;
-
-const mapData = [
-  [1,1,1,1,1,1,1,1,1,1],
-  [1,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,1],
-  [1,0,1,1,0,0,1,0,0,1],
-  [1,0,0,0,0,1,0,0,0,1],
-  [1,0,0,0,0,0,0,1,0,1],
-  [1,0,1,0,0,0,0,0,0,1],
-  [1,0,0,0,1,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,1],
-  [1,1,1,1,1,1,1,1,1,1]
-];
-
-class OverworldScene extends Phaser.Scene {
-  constructor() { super('OverworldScene'); }
-  create() {
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
-        const color = mapData[y][x] === 0 ? 0x228B22 : 0x8B4513;
-        this.add.rectangle(x * 32 + 16, y * 32 + 16, 32, 32, color).setStrokeStyle(3, 0x000000);
-      }
-    }
-    playerSprite = this.add.rectangle(playerGridX * 32 + 16, playerGridY * 32 + 16, 28, 28, 0x1E90FF).setStrokeStyle(6, 0xFFFFFF);
-  }
-}
-
-function startOverworld(zone) {
-  currentZone = zone;
-  document.getElementById('zone-selection').style.display = 'none';
-  document.getElementById('overworld-wrapper').style.display = 'block';
-  document.getElementById('current-zone-name').innerHTML = `🌍 ${zone === 'pokemon' ? 'Лес Покемонов' : zone === 'smeshariki' ? 'Ромашковая Долина' : 'Бездна Dark Moon'}`;
-
-  if (phaserGame) phaserGame.destroy(true);
-
-  phaserGame = new Phaser.Game({
-    type: Phaser.AUTO,
-    width: 320,
-    height: 320,
-    parent: 'overworld-container',
-    backgroundColor: '#0a001f',
-    scene: OverworldScene
-  });
-
-  window.moveDirection = function (dir) {
-    if (!playerSprite) return;
-    let nx = playerGridX, ny = playerGridY;
-    if (dir === 'up') ny--;
-    if (dir === 'down') ny++;
-    if (dir === 'left') nx--;
-    if (dir === 'right') nx++;
-
-    if (nx < 0 || nx > 9 || ny < 0 || ny > 9 || mapData[ny][nx] === 1) return;
-
-    playerGridX = nx;
-    playerGridY = ny;
-    playerSprite.x = playerGridX * 32 + 16;
-    playerSprite.y = playerGridY * 32 + 16;
-
-    if (mapData[ny][nx] === 0 && Math.random() < 0.10) {
-      spawnHero(currentZone);
-    }
-  };
-}
-
-function spawnHero(zone) {
-  const pool = gameData.universes[zone];
-  const hero = pool[Math.floor(Math.random() * pool.length)];
-  const modalContent = document.getElementById('modal-content');
-  modalContent.innerHTML = `
-    <div style="text-align:center;">
-      <h2 style="color:#ff8800;">🐾 Дикий ${hero.ru} появился!</h2>
-      <img src="${hero.sprite}" style="width:160px;height:160px;margin:20px 0;">
-      <button onclick="catchHeroFromEncounter('${hero.num || hero.ru}', '${hero.ru}', '${hero.sprite}')" style="background:#00cc66;width:100%;padding:18px;margin:10px 0;border-radius:16px;font-size:18px;">🔥 Поймать!</button>
-      <button onclick="closeModal()" style="width:100%;">Убежать</button>
-    </div>`;
-  document.getElementById('modal').style.display = 'flex';
-}
-
-function catchHeroFromEncounter(num, ru, sprite) {
-  myHeroes.push({num, ru, sprite, hp:150, maxHp:150, level:1});
-  saveMyHeroes();
-  closeModal();
-  alert(`✅ ${ru} пойман и добавлен в Архив Тьмы!`);
-}
-
-function exitOverworld() {
-  if (phaserGame) phaserGame.destroy(true);
-  phaserGame = null;
-  playerSprite = null;
-  document.getElementById('overworld-wrapper').style.display = 'none';
-  document.getElementById('zone-selection').style.display = 'block';
-  currentZone = null;
-}
-
-function closeModal() {
-  document.getElementById('modal').style.display = 'none';
-}
-
 function renderParty() {
   const container = document.getElementById('party-list') || document.createElement('div');
-  container.id = 'party-list';
-  container.innerHTML = '';
+  container.id = 'party-list'; container.innerHTML = '';
   myHeroes.forEach(h => {
     const percent = Math.floor((h.hp / h.maxHp) * 100);
     const div = document.createElement('div');
     div.className = 'party-card';
-    div.innerHTML = `
-      <img src="${h.sprite}" alt="${h.ru}">
-      <div class="party-info">
-        <div class="party-name">#${h.num} ${h.ru}</div>
-        <div class="party-lv">Lv.${h.level}</div>
-        <div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div>
-        <small>${h.hp}/${h.maxHp} HP</small>
-      </div>`;
+    div.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><div class="party-info"><div class="party-name">#${h.num} ${h.ru}</div><div class="party-lv">Lv.${h.level}</div><div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div><small>${h.hp}/${h.maxHp} HP</small></div>`;
     container.appendChild(div);
   });
   if (!document.getElementById('party-list')) document.getElementById('lunadex-content').appendChild(container);
 }
 
+// ====================== OVERWORLD ======================
+let phaserGame = null, currentZone = null, playerGridX = 5, playerGridY = 5, playerSprite = null;
+const mapData = [[1,1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,0,1,0,0,1],[1,0,0,0,0,1,0,0,0,1],[1,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,1],[1,0,0,0,1,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1]];
+
+class OverworldScene extends Phaser.Scene {
+  constructor() { super('OverworldScene'); }
+  create() {
+    for (let y = 0; y < 10; y++) for (let x = 0; x < 10; x++) {
+      const color = mapData[y][x] === 0 ? 0x228B22 : 0x8B4513;
+      this.add.rectangle(x*32+16, y*32+16, 32, 32, color).setStrokeStyle(3, 0x000000);
+    }
+    playerSprite = this.add.rectangle(playerGridX*32+16, playerGridY*32+16, 28, 28, 0x1E90FF).setStrokeStyle(6, 0xFFFFFF);
+  }
+}
+function startOverworld(zone) {
+  currentZone = zone;
+  document.getElementById('zone-selection').style.display = 'none';
+  document.getElementById('overworld-wrapper').style.display = 'block';
+  document.getElementById('current-zone-name').innerHTML = `🌍 ${zone === 'pokemon' ? 'Лес Покемонов' : zone === 'smeshariki' ? 'Ромашковая Долина' : 'Бездна Dark Moon'}`;
+  if (phaserGame) phaserGame.destroy(true);
+  phaserGame = new Phaser.Game({type: Phaser.AUTO, width: 320, height: 320, parent: 'overworld-container', backgroundColor: '#0a001f', scene: OverworldScene});
+  window.moveDirection = function(dir) {
+    if (!playerSprite) return;
+    let nx = playerGridX, ny = playerGridY;
+    if (dir==='up') ny--; if (dir==='down') ny++; if (dir==='left') nx--; if (dir==='right') nx++;
+    if (nx<0||nx>9||ny<0||ny>9||mapData[ny][nx]===1) return;
+    playerGridX = nx; playerGridY = ny;
+    playerSprite.x = nx*32+16; playerSprite.y = ny*32+16;
+    if (mapData[ny][nx] === 0 && Math.random() < 0.10) spawnBattle(currentZone);
+  };
+}
+function exitOverworld() {
+  if (phaserGame) phaserGame.destroy(true); phaserGame = null; playerSprite = null;
+  document.getElementById('overworld-wrapper').style.display = 'none';
+  document.getElementById('zone-selection').style.display = 'block';
+  currentZone = null;
+}
+
+// ====================== ПОШАГОВЫЙ БОЙ ======================
+let currentBattle = null;
+
+function spawnBattle(zone) {
+  const pool = gameData.universes[zone];
+  const enemy = {...pool[Math.floor(Math.random() * pool.length)], hp: 120, maxHp: 120, attack: 45, defense: 35};
+  const player = myHeroes[0] || {ru:"Пикачу", sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp:180, maxHp:180, attack:55, defense:40};
+  currentBattle = { player, enemy, log: [] };
+  showBattleScreen();
+}
+
+function showBattleScreen() {
+  const html = `
+    <div class="battle-container">
+      <div class="battle-field">
+        <img src="${currentBattle.enemy.sprite}" class="enemy-sprite" id="enemy-sprite">
+        <div style="position:absolute;top:10px;right:10px;color:#fff;font-size:14px;">${currentBattle.enemy.ru}<br>
+          <div class="hp-bar-outer" style="width:140px;"><div class="hp-bar-inner" id="enemy-hp-bar" style="width:100%;background:#ff4444;"></div></div>
+        </div>
+        <img src="${currentBattle.player.sprite}" class="player-sprite" id="player-sprite">
+        <div style="position:absolute;bottom:10px;left:10px;color:#fff;font-size:14px;">${currentBattle.player.ru}<br>
+          <div class="hp-bar-outer" style="width:140px;"><div class="hp-bar-inner" id="player-hp-bar" style="width:100%;background:#44ff44;"></div></div>
+        </div>
+      </div>
+      <div class="log" id="battle-log"></div>
+      <div class="battle-buttons">
+        <div class="battle-btn" onclick="battleAction('attack')">⚔️ Атака</div>
+        <div class="battle-btn" onclick="battleAction('skill')">✨ Навык</div>
+        <div class="battle-btn" onclick="battleAction('item')">🧪 Предметы</div>
+        <div class="battle-btn" onclick="battleAction('catch')">🎣 Поймать</div>
+      </div>
+      <button onclick="endBattle(false)" style="margin-top:15px;width:100%;background:#9B59B6;padding:12px;border-radius:12px;">Сбежать</button>
+    </div>`;
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal').style.display = 'flex';
+  addLog(`🐾 Дикий ${currentBattle.enemy.ru} появился!`);
+}
+
+function addLog(text) {
+  const logEl = document.getElementById('battle-log');
+  if (!logEl) return;
+  currentBattle.log.push(text);
+  logEl.innerHTML = currentBattle.log.map(l => `> ${l}`).join('<br>');
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function updateHPBars() {
+  const pPercent = Math.max(0, Math.floor((currentBattle.player.hp / currentBattle.player.maxHp) * 100));
+  const ePercent = Math.max(0, Math.floor((currentBattle.enemy.hp / currentBattle.enemy.maxHp) * 100));
+  document.getElementById('player-hp-bar').style.width = pPercent + '%';
+  document.getElementById('enemy-hp-bar').style.width = ePercent + '%';
+}
+
+function battleAction(action) {
+  if (!currentBattle) return;
+  const player = currentBattle.player;
+  const enemy = currentBattle.enemy;
+
+  let damage = 0;
+  if (action === 'attack') {
+    damage = Math.max(1, Math.floor(player.attack - enemy.defense / 2));
+    enemy.hp = Math.max(0, enemy.hp - damage);
+    addLog(`📌 ${player.ru} использует Атаку! (-${damage} HP)`);
+  } else if (action === 'skill') {
+    damage = Math.max(1, Math.floor(player.attack * 1.4));
+    enemy.hp = Math.max(0, enemy.hp - damage);
+    addLog(`✨ ${player.ru} использует Навык! (-${damage} HP)`);
+  } else if (action === 'item') {
+    player.hp = Math.min(player.maxHp, player.hp + 60);
+    addLog(`🧪 ${player.ru} восстановил 60 HP!`);
+  } else if (action === 'catch') {
+    const baseChance = enemy.hp < (enemy.maxHp * 0.1) ? 60 : 25;
+    if (Math.random() * 100 < baseChance) {
+      myHeroes.push({...enemy, hp: enemy.maxHp, level: 1});
+      saveMyHeroes();
+      addLog(`🎣 ${enemy.ru} ПОЙМАН!`);
+      setTimeout(() => { endBattle(true); }, 1200);
+      return;
+    } else {
+      addLog(`❌ Не удалось поймать...`);
+    }
+  }
+
+  updateHPBars();
+
+  // Проверка победы
+  if (enemy.hp <= 0) {
+    addLog(`🎉 ${enemy.ru} побеждён!`);
+    setTimeout(() => endBattle(true), 1000);
+    return;
+  }
+
+  // Ход врага
+  setTimeout(() => {
+    const enemyDamage = Math.max(1, Math.floor(enemy.attack - player.defense / 2));
+    player.hp = Math.max(0, player.hp - enemyDamage);
+    addLog(`💥 ${enemy.ru} атакует! (-${enemyDamage} HP)`);
+    updateHPBars();
+
+    if (player.hp <= 0) {
+      addLog(`💀 Ты проиграл...`);
+      setTimeout(() => endBattle(false), 1000);
+    }
+  }, 800);
+}
+
+function endBattle(won) {
+  closeModal();
+  currentBattle = null;
+  if (won && myHeroes.length > 0) {
+    myHeroes[0].hp = Math.min(myHeroes[0].maxHp, myHeroes[0].hp + 30);
+    alert('🏆 Битва выиграна! +30 HP игроку');
+  }
+}
+
 // ====================== ЗАПУСК ======================
 window.onload = () => {
   switchTab(0);
-  console.log('✅ NĒXUS • DARK MOON полностью загружен и готов к работе!');
-  console.log('🎮 Перейди в "Игра" → выбери зону → используй стрелки');
+  console.log('✅ NĒXUS • DARK MOON + ПОЛНАЯ СИСТЕМА БОЯ загружена!');
 };
 </script>
 </body>
