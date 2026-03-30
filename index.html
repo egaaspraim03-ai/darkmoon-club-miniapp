@@ -27,10 +27,10 @@
     .title { font-size:42px; font-weight:900; color:#C084FC; letter-spacing:3px; margin:0; }
 
     .big-button { 
-      background:#6B1E9C; color:white; width:100%; padding:18px; margin:8px 0; 
-      border-radius:16px; font-size:18px; font-weight:700; 
-      box-shadow:0 4px 15px rgba(155,89,182,0.4); 
-      display:flex; align-items:center; gap:12px;
+      background:#6B1E9C; color:white; width:100%; padding:20px; margin:10px 0; 
+      border-radius:18px; font-size:19px; font-weight:700; 
+      box-shadow:0 6px 20px rgba(155,89,182,0.4); 
+      display:flex; align-items:center; gap:14px;
     }
 
     .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:3px solid #9B59B6; display:flex; padding:8px 0; z-index:1000; }
@@ -64,25 +64,63 @@
 
     <div class="big-button"><span>📖</span> Новые главы</div>
     <div class="big-button"><span>📚</span> Каталог манги</div>
-
-    <!-- Новости сайта -->
     <div class="big-button" onclick="openLink('https://t.me/mangabuff')"><span>📰</span> Официальные новости</div>
     <div class="big-button" onclick="openLink('https://t.me/modermangabuff')"><span>👥</span> Чатик модераторов</div>
     <div class="big-button" onclick="openLink('https://t.me/podmbff')"><span>👂</span> Подслушано на mangabuff</div>
   </div>
 
-  <!-- ИГРА, LUNADEx и остальное — без изменений (как в предыдущей версии) -->
-  <!-- ... (весь остальной код index.html остаётся прежним) ... -->
+  <!-- ИГРА -->
+  <div id="game-screen" class="screen">
+    <div id="zone-selection">
+      <div class="game-header"><span style="font-size:40px;">🌍</span><br>Выбери зону для исследования</div>
+      <button class="zone-btn" onclick="startOverworld('pokemon')">🌲 Лес Покемонов</button>
+      <button class="zone-btn" onclick="startOverworld('smeshariki')">🌼 Ромашковая Долина</button>
+      <button class="zone-btn" onclick="startOverworld('darkmoon')">🌑 Бездна Dark Moon</button>
+    </div>
 
+    <div id="overworld-wrapper" style="display:none;">
+      <div class="game-header" id="current-zone-name"></div>
+      <div id="overworld-container"></div>
+      <div class="controls">
+        <button class="control-btn" onclick="moveDirection('up')">↑</button>
+        <div style="display:flex; gap:12px;">
+          <button class="control-btn" onclick="moveDirection('left')">←</button>
+          <button class="control-btn" onclick="moveDirection('down')">↓</button>
+          <button class="control-btn" onclick="moveDirection('right')">→</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:10px;">
+        <button onclick="exitOverworld()" style="background:#9B59B6;padding:14px 40px;border-radius:9999px;font-size:17px;">⬅️ Выйти из карты</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LUNADEx -->
+  <div id="inventory-screen" class="screen">
+    <div style="text-align:center;margin-bottom:25px;">
+      <span style="font-size:36px;">🃏</span>
+      <h2 style="color:#C084FC;margin:0;">Lunadex</h2>
+    </div>
+    <div class="grid-2">
+      <div class="grid-btn" onclick="showLunadexSection('lunadex')"><span>📖</span><br>Lunadex</div>
+      <div class="grid-btn"><span>🎒</span><br>Предметы</div>
+      <div class="grid-btn" onclick="showLunadexSection('my')"><span>👤</span><br>Мои герои</div>
+      <div class="grid-btn"><span>📦</span><br>Мои предметы</div>
+      <div class="grid-btn" onclick="showLunadexSection('effectiveness')"><span>📊</span><br>Таблица эффективности</div>
+      <div class="grid-btn"><span>🎉</span><br>Ивенты</div>
+    </div>
+    <div id="lunadex-content" style="margin-top:25px;"></div>
+  </div>
 </div>
 
-<!-- Нижняя панель и модалка (без изменений) -->
+<!-- Нижняя панель -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="switchTab(0)"><span>🔥</span>Клуб</div>
   <div class="nav-item" onclick="switchTab(1)"><span>⚔️</span>Игра</div>
   <div class="nav-item" onclick="switchTab(2)"><span>📦</span>Архив Тьмы</div>
 </div>
 
+<!-- МОДАЛКА -->
 <div id="modal" class="modal"><div class="modal-content" id="modal-content"></div></div>
 </body>
 </html>
