@@ -7,11 +7,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js?61"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
   
-  <script src="pokedex-data.js"></script>
-  <script src="johto-data.js"></script>
-  <script src="smeshariki-data.js"></script>
-  <script src="darkmoon-data.js"></script>
-
+  <script src="data.js"></script>
   <script src="main.js"></script>
   <script src="lunadex.js"></script>
   <script src="overworld.js"></script>
@@ -24,31 +20,25 @@
 
     .header { 
       background:linear-gradient(135deg,#2a0055,#0f001f); 
-      border:4px solid #C084FC; 
+      border:5px solid #C084FC; 
       border-radius:28px; 
       padding:30px 20px; 
       text-align:center; 
       margin-bottom:25px; 
-      box-shadow:0 0 60px rgba(192,132,252,0.6);
+      box-shadow:0 0 60px rgba(192,132,252,0.7);
     }
-    .avatar { 
-      width:140px; height:140px; border-radius:50%; 
-      border:8px solid #C084FC; 
-      box-shadow:0 0 50px #C084FC; 
-      margin-bottom:15px; 
-    }
+    .avatar { width:140px; height:140px; border-radius:50%; border:8px solid #C084FC; box-shadow:0 0 50px #C084FC; margin-bottom:15px; }
     .title { font-size:52px; font-weight:900; color:#C084FC; letter-spacing:4px; margin:0; text-shadow:0 0 25px #C084FC; }
     .subtitle { font-size:19px; color:#bb99ff; margin:8px 0 18px; }
-
     .stats { font-size:15px; color:#bb99ff; line-height:1.4; }
 
-    .club-buttons { 
+    .club-section { 
       background:#1a0033; 
-      border:3px solid #C084FC; 
+      border:4px solid #C084FC; 
       border-radius:24px; 
-      padding:15px; 
-      margin-bottom:20px; 
-      box-shadow:0 0 40px rgba(192,132,252,0.4);
+      padding:20px; 
+      margin-bottom:25px; 
+      box-shadow:0 0 50px rgba(192,132,252,0.5);
     }
 
     .big-button { 
@@ -58,9 +48,20 @@
       display:flex; align-items:center; gap:16px; 
       transition: all 0.25s;
     }
-    .big-button:hover, .big-button:active { transform:scale(1.04); box-shadow:0 0 35px #C084FC; }
+    .big-button:hover, .big-button:active { transform:scale(1.03); box-shadow:0 0 35px #C084FC; }
 
-    .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:4px solid #C084FC; display:flex; padding:10px 0; z-index:1000; }
+    .section-title { 
+      color:#C084FC; font-size:17px; font-weight:700; 
+      margin:15px 0 10px; text-align:center; 
+      text-shadow:0 0 10px #C084FC;
+    }
+
+    .bottom-nav { 
+      position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; 
+      background:linear-gradient(90deg,#1a0033,#2a0055); 
+      border-top:4px solid #C084FC; 
+      display:flex; padding:10px 0; z-index:1000; 
+    }
     .nav-item { flex:1; text-align:center; color:#bb99ff; font-weight:600; }
     .nav-item.active { color:#fff; text-shadow:0 0 15px #C084FC; }
     .nav-item span { font-size:28px; display:block; margin-bottom:3px; }
@@ -84,24 +85,75 @@
       <div class="stats">103 участника • Уровень 6 • 23 место<br>Вместе в вечной тьме 🔥</div>
     </div>
 
-    <div class="club-buttons">
+    <!-- Основной блок сайта (внутри одной рамки) -->
+    <div class="club-section">
+      <div class="section-title">🌐 Mangabuff.ru</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon')"><span>🔥</span> Мой клуб</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')"><span>📈</span> Внести вклад / Вклады</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/manga/test')"><span>🃏</span> Клубные карты</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs')"><span>🏆</span> Рейтинг клубов</div>
     </div>
 
-    <!-- Telegram-раздел (отделён обводкой) -->
-    <div class="club-buttons" style="margin-top:10px;">
+    <!-- Отдельный блок Telegram (тоже строго в рамке) -->
+    <div class="club-section">
+      <div class="section-title">📱 Telegram</div>
       <div class="big-button" onclick="openLink('https://t.me/mangabuff')"><span>📰</span> Официальные новости</div>
       <div class="big-button" onclick="openLink('https://t.me/modermangabuff')"><span>👥</span> Чатик модераторов</div>
       <div class="big-button" onclick="openLink('https://t.me/podmbff')"><span>👂</span> Подслушано на mangabuff</div>
     </div>
   </div>
 
-  <!-- ИГРА и LUNADEx (без изменений) -->
-  <div id="game-screen" class="screen">... (твой код игры)</div>
-  <div id="inventory-screen" class="screen">... (твой код Lunadex)</div>
+  <!-- ==================== ИГРА ==================== -->
+  <div id="game-screen" class="screen">
+    <div id="zone-selection" style="text-align:center;padding:20px 0;">
+      <h2 style="color:#C084FC;margin-bottom:20px;">🌍 Выбери зону для исследования</h2>
+      <button onclick="startOverworld('pokemon')" class="big-button" style="margin:10px auto;width:90%;justify-content:center;">🌲 Лес Покемонов</button>
+      <button onclick="startOverworld('smeshariki')" class="big-button" style="margin:10px auto;width:90%;justify-content:center;">🌼 Ромашковая Долина</button>
+      <button onclick="startOverworld('darkmoon')" class="big-button" style="margin:10px auto;width:90%;justify-content:center;">🌑 Бездна Dark Moon</button>
+    </div>
+
+    <div id="overworld-wrapper" style="display:none;">
+      <div id="current-zone-name" style="text-align:center;font-size:22px;color:#C084FC;margin:10px 0;"></div>
+      <div id="overworld-container" style="width:320px;height:320px;margin:0 auto;background:#000;border:4px solid #C084FC;border-radius:12px;"></div>
+      <div style="text-align:center;margin:15px 0 10px;">
+        <button onclick="moveDirection('up')" class="big-button" style="width:80px;height:80px;font-size:32px;margin:0 auto;display:block;">↑</button>
+        <div style="display:flex;justify-content:center;gap:15px;">
+          <button onclick="moveDirection('left')" class="big-button" style="width:80px;height:80px;font-size:32px;">←</button>
+          <button onclick="moveDirection('down')" class="big-button" style="width:80px;height:80px;font-size:32px;">↓</button>
+          <button onclick="moveDirection('right')" class="big-button" style="width:80px;height:80px;font-size:32px;">→</button>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <button onclick="exitOverworld()" style="background:#9B59B6;color:white;padding:14px 50px;border-radius:9999px;font-size:17px;font-weight:700;">⬅️ Выйти из карты</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== АРХИВ ТЬМЫ (Lunadex) ==================== -->
+  <div id="inventory-screen" class="screen">
+    <div style="text-align:center;margin-bottom:25px;">
+      <span style="font-size:42px;">🃏</span>
+      <h2 style="color:#C084FC;margin:8px 0 5px;">Lunadex</h2>
+      <p style="color:#bb99ff;">Архив Тьмы</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 10px;">
+      <div onclick="showLunadexSection('lunadex')" class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
+        📖<br>Lunadex
+      </div>
+      <div onclick="showLunadexSection('my')" class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
+        👤<br>Мои герои
+      </div>
+      <div class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
+        🎒<br>Предметы
+      </div>
+      <div onclick="showLunadexSection('effectiveness')" class="big-button" style="justify-content:center;height:100px;flex-direction:column;font-size:16px;">
+        📊<br>Таблица типов
+      </div>
+    </div>
+
+    <div id="lunadex-content" style="margin-top:25px;min-height:300px;"></div>
+  </div>
 </div>
 
 <!-- Нижняя панель -->
@@ -111,7 +163,7 @@
   <div class="nav-item" onclick="switchTab(2)"><span>📦</span>Архив Тьмы</div>
 </div>
 
-<!-- МОДАЛКА -->
+<!-- Модальное окно -->
 <div id="modal" class="modal"><div class="modal-content" id="modal-content"></div></div>
 </body>
 </html>
