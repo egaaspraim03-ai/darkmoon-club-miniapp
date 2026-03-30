@@ -1,5 +1,4 @@
-// main.js — основные функции проекта
-
+// main.js
 function switchTab(n) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
