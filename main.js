@@ -1,13 +1,12 @@
-// main.js — основные функции и переключение вкладок
-
+// main.js
 function switchTab(n) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll('.screen')[n].classList.add('active');
   document.querySelectorAll('.nav-item')[n].classList.add('active');
 
-  if (n === 1) showMapLayer();      // нажали "Игра"
-  else hideMapLayer();              // любой другой экран
+  if (n === 1) showMapLayer();
+  else hideMapLayer();
 }
 
 function showMapLayer() {
