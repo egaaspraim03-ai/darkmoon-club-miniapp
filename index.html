@@ -21,7 +21,7 @@
     .subtitle { color:#bb99ff; font-size:18px; margin:5px 0 15px; }
     .stats { font-size:15px; color:#bb99ff; }
 
-    .big-button, .zone-btn { background:#6B1E9C; color:white; width:100%; padding:18px; margin:8px 0; border-radius:16px; font-size:18px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
+    .big-button, .zone-btn { background:#6B1E9C; color:white; width:100%; padding:18px; margin:8px 0; border-radius:16px; font-size:18px; font-weight:700; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .grid-btn { background:#6B1E9C; color:white; padding:22px 15px; border-radius:16px; text-align:center; font-weight:700; font-size:17px; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
 
@@ -55,18 +55,17 @@
     .control-btn { background:#6B1E9C; color:white; width:70px; height:70px; border-radius:16px; font-size:32px; box-shadow:0 6px 20px rgba(155,89,182,0.5); transition:all 0.1s; }
     .control-btn:active { transform:scale(0.92); }
 
-    /* ====================== БОЙ ====================== */
-    .battle-container { background:#0a001f; border-radius:16px; padding:15px; }
+    /* БОЙ */
     .battle-field { position:relative; height:240px; background:linear-gradient(#112200, #003300); border-radius:12px; overflow:hidden; margin-bottom:15px; }
-    .enemy-sprite { position:absolute; top:30px; right:40px; width:110px; height:110px; transition:all 0.3s; }
-    .player-sprite { position:absolute; bottom:30px; left:40px; width:110px; height:110px; transition:all 0.3s; }
+    .enemy-sprite, .player-sprite { position:absolute; width:110px; height:110px; transition:all 0.3s; }
+    .enemy-sprite { top:30px; right:40px; }
+    .player-sprite { bottom:30px; left:40px; }
     .hp-bar-outer { height:18px; background:#111; border:2px solid #fff; border-radius:9999px; margin:8px 0; overflow:hidden; }
     .hp-bar-inner { height:100%; transition:width 0.4s ease; }
     .log { background:#111; color:#0f0; font-family:monospace; padding:12px; height:110px; overflow-y:auto; border-radius:12px; font-size:14px; line-height:1.4; }
     .battle-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .battle-btn { background:#6B1E9C; color:white; padding:16px; border-radius:12px; font-weight:700; font-size:17px; text-align:center; box-shadow:0 4px 15px rgba(155,89,182,0.4); }
 
-    /* Анимация тряски */
     @keyframes shake {
       0% { transform: translate(1px, 1px) rotate(0deg); }
       10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -156,17 +155,17 @@
 <div id="modal" class="modal"><div class="modal-content" id="modal-content"></div></div>
 
 <script>
-// ====================== УНИВЕРСАЛЬНЫЕ ДАННЫЕ ======================
+// ====================== УНИВЕРСАЛЬНЫЕ ДАННЫЕ + ТИПЫ ======================
 const gameData = {
   universes: {
-    pokemon: [...(typeof pokedexData !== 'undefined' ? pokedexData : []), ...(typeof johtoData !== 'undefined' ? johtoData : [])],
-    smeshariki: (typeof smesharikiData !== 'undefined' ? smesharikiData : []),
-    darkmoon: (typeof darkmoonData !== 'undefined' ? darkmoonData : [])
+    pokemon: [...(typeof pokedexData !== 'undefined' ? pokedexData : []), ...(typeof johtoData !== 'undefined' ? johtoData : [])].map(p => ({...p, type: 'nature'})),
+    smeshariki: (typeof smesharikiData !== 'undefined' ? smesharikiData : []).map(s => ({...s, type: 'cartoon'})),
+    darkmoon: (typeof darkmoonData !== 'undefined' ? darkmoonData : []).map(d => ({...d, type: 'chaos'}))
   }
 };
 
 let myHeroes = JSON.parse(localStorage.getItem('myHeroes')) || [
-  { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25, attack: 55, defense: 40 }
+  { num: "0025", ru: "Пикачу", en: "Pikachu", sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png", hp: 180, maxHp: 180, level: 25, attack: 55, defense: 40, exp: 0, type: 'nature' }
 ];
 
 function saveMyHeroes() { localStorage.setItem('myHeroes', JSON.stringify(myHeroes)); }
@@ -182,12 +181,71 @@ function openLink(url) { Telegram.WebApp.openLink(url); }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
 // ====================== LUNADEx ======================
-function showLunadexSection(section) { /* ... (оставил без изменений) ... */ }
-function selectWorld(world) { /* ... */ }
-function renderWorldGrid(world) { /* ... */ }
-function showHeroDetail(h) { /* ... */ }
-function catchHeroFromLunadex(num, ru, sprite) { /* ... */ }
-function renderParty() { /* ... */ }
+function showLunadexSection(section) {
+  const content = document.getElementById('lunadex-content');
+  content.innerHTML = '';
+  if (section === 'lunadex') {
+    content.innerHTML = `<div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
+      <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
+      <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности, что прорвались сквозь Разлом Тьмы.<br>Какой мир ты хочешь узреть, Искатель?</p>
+      <button onclick="selectWorld('pokemon')" class="big-button">Мир Покемонов</button>
+      <button onclick="selectWorld('smeshariki')" class="big-button">Мир Смешарики</button>
+      <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
+    </div>`;
+  } else if (section === 'my') {
+    content.innerHTML = `<h3 style="margin-bottom:15px;">👤 Мои герои (${myHeroes.length})</h3><div id="party-list"></div>`;
+    renderParty();
+  }
+}
+function selectWorld(world) {
+  const content = document.getElementById('lunadex-content');
+  content.innerHTML = `<h3 style="margin-bottom:15px;">🌐 ${world === 'pokemon' ? 'Мир Покемонов' : world === 'smeshariki' ? 'Мир Смешарики' : 'Мир Dark Moon'}</h3>`;
+  const grid = document.createElement('div'); grid.className = 'pokedex-grid'; grid.id = 'world-grid';
+  content.appendChild(grid);
+  renderWorldGrid(world);
+}
+function renderWorldGrid(world) {
+  const grid = document.getElementById('world-grid');
+  grid.innerHTML = '';
+  gameData.universes[world].forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'pokedex-card';
+    card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>${h.num || ''}</strong><br><span>${h.ru}</span>`;
+    card.onclick = () => showHeroDetail(h);
+    grid.appendChild(card);
+  });
+}
+function showHeroDetail(h) {
+  const caught = myHeroes.some(m => m.num === h.num);
+  document.getElementById('modal-content').innerHTML = `
+    <div style="text-align:center;">
+      <img src="${h.sprite}" style="width:170px;height:170px;margin:15px auto;display:block;">
+      <h2>#${h.num || ''} ${h.ru}</h2>
+      <p style="color:#C084FC">${h.en || ''}</p>
+      ${caught ? '<p style="color:#00cc66;">✓ Уже в Архиве Тьмы</p>' : ''}
+      ${!caught ? `<button onclick="catchHeroFromLunadex('${h.num || h.ru}', '${h.ru}', '${h.sprite}')" style="background:#00cc66;width:100%;padding:18px;margin:10px 0;border-radius:16px;font-size:18px;">🔥 Поймать</button>` : ''}
+      <button onclick="closeModal()" style="width:100%;">Закрыть</button>
+    </div>`;
+  document.getElementById('modal').style.display = 'flex';
+}
+function catchHeroFromLunadex(num, ru, sprite) {
+  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1, attack:50, defense:40, exp:0, type: 'nature'});
+  saveMyHeroes();
+  closeModal();
+  alert(`✅ ${ru} добавлен в Архив Тьмы!`);
+}
+function renderParty() {
+  const container = document.getElementById('party-list') || document.createElement('div');
+  container.id = 'party-list'; container.innerHTML = '';
+  myHeroes.forEach(h => {
+    const percent = Math.floor((h.hp / h.maxHp) * 100);
+    const div = document.createElement('div');
+    div.className = 'party-card';
+    div.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><div class="party-info"><div class="party-name">#${h.num} ${h.ru}</div><div class="party-lv">Lv.${h.level}</div><div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div><small>${h.hp}/${h.maxHp} HP</small></div>`;
+    container.appendChild(div);
+  });
+  if (!document.getElementById('party-list')) document.getElementById('lunadex-content').appendChild(container);
+}
 
 // ====================== OVERWORLD ======================
 let phaserGame = null, currentZone = null, playerGridX = 5, playerGridY = 5, playerSprite = null;
@@ -203,22 +261,46 @@ class OverworldScene extends Phaser.Scene {
     playerSprite = this.add.rectangle(playerGridX*32+16, playerGridY*32+16, 28, 28, 0x1E90FF).setStrokeStyle(6, 0xFFFFFF);
   }
 }
-function startOverworld(zone) { /* ... (без изменений) ... */ }
-function exitOverworld() { /* ... */ }
+function startOverworld(zone) {
+  currentZone = zone;
+  document.getElementById('zone-selection').style.display = 'none';
+  document.getElementById('overworld-wrapper').style.display = 'block';
+  document.getElementById('current-zone-name').innerHTML = `🌍 ${zone === 'pokemon' ? 'Лес Покемонов' : zone === 'smeshariki' ? 'Ромашковая Долина' : 'Бездна Dark Moon'}`;
+  if (phaserGame) phaserGame.destroy(true);
+  phaserGame = new Phaser.Game({type: Phaser.AUTO, width: 320, height: 320, parent: 'overworld-container', backgroundColor: '#0a001f', scene: OverworldScene});
+  window.moveDirection = function(dir) {
+    if (!playerSprite) return;
+    let nx = playerGridX, ny = playerGridY;
+    if (dir==='up') ny--; if (dir==='down') ny++; if (dir==='left') nx--; if (dir==='right') nx++;
+    if (nx<0||nx>9||ny<0||ny>9||mapData[ny][nx]===1) return;
+    playerGridX = nx; playerGridY = ny;
+    playerSprite.x = nx*32+16; playerSprite.y = ny*32+16;
+    if (mapData[ny][nx] === 0 && Math.random() < 0.10) spawnBattle(currentZone);
+  };
+}
+function exitOverworld() {
+  if (phaserGame) phaserGame.destroy(true);
+  phaserGame = null; playerSprite = null;
+  document.getElementById('overworld-wrapper').style.display = 'none';
+  document.getElementById('zone-selection').style.display = 'block';
+  currentZone = null;
+}
 
-// ====================== ИСПРАВЛЕННЫЙ БОЙ (NaN + Тряска + Catch Rate + Возврат на карту) ======================
+// ====================== ТАБЛИЦА ЭФФЕКТИВНОСТИ ======================
+const getDamageMultiplier = (attackerType, defenderType) => {
+  if (attackerType === 'chaos' && defenderType === 'nature') return 1.5;
+  if (attackerType === 'nature' && defenderType === 'cartoon') return 1.5;
+  if (attackerType === 'cartoon' && defenderType === 'chaos') return 1.5;
+  return 1;
+};
+
+// ====================== БОЙ ======================
 let currentBattle = null;
 
 function spawnBattle(zone) {
   const pool = gameData.universes[zone];
   const enemyData = pool[Math.floor(Math.random() * pool.length)];
-  const enemy = {
-    ...enemyData,
-    hp: 130,
-    maxHp: 130,
-    attack: 48,
-    defense: 38
-  };
+  const enemy = {...enemyData, hp: 130, maxHp: 130, attack: 48, defense: 38, level: 1, exp: 0};
   const player = {...myHeroes[0]};
   currentBattle = { player, enemy, log: [] };
   showBattleScreen();
@@ -229,11 +311,11 @@ function showBattleScreen() {
     <div class="battle-container">
       <div class="battle-field">
         <img src="${currentBattle.enemy.sprite}" class="enemy-sprite" id="enemy-sprite">
-        <div style="position:absolute;top:10px;right:10px;color:#fff;font-size:14px;">${currentBattle.enemy.ru}<br>
+        <div style="position:absolute;top:10px;right:10px;color:#fff;font-size:14px;">${currentBattle.enemy.ru} Lv.${currentBattle.enemy.level}<br>
           <div class="hp-bar-outer" style="width:140px;"><div class="hp-bar-inner" id="enemy-hp-bar" style="width:100%;background:#ff4444;"></div></div>
         </div>
         <img src="${currentBattle.player.sprite}" class="player-sprite" id="player-sprite">
-        <div style="position:absolute;bottom:10px;left:10px;color:#fff;font-size:14px;">${currentBattle.player.ru}<br>
+        <div style="position:absolute;bottom:10px;left:10px;color:#fff;font-size:14px;">${currentBattle.player.ru} Lv.${currentBattle.player.level}<br>
           <div class="hp-bar-outer" style="width:140px;"><div class="hp-bar-inner" id="player-hp-bar" style="width:100%;background:#44ff44;"></div></div>
         </div>
       </div>
@@ -273,15 +355,12 @@ function battleAction(action) {
   const enemy = currentBattle.enemy;
 
   if (action === 'attack' || action === 'skill') {
-    // ИСПРАВЛЕНИЕ NaN — гарантируем числа
-    const atk = Number(player.attack) || 50;
-    const def = Number(enemy.defense) || 30;
-    let damage = Math.max(1, Math.floor(atk - def / 2));
+    const multiplier = getDamageMultiplier(player.type, enemy.type);
+    let damage = Math.max(1, Math.floor((player.attack * multiplier) - (enemy.defense / 2)));
     if (action === 'skill') damage = Math.floor(damage * 1.4);
 
-    enemy.hp = Math.max(0, Number(enemy.hp) - damage);
+    enemy.hp = Math.max(0, enemy.hp - damage);
 
-    // ТРЯСКА спрайта врага
     const enemySprite = document.getElementById('enemy-sprite');
     enemySprite.classList.add('shake');
     setTimeout(() => enemySprite.classList.remove('shake'), 450);
@@ -290,7 +369,7 @@ function battleAction(action) {
   }
 
   if (action === 'item') {
-    player.hp = Math.min(player.maxHp, Number(player.hp) + 65);
+    player.hp = Math.min(player.maxHp, player.hp + 65);
     addLog(`🧪 ${player.ru} восстановил 65 HP!`);
   }
 
@@ -298,14 +377,12 @@ function battleAction(action) {
     const hpPercent = (enemy.hp / enemy.maxHp) * 100;
     const catchChance = hpPercent < 20 ? 75 : hpPercent < 40 ? 50 : 25;
     if (Math.random() * 100 < catchChance) {
-      myHeroes.push({...enemy, hp: enemy.maxHp, level: 1});
+      myHeroes.push({...enemy, hp: enemy.maxHp, level: 1, exp: 0});
       saveMyHeroes();
       addLog(`🎣 ${enemy.ru} ПОЙМАН!`);
       setTimeout(() => showBattleResult(true), 800);
       return;
-    } else {
-      addLog(`❌ Не удалось поймать...`);
-    }
+    } else addLog(`❌ Не удалось поймать...`);
   }
 
   updateHPBars();
@@ -316,12 +393,10 @@ function battleAction(action) {
     return;
   }
 
-  // Ход врага
   setTimeout(() => {
-    const enemyAtk = Number(enemy.attack) || 45;
-    const playerDef = Number(player.defense) || 35;
-    const enemyDamage = Math.max(1, Math.floor(enemyAtk - playerDef / 2));
-    player.hp = Math.max(0, Number(player.hp) - enemyDamage);
+    const multiplier = getDamageMultiplier(enemy.type, player.type);
+    const enemyDamage = Math.max(1, Math.floor((enemy.attack * multiplier) - (player.defense / 2)));
+    player.hp = Math.max(0, player.hp - enemyDamage);
     addLog(`💥 ${enemy.ru} атакует! (-${enemyDamage} HP)`);
     updateHPBars();
 
@@ -333,10 +408,21 @@ function battleAction(action) {
 }
 
 function showBattleResult(won) {
+  if (won) {
+    const player = currentBattle.player;
+    player.exp = (player.exp || 0) + 50;
+    addLog(`+50 EXP`);
+    if (player.exp >= player.level * 100) {
+      player.level++;
+      player.attack = Math.floor(player.attack * 1.1);
+      player.maxHp = Math.floor(player.maxHp * 1.1);
+      player.hp = player.maxHp;
+      addLog(`🎉 Lv.${player.level} УРОВЕНЬ ПОВЫШЕН!`);
+    }
+  }
   const resultHTML = `
     <div style="text-align:center;padding:30px 20px;">
       <h2 style="color:${won ? '#00ff88' : '#ff4444'};">${won ? '🏆 ПОБЕДА!' : '💀 ПОРАЖЕНИЕ'}</h2>
-      ${won ? `<p style="color:#C084FC;margin:20px 0;">${currentBattle.enemy.ru} повержен!</p>` : ''}
       <button onclick="endBattle(${won})" style="background:#6B1E9C;width:100%;padding:18px;border-radius:16px;font-size:18px;margin-top:20px;">Продолжить путь</button>
     </div>`;
   document.getElementById('modal-content').innerHTML = resultHTML;
@@ -345,18 +431,12 @@ function showBattleResult(won) {
 function endBattle(won) {
   closeModal();
   currentBattle = null;
-  if (won) {
-    // +опыт игроку
-    if (myHeroes[0]) myHeroes[0].hp = Math.min(myHeroes[0].maxHp, myHeroes[0].hp + 40);
-  }
-  // Возвращаемся на карту (overworld остаётся видимым)
-  console.log('✅ Битва завершена. Возврат на карту.');
 }
 
 // ====================== ЗАПУСК ======================
 window.onload = () => {
   switchTab(0);
-  console.log('✅ NĒXUS • DARK MOON — БОЙ ИСПРАВЛЕН (NaN + Тряска + Catch Rate + Возврат на карту)');
+  console.log('✅ NĒXUS • DARK MOON — Полная версия с типами, уровнями, EXP и исправленным боем');
 };
 </script>
 </body>
