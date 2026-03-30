@@ -1,4 +1,5 @@
-// lunadex.js
+// lunadex.js — вся логика Lunadex
+
 function showLunadexSection(section) {
   const content = document.getElementById('lunadex-content');
   content.innerHTML = '';
