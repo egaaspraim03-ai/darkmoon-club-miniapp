@@ -25,7 +25,6 @@
     .pokedex-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; padding:15px; }
     .pokedex-card { background:#1a0033; border:4px solid var(--luna); border-radius:22px; padding:15px; text-align:center; transition:0.3s; box-shadow:0 8px 25px rgba(192,132,252,0.3); }
     .pokedex-card:hover { transform:scale(1.1); box-shadow:0 0 40px var(--luna); }
-    .party-card { background:#1a0033; border:3px solid var(--luna); border-radius:20px; padding:12px; margin:10px 0; display:flex; align-items:center; gap:15px; }
     .lunadex-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; padding:0 15px; }
     .lunadex-card { background:#6B1E9C; border-radius:22px; padding:22px 15px; text-align:center; font-weight:700; font-size:17px; box-shadow:0 8px 25px rgba(155,89,182,0.5); transition:0.25s; display:flex; flex-direction:column; align-items:center; gap:8px; }
     .lunadex-card:hover { transform:scale(1.06); box-shadow:0 0 35px #C084FC; }
@@ -34,7 +33,7 @@
 <body>
 <div class="container">
 
-  <!-- ==================== КЛУБ ==================== -->
+  <!-- КЛУБ -->
   <div id="club-screen" class="screen active">
     <div class="header">
       <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar">
@@ -42,8 +41,6 @@
       <p style="color:#bb99ff;margin:8px 0 18px;">Клуб Тьмы</p>
       <div style="font-size:15px;color:#bb99ff;">103 участника • Уровень 6 • 23 место<br>Вместе в вечной тьме 🔥</div>
     </div>
-
-    <!-- Mangabuff блок -->
     <div style="padding:0 16px;">
       <div style="color:#C084FC;font-weight:700;margin-bottom:12px;text-align:center;">🌐 Mangabuff.ru</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon')"><span>🔥</span> Мой клуб</div>
@@ -51,8 +48,6 @@
       <div class="big-button" onclick="openLink('https://mangabuff.ru/manga/test')"><span>🃏</span> Клубные карты</div>
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs')"><span>🏆</span> Рейтинг клубов</div>
     </div>
-
-    <!-- Telegram блок -->
     <div style="padding:0 16px;margin-top:20px;">
       <div style="color:#C084FC;font-weight:700;margin-bottom:12px;text-align:center;">📱 Telegram</div>
       <div class="big-button" onclick="openLink('https://t.me/mangabuff')"><span>📰</span> Официальные новости</div>
@@ -61,7 +56,7 @@
     </div>
   </div>
 
-  <!-- ==================== ИГРА ==================== -->
+  <!-- ИГРА -->
   <div id="game-screen" class="screen">
     <div id="zone-selection" style="text-align:center;padding:30px 20px;">
       <h2 style="color:#C084FC;">🌍 Выбери зону</h2>
@@ -69,7 +64,6 @@
       <button onclick="startOverworld('smeshariki')" class="big-button">🌼 Ромашковая Долина</button>
       <button onclick="startOverworld('darkmoon')" class="big-button">🌑 Бездна Dark Moon</button>
     </div>
-
     <div id="overworld-wrapper" style="display:none;">
       <div id="current-zone-name" style="text-align:center;font-size:22px;color:#C084FC;margin:10px 0;"></div>
       <div id="overworld-container" style="width:320px;height:320px;margin:0 auto;background:#000;border:4px solid #C084FC;border-radius:12px;"></div>
@@ -84,7 +78,7 @@
     </div>
   </div>
 
-  <!-- ==================== LUNADEx ==================== -->
+  <!-- ARCHIV TЬМЫ (LUNADEx) -->
   <div id="inventory-screen" class="screen">
     <div class="lunadex-header" style="text-align:center;margin:30px 0 40px;">
       <span style="font-size:80px;">🃏</span>
@@ -101,19 +95,11 @@
       <div onclick="showLunadexSection('events')" class="lunadex-card">🎉<br>Ивенты</div>
     </div>
 
-    <div class="worlds-section" style="margin-top:40px;padding:0 15px;">
-      <h3 style="color:#C084FC;text-align:center;margin:40px 0 15px;">🌍 Выбери мир</h3>
-      <div onclick="renderWorldData('pokemon')" class="big-button"><span style="font-size:28px;">🌲</span> Мир Покемонов</div>
-      <div onclick="renderWorldData('smeshariki')" class="big-button"><span style="font-size:28px;">🌼</span> Мир Смешариков</div>
-      <div onclick="renderWorldData('darkmoon')" class="big-button"><span style="font-size:28px;">🌑</span> Бездна Dark Moon</div>
-    </div>
-
     <div id="lunadex-content" style="margin-top:30px; padding:0 15px;"></div>
   </div>
 
 </div>
 
-<!-- Нижняя панель -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="switchTab(0)"><span>🔥</span>Клуб</div>
   <div class="nav-item" onclick="switchTab(1)"><span>🌍</span>Игра</div>
@@ -123,7 +109,7 @@
 <div id="modal" class="modal"><div id="modal-content"></div></div>
 
 <script>
-// ====================== ГЛОБАЛЬНЫЕ ДАННЫЕ ======================
+// Глобальные данные
 const gameData = { universes: { pokemon: [], smeshariki: [], darkmoon: [] } };
 let myHeroes = JSON.parse(localStorage.getItem('myHeroes')) || [];
 let currentParty = myHeroes.slice(0, 3);
