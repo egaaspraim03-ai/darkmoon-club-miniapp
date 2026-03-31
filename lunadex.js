@@ -1,4 +1,3 @@
-// lunadex.js
 function showLunadexSection(section) {
   const content = document.getElementById('lunadex-content');
   content.innerHTML = '';
@@ -11,8 +10,7 @@ function showLunadexSection(section) {
       <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
     </div>`;
   } else if (section === 'my') {
-    content.innerHTML = `<h3 style="margin-bottom:15px;">👤 Мои герои (${myHeroes.length})</h3><div id="party-list"></div>`;
-    renderParty();
+    renderPartyWithSynergy();
   }
 }
 
@@ -51,21 +49,24 @@ function showHeroDetail(h) {
 }
 
 function catchHeroFromLunadex(num, ru, sprite) {
-  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1, attack:50, defense:40, exp:0, type: 'nature'});
+  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1, attack:50, defense:40, exp:0, type: gameData.universes.pokemon.some(p=>p.num===num) ? 'nature' : gameData.universes.smeshariki.some(s=>s.num===num) ? 'toon' : 'chaos'});
   saveMyHeroes();
+  currentParty = myHeroes.slice(0, 3);
   closeModal();
   alert(`✅ ${ru} добавлен в Архив Тьмы!`);
+  showLunadexSection('my');
 }
 
-function renderParty() {
-  const container = document.getElementById('party-list') || document.createElement('div');
-  container.id = 'party-list'; container.innerHTML = '';
-  myHeroes.forEach(h => {
+function renderPartyWithSynergy() {
+  const synergy = getNEXUSMultiplier(currentParty);
+  let html = `<h3 style="color:#C084FC;">👤 Моя партия (${currentParty.length}/3) — NEXUS BURST ×${synergy}</h3><div id="party-list"></div>`;
+  document.getElementById('lunadex-content').innerHTML = html;
+  const container = document.getElementById('party-list');
+  currentParty.forEach(h => {
     const percent = Math.floor((h.hp / h.maxHp) * 100);
     const div = document.createElement('div');
     div.className = 'party-card';
     div.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><div class="party-info"><div class="party-name">#${h.num} ${h.ru}</div><div class="party-lv">Lv.${h.level}</div><div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div><small>${h.hp}/${h.maxHp} HP</small></div>`;
     container.appendChild(div);
   });
-  if (!document.getElementById('party-list')) document.getElementById('lunadex-content').appendChild(container);
 }
