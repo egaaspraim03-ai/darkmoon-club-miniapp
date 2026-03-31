@@ -3,117 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NEXUS • DARK MOON</title>
+  <title>NĒXUS • DARK MOON</title>
   <script src="https://telegram.org/js/telegram-web-app.js?61"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
   <style>
-    :root { --luna: #C084FC; --abyss: #6B1E9C; --void: #0a001f; }
-    body { margin:0; padding:0; background:var(--void); color:#fff; font-family:'Inter',system-ui,sans-serif; overflow:hidden; }
-    .container { max-width:480px; margin:0 auto; padding:16px; min-height:100vh; }
-    .header { background:linear-gradient(135deg,#2a0055,#0f001f); border:5px solid var(--luna); border-radius:28px; padding:30px 20px; text-align:center; box-shadow:0 0 80px rgba(192,132,252,0.9); margin-bottom:25px; }
-    .avatar { width:140px; height:140px; border-radius:50%; border:8px solid var(--luna); box-shadow:0 0 60px var(--luna); }
-    .title { font-size:52px; font-weight:900; color:var(--luna); letter-spacing:4px; text-shadow:0 0 30px var(--luna); }
-    .big-button { background:var(--abyss); color:#fff; width:100%; padding:19px 20px; margin:12px 0; border-radius:18px; font-size:18.5px; font-weight:700; box-shadow:0 6px 25px rgba(155,89,182,0.6); display:flex; align-items:center; gap:16px; transition:all 0.3s; }
-    .big-button:active { transform:scale(0.95); box-shadow:0 0 45px var(--luna); }
-    .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:4px solid var(--luna); display:flex; padding:10px 0; z-index:1000; }
-    .nav-item { flex:1; text-align:center; color:#bb99ff; font-weight:600; padding:8px 0; }
-    .nav-item.active { color:#fff; text-shadow:0 0 20px var(--luna); }
-    .nav-item span { font-size:28px; display:block; margin-bottom:4px; }
+    :root { --luna: #C084FC; --abyss: #6B1E9C; --void: #0a001f; --glow: 0 0 40px #C084FC; }
+    body { margin:0; padding:0; background:var(--void); color:#fff; font-family:'Inter',sans-serif; overflow:hidden; }
+    .container { max-width:480px; margin:0 auto; min-height:100vh; padding-bottom:80px; }
+    .header { background:linear-gradient(135deg,#2a0055,#0f001f); border:6px solid var(--luna); border-radius:28px; padding:25px; text-align:center; box-shadow:var(--glow); margin-bottom:20px; }
+    .title { font-size:54px; font-weight:900; color:var(--luna); text-shadow:0 0 30px var(--luna); letter-spacing:3px; }
+    .big-button { background:var(--abyss); color:#fff; width:100%; padding:18px; margin:10px 0; border-radius:20px; font-size:18px; font-weight:700; box-shadow:0 8px 25px rgba(192,132,252,0.5); transition:0.3s; display:flex; align-items:center; justify-content:center; gap:12px; }
+    .big-button:active { transform:scale(0.96); box-shadow:var(--glow); }
+    .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:linear-gradient(90deg,#1a0033,#2a0055); border-top:5px solid var(--luna); display:flex; padding:8px 0; z-index:1000; box-shadow:0 0 30px rgba(192,132,252,0.6); }
+    .nav-item { flex:1; text-align:center; color:#bb99ff; font-weight:700; font-size:13px; }
+    .nav-item.active { color:#fff; text-shadow:0 0 15px var(--luna); }
+    .nav-item span { font-size:32px; display:block; margin-bottom:2px; }
     .screen { display:none; }
     .screen.active { display:block; }
     .modal { position:fixed; inset:0; background:rgba(10,0,31,0.95); display:none; align-items:center; justify-content:center; z-index:9999; }
-    .pokedex-card { background:#1a0033; border:3px solid var(--luna); border-radius:20px; padding:12px; text-align:center; transition:0.3s; }
-    .pokedex-card:hover { transform:scale(1.08); box-shadow:0 0 30px var(--luna); }
-    .party-card { background:#1a0033; border:2px solid var(--luna); border-radius:16px; padding:12px; margin:8px 0; display:flex; align-items:center; gap:12px; }
+    .lunadex-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; padding:15px; }
+    .lunadex-card { background:#1a0033; border:4px solid var(--luna); border-radius:22px; padding:20px 15px; text-align:center; font-weight:700; font-size:18px; box-shadow:var(--glow); transition:0.3s; }
+    .lunadex-card:active { transform:scale(1.08); }
+    .pokedex-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; padding:15px; }
+    .pokedex-card { background:#1a0033; border:3px solid var(--luna); border-radius:20px; padding:12px; text-align:center; box-shadow:0 0 20px rgba(192,132,252,0.4); transition:0.3s; }
+    .pokedex-card:active { transform:scale(1.1); }
+    .party-card { background:#1a0033; border:3px solid var(--luna); border-radius:18px; padding:12px; margin:10px 0; display:flex; align-items:center; gap:15px; box-shadow:var(--glow); }
   </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- КЛУБ -->
-  <div id="club-screen" class="screen active">
+  <!-- КЛУБ (теперь полностью прокручивается) -->
+  <div id="club-screen" class="screen active" style="overflow-y:auto;height:calc(100vh - 80px);">
     <div class="header">
-      <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" class="avatar">
-      <h1 class="title">NEXUS</h1>
-      <p style="color:#bb99ff;margin:8px 0 18px;">Тьма объединяет миры</p>
-      <div style="font-size:15px;color:#bb99ff;">103 участника • Уровень 6 • Синергия: MAX</div>
+      <img src="https://i.ibb.co/HTR7J7Q5/nexus.jpg" style="width:130px;height:130px;border-radius:50%;border:8px solid #C084FC;box-shadow:0 0 60px #C084FC;">
+      <h1 class="title">DARK MOON</h1>
+      <p style="color:#bb99ff;margin:8px 0 10px;">103 участника • Уровень 6 • 23 место</p>
+      <p style="color:#bb99ff;font-size:15px;">Вместе в вечной тьме 🔥</p>
     </div>
-    <div class="club-section">
-      <div style="color:#C084FC;font-weight:700;margin-bottom:12px;text-align:center;">🌐 Mangabuff.ru</div>
+
+    <div style="padding:0 15px;">
       <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon')"><span>🔥</span> Мой клуб</div>
-      <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')"><span>📈</span> Внести вклад</div>
+      <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs/dark-moon/boost')"><span>📈</span> Внести вклад / Вклады</div>
+      <div class="big-button" onclick="openLink('https://mangabuff.ru/manga/test')"><span>🃏</span> Клубные карты</div>
+      <div class="big-button" onclick="openLink('https://mangabuff.ru/clubs')"><span>🏆</span> Рейтинг клубов</div>
     </div>
   </div>
 
   <!-- ИГРА -->
   <div id="game-screen" class="screen">
-    <div id="zone-selection" style="text-align:center;padding:30px 20px;">
-      <h2 style="color:#C084FC;">🌍 Выбери мир</h2>
+    <div id="zone-selection" style="padding:30px 20px;text-align:center;">
+      <h2 style="color:#C084FC;margin-bottom:30px;">Выбери зону для исследования</h2>
       <button onclick="startOverworld('pokemon')" class="big-button">🌲 Лес Покемонов</button>
       <button onclick="startOverworld('smeshariki')" class="big-button">🌼 Ромашковая Долина</button>
       <button onclick="startOverworld('darkmoon')" class="big-button">🌑 Бездна Dark Moon</button>
     </div>
 
     <div id="overworld-wrapper" style="display:none;">
-      <div id="current-zone-name" style="text-align:center;font-size:22px;color:#C084FC;margin:10px 0;"></div>
-      <div id="overworld-container" style="width:320px;height:320px;margin:0 auto;background:#000;border:4px solid #C084FC;border-radius:12px;"></div>
-      <div id="joystick-container" style="width:200px;height:200px;margin:25px auto;position:relative;">
-        <div id="joystick-base" style="width:200px;height:200px;background:rgba(192,132,252,0.15);border:6px solid #C084FC;border-radius:50%;box-shadow:0 0 40px #C084FC;position:relative;">
-          <div id="joystick-thumb" style="width:70px;height:70px;background:#C084FC;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 30px #C084FC;"></div>
+      <div id="current-zone-name" style="text-align:center;font-size:24px;color:#C084FC;margin:15px 0;"></div>
+      <div id="overworld-container" style="width:320px;height:320px;margin:0 auto;background:#000;border:6px solid #C084FC;border-radius:20px;box-shadow:0 0 40px #C084FC;"></div>
+      
+      <div id="joystick-container" style="width:220px;height:220px;margin:30px auto;position:relative;">
+        <div id="joystick-base" style="width:220px;height:220px;background:rgba(192,132,252,0.15);border:8px solid #C084FC;border-radius:50%;box-shadow:0 0 50px #C084FC;position:relative;">
+          <div id="joystick-thumb" style="width:80px;height:80px;background:#C084FC;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 35px #C084FC;"></div>
         </div>
       </div>
+      
       <div style="text-align:center;">
-        <button onclick="exitOverworld()" style="background:#9B59B6;padding:14px 50px;border-radius:9999px;font-size:17px;">⬅️ Выйти из мира</button>
+        <button onclick="exitOverworld()" style="background:#9B59B6;padding:16px 60px;border-radius:9999px;font-size:18px;box-shadow:0 0 30px #C084FC;">⬅️ Выйти из карты</button>
       </div>
     </div>
   </div>
 
   <!-- LUNADEx -->
   <div id="inventory-screen" class="screen">
-    <div class="lunadex-header">
-      <span style="font-size:80px;">🃏</span>
-      <h1 style="color:#C084FC;font-size:42px;margin:10px 0 0;">Lunadex</h1>
-      <p style="color:#bb99ff;font-size:20px;">Архив Тьмы • NEXUS</p>
+    <div style="padding:20px 15px;text-align:center;">
+      <h1 style="color:#C084FC;font-size:42px;margin:0;">Lunadex</h1>
+      <p style="color:#bb99ff;font-size:19px;">Архив Тьмы • NEXUS</p>
     </div>
+
     <div class="lunadex-grid">
       <div onclick="showLunadexSection('lunadex')" class="lunadex-card">📖<br>Lunadex</div>
-      <div onclick="showLunadexSection('my')" class="lunadex-card">👤<br>Моя партия (3)</div>
+      <div onclick="showLunadexSection('my')" class="lunadex-card">👤<br>Мои герои</div>
+      <div onclick="showLunadexSection('items')" class="lunadex-card">🎒<br>Предметы</div>
+      <div onclick="showLunadexSection('effectiveness')" class="lunadex-card">📊<br>Таблица типов</div>
     </div>
-    <div id="lunadex-content" style="margin-top:30px;"></div>
+
+    <div id="lunadex-content" style="padding:15px;"></div>
   </div>
 
 </div>
 
+<!-- Нижняя навигация -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="switchTab(0)"><span>🔥</span>Клуб</div>
-  <div class="nav-item" onclick="switchTab(1)"><span>🌍</span>Мир</div>
-  <div class="nav-item" onclick="switchTab(2)"><span>🃏</span>Lunadex</div>
+  <div class="nav-item" onclick="switchTab(1)"><span>🌍</span>Игра</div>
+  <div class="nav-item" onclick="switchTab(2)"><span>🃏</span>Архив Тьмы</div>
 </div>
 
 <div id="modal" class="modal"><div id="modal-content"></div></div>
-
-<script>
-// ====================== ГЛОБАЛЬНЫЕ ДАННЫЕ ======================
-const gameData = {
-  universes: {
-    pokemon: [...(typeof pokedexData !== 'undefined' ? pokedexData : []), ...(typeof johtoData !== 'undefined' ? johtoData : [])].map(p => ({...p, type: 'nature'})),
-    smeshariki: (typeof smesharikiData !== 'undefined' ? smesharikiData : []).map(s => ({...s, type: 'toon'})),
-    darkmoon: (typeof darkmoonData !== 'undefined' ? darkmoonData : []).map(d => ({...d, type: 'chaos'}))
-  }
-};
-
-let myHeroes = JSON.parse(localStorage.getItem('myHeroes')) || [];
-let currentParty = myHeroes.slice(0, 3);
-
-function saveMyHeroes() {
-  localStorage.setItem('myHeroes', JSON.stringify(myHeroes));
-}
-
-function getNEXUSMultiplier(party) {
-  const types = new Set(party.map(h => h.type));
-  return types.size === 3 ? 1.4 : 1;
-}
-</script>
 
 <script src="data.js"></script>
 <script src="pokedex-data.js"></script>
