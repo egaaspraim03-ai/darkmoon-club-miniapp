@@ -1,5 +1,5 @@
-// ====================== BATTLE.JS — v2.3 NEXUS ULTIMATE ======================
-// Полный AI + Mega + Z-move + СТАТУСЫ + EXP + ЛЕВЕЛИНГ + ЭВОЛЮЦИЯ
+// ====================== BATTLE.JS — v2.4 NEXUS FINAL ======================
+// AI + Mega + Z-move + EXP + Левелинг + Эволюция + ПРЕДМЕТЫ
 
 let currentBattle = null;
 let battleLog = [];
@@ -116,34 +116,65 @@ function tryZMove(user, move) {
 function giveExp(winner, loser) {
     const baseExp = 35 + Math.floor(loser.level || 50) * 2;
     const expGain = Math.floor(baseExp * (1 + getNEXUSMultiplier(currentBattle.party) - 1));
-    
     winner.exp = (winner.exp || 0) + expGain;
-    addLog(`✨ +${expGain} EXP для ${winner.ru || winner.name}`);
+    addLog(`✨ +${expGain} EXP`);
 
-    // Проверка левел-апа
     const expToNext = winner.level * 25 + 50;
     if (winner.exp >= expToNext) {
         winner.level++;
         winner.exp = 0;
-        // Увеличиваем статы
         winner.hp = Math.floor(winner.hp * 1.12);
         winner.maxhp = winner.hp;
         winner.attack = Math.floor(winner.attack * 1.08);
         winner.specialattack = Math.floor(winner.specialattack * 1.08);
-        
-        addLog(`🎉 ${winner.ru || winner.name} вырос до уровня ${winner.level}!`);
-        
-        // Простая эволюция
+        addLog(`🎉 ${winner.ru || winner.name} → уровень ${winner.level}!`);
+
         if (winner.level >= 16 && winner.evolution) {
             const evolved = { ...winner, ...winner.evolution };
-            evolved.ru = winner.evolution.ru || evolved.name;
             addLog(`🌟 ЭВОЛЮЦИЯ! ${winner.ru || winner.name} → ${evolved.ru}`);
             Object.assign(winner, evolved);
         }
     }
 }
 
-// ====================== AI ПРОТИВНИКА ======================
+// ====================== ПРЕДМЕТЫ (НОВОЕ) ======================
+let inventory = JSON.parse(localStorage.getItem('inventory')) || { pokeball: 5, potion: 3 };
+
+function useItem(itemType) {
+    if (!currentBattle) return;
+
+    if (itemType === 'potion' && inventory.potion > 0) {
+        inventory.potion--;
+        currentBattle.player.hp = Math.min(currentBattle.player.maxhp, currentBattle.player.hp + 60);
+        addLog(`🧪 Использовано ЗЕЛЬЕ (+60 HP)`);
+        updateHPBars();
+        saveInventory();
+    }
+
+    if (itemType === 'pokeball' && inventory.pokeball > 0) {
+        inventory.pokeball--;
+        addLog(`🎣 БРОСАЕМ ПОКЕБОЛ...`);
+        saveInventory();
+
+        const catchRate = Math.random();
+        const hpPercent = currentBattle.enemy.hp / currentBattle.enemy.maxhp;
+
+        if (catchRate > hpPercent * 0.7) {
+            addLog(`🎉 ${currentBattle.enemy.ru || currentBattle.enemy.name} пойман!`);
+            myHeroes.unshift(currentBattle.enemy);
+            saveMyHeroes();
+            setTimeout(() => endBattle(true), 800);
+        } else {
+            addLog(`❌ Покебол не сработал...`);
+        }
+    }
+}
+
+function saveInventory() {
+    localStorage.setItem('inventory', JSON.stringify(inventory));
+}
+
+// ====================== AI ======================
 function enemyAI() {
     const { enemy, player } = currentBattle;
     let move = { base_power: 60, type: enemy.types ? enemy.types[0] : 'Normal', category: 'Physical' };
@@ -188,6 +219,12 @@ function battleAction(actionType) {
     if (!currentBattle || currentBattle.ended) return;
     const { player, enemy } = currentBattle;
 
+    if (actionType === 'potion' || actionType === 'pokeball') {
+        useItem(actionType);
+        setTimeout(enemyTurn, 400);
+        return;
+    }
+
     let move = actionType === 'attack' 
         ? { base_power: 60, type: player.types ? player.types[0] : 'Normal', category: 'Physical' }
         : { base_power: 95, type: player.types ? player.types[0] : 'Normal', category: 'Special' };
@@ -205,7 +242,7 @@ function battleAction(actionType) {
     updateHPBars();
     if (enemy.hp <= 0) {
         addLog(`🎉 ПОБЕДА!`);
-        giveExp(player, enemy);               // ← НОВОЕ: EXP и левелинг
+        giveExp(player, enemy);
         setTimeout(() => endBattle(true), 900);
         return;
     }
@@ -223,11 +260,9 @@ function enemyTurn() {
 
 function endBattle(win) {
     currentBattle.ended = true;
-    if (win) {
-        addLog(`🌟 NEXUS BURST ПОБЕДИЛ!`);
-    } else {
-        addLog(`🌑 Тьма победила...`);
-    }
+    if (win) addLog(`🌟 NEXUS BURST ПОБЕДИЛ!`);
+    else addLog(`🌑 Тьма победила...`);
+
     if (window.saveMyHeroes) window.saveMyHeroes();
     if (typeof closeBattleScreen === 'function') setTimeout(closeBattleScreen, 1800);
     currentBattle = null;
@@ -235,7 +270,7 @@ function endBattle(win) {
 
 // ====================== ЗАПУСК ======================
 function initBattleSystem() {
-    console.log('%c🚀 BATTLE v2.3 — EXP + Левелинг + Эволюция загружен', 'color:#C084FC; font-weight:bold');
+    console.log('%c🚀 BATTLE v2.4 — ПРЕДМЕТЫ + всё остальное загружено', 'color:#C084FC; font-weight:bold');
     window.startBattle = startBattle;
     window.battleAction = battleAction;
     window.endBattle = endBattle;
@@ -243,4 +278,4 @@ function initBattleSystem() {
 
 if (typeof window !== 'undefined') window.addEventListener('load', initBattleSystem);
 
-console.log('%c✅ battle.js v2.3 ГОТОВ К БОЮ!', 'color:#C084FC; font-size:18px');
+console.log('%c✅ battle.js v2.4 — ПРОЕКТ ГОТОВ К БЕТА-ТЕСТУ!', 'color:#C084FC; font-size:18px');
