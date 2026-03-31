@@ -1,5 +1,3 @@
-// battle.js — полный бой
-
 let currentBattle = null;
 
 function spawnBattle() {
@@ -10,11 +8,12 @@ function spawnBattle() {
 
   const enemy = {...enemyData, hp: 130, maxHp: 130, attack: 48, defense: 38, level: 1, exp: 0};
   const player = {...myHeroes[0]};
-  currentBattle = { player, enemy, log: [] };
+  currentBattle = { player, enemy, log: [], party: currentParty };
   showBattleScreen();
 }
 
 function showBattleScreen() {
+  const synergy = getNEXUSMultiplier(currentBattle.party);
   const html = `
     <div class="battle-container">
       <div class="battle-field">
@@ -23,7 +22,7 @@ function showBattleScreen() {
           <div class="hp-bar-outer" style="width:140px;"><div class="hp-bar-inner" id="enemy-hp-bar" style="width:100%;background:#ff4444;"></div></div>
         </div>
         <img src="${currentBattle.player.sprite}" class="player-sprite" id="player-sprite">
-        <div style="position:absolute;bottom:10px;left:10px;color:#fff;font-size:14px;">${currentBattle.player.ru} Lv.${currentBattle.player.level}<br>
+        <div style="position:absolute;bottom:10px;left:10px;color:#fff;font-size:14px;">${currentBattle.player.ru} Lv.${currentBattle.player.level} <span style="color:#C084FC">(NEXUS ×${synergy})</span><br>
           <div class="hp-bar-outer" style="width:140px;"><div class="hp-bar-inner" id="player-hp-bar" style="width:100%;background:#44ff44;"></div></div>
         </div>
       </div>
@@ -61,10 +60,10 @@ function battleAction(action) {
   if (!currentBattle) return;
   const player = currentBattle.player;
   const enemy = currentBattle.enemy;
+  const synergy = getNEXUSMultiplier(currentBattle.party);
 
   if (action === 'attack' || action === 'skill') {
-    const multiplier = getDamageMultiplier(player.type, enemy.type);
-    let damage = Math.max(1, Math.floor((player.attack * multiplier) - (enemy.defense / 2)));
+    let damage = Math.max(1, Math.floor((player.attack * synergy) - (enemy.defense / 2)));
     if (action === 'skill') damage = Math.floor(damage * 1.4);
     enemy.hp = Math.max(0, enemy.hp - damage);
 
@@ -86,6 +85,7 @@ function battleAction(action) {
     if (Math.random() * 100 < catchChance) {
       myHeroes.push({...enemy, hp: enemy.maxHp, level: 1, exp: 0});
       saveMyHeroes();
+      currentParty = myHeroes.slice(0, 3);
       addLog(`🎣 ${enemy.ru} ПОЙМАН!`);
       setTimeout(() => showBattleResult(true), 800);
       return;
@@ -101,8 +101,7 @@ function battleAction(action) {
   }
 
   setTimeout(() => {
-    const multiplier = getDamageMultiplier(enemy.type, player.type);
-    const enemyDamage = Math.max(1, Math.floor((enemy.attack * multiplier) - (player.defense / 2)));
+    const enemyDamage = Math.max(1, Math.floor((enemy.attack) - (player.defense / 2)));
     player.hp = Math.max(0, player.hp - enemyDamage);
     addLog(`💥 ${enemy.ru} атакует! (-${enemyDamage} HP)`);
     updateHPBars();
@@ -117,7 +116,6 @@ function showBattleResult(won) {
   if (won) {
     const player = currentBattle.player;
     player.exp = (player.exp || 0) + 50;
-    addLog(`+50 EXP`);
     if (player.exp >= player.level * 100) {
       player.level++;
       player.attack = Math.floor(player.attack * 1.1);
