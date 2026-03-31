@@ -1,4 +1,3 @@
-// data.js — глобальные данные (подключается первым!)
 const gameData = {
   universes: {
     pokemon: [...(typeof pokedexData !== 'undefined' ? pokedexData : []), ...(typeof johtoData !== 'undefined' ? johtoData : [])].map(p => ({...p, type: 'nature'})),
