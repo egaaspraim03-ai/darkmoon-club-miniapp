@@ -1,5 +1,5 @@
-// ====================== BATTLE.JS — v2.2 NEXUS ULTIMATE ======================
-// Полный AI + Mega Evolution + Z-move + статусы + NEXUS BURST
+// ====================== BATTLE.JS — v2.3 NEXUS ULTIMATE ======================
+// Полный AI + Mega + Z-move + СТАТУСЫ + EXP + ЛЕВЕЛИНГ + ЭВОЛЮЦИЯ
 
 let currentBattle = null;
 let battleLog = [];
@@ -68,7 +68,7 @@ function calculateDamage(user, target, move) {
     let dmg = Math.floor((((2 * level / 5 + 2) * basePower * atk / def) / 50) + 2);
     dmg = Math.floor(dmg * stab * typeMod);
 
-    if (Math.random() < 0.0625) dmg = Math.floor(dmg * 1.5); // крит
+    if (Math.random() < 0.0625) dmg = Math.floor(dmg * 1.5);
 
     const synergy = getNEXUSMultiplier(currentBattle?.party || [user]);
     dmg = Math.floor(dmg * synergy);
@@ -97,19 +97,50 @@ let megaUsed = false;
 let zMoveUsed = false;
 
 function tryMegaEvolve(user) {
-    if (megaUsed || !user.item || !user.item.includes('ite')) return false;
+    if (megaUsed) return false;
     megaUsed = true;
-    user.name = user.name + " Mega";
-    addLog(`🔥 ${user.ru || user.name} MEGA ЭВОЛЮЦИЯ!`);
+    user.name = (user.ru || user.name) + " Mega";
+    addLog(`🔥 MEGA ЭВОЛЮЦИЯ! ${user.name}`);
     return true;
 }
 
 function tryZMove(user, move) {
     if (zMoveUsed) return move;
     zMoveUsed = true;
-    const zPower = move.base_power * 1.5;
+    const zPower = Math.floor(move.base_power * 1.5);
     addLog(`✨ Z-MOVE АКТИВИРОВАН!`);
     return { ...move, base_power: zPower };
+}
+
+// ====================== EXP + ЛЕВЕЛИНГ + ЭВОЛЮЦИЯ ======================
+function giveExp(winner, loser) {
+    const baseExp = 35 + Math.floor(loser.level || 50) * 2;
+    const expGain = Math.floor(baseExp * (1 + getNEXUSMultiplier(currentBattle.party) - 1));
+    
+    winner.exp = (winner.exp || 0) + expGain;
+    addLog(`✨ +${expGain} EXP для ${winner.ru || winner.name}`);
+
+    // Проверка левел-апа
+    const expToNext = winner.level * 25 + 50;
+    if (winner.exp >= expToNext) {
+        winner.level++;
+        winner.exp = 0;
+        // Увеличиваем статы
+        winner.hp = Math.floor(winner.hp * 1.12);
+        winner.maxhp = winner.hp;
+        winner.attack = Math.floor(winner.attack * 1.08);
+        winner.specialattack = Math.floor(winner.specialattack * 1.08);
+        
+        addLog(`🎉 ${winner.ru || winner.name} вырос до уровня ${winner.level}!`);
+        
+        // Простая эволюция
+        if (winner.level >= 16 && winner.evolution) {
+            const evolved = { ...winner, ...winner.evolution };
+            evolved.ru = winner.evolution.ru || evolved.name;
+            addLog(`🌟 ЭВОЛЮЦИЯ! ${winner.ru || winner.name} → ${evolved.ru}`);
+            Object.assign(winner, evolved);
+        }
+    }
 }
 
 // ====================== AI ПРОТИВНИКА ======================
@@ -117,9 +148,8 @@ function enemyAI() {
     const { enemy, player } = currentBattle;
     let move = { base_power: 60, type: enemy.types ? enemy.types[0] : 'Normal', category: 'Physical' };
 
-    // Простая стратегия AI
-    if (Math.random() < 0.3 && !player.status) {
-        move = { base_power: 0, category: 'Status', status: 'par' }; // пытается парализовать
+    if (Math.random() < 0.35 && !player.status) {
+        move = { base_power: 0, category: 'Status', status: Math.random() > 0.5 ? 'par' : 'psn' };
     } else if (Math.random() < 0.4) {
         move = { base_power: 90, type: enemy.types ? enemy.types[0] : 'Normal', category: 'Special' };
     }
@@ -173,7 +203,12 @@ function battleAction(actionType) {
     if (sprite) { sprite.classList.add('shake'); setTimeout(() => sprite.classList.remove('shake'), 420); }
 
     updateHPBars();
-    if (enemy.hp <= 0) { addLog(`🎉 ПОБЕДА!`); setTimeout(() => endBattle(true), 900); return; }
+    if (enemy.hp <= 0) {
+        addLog(`🎉 ПОБЕДА!`);
+        giveExp(player, enemy);               // ← НОВОЕ: EXP и левелинг
+        setTimeout(() => endBattle(true), 900);
+        return;
+    }
 
     setTimeout(enemyTurn, 650);
 }
@@ -190,11 +225,6 @@ function endBattle(win) {
     currentBattle.ended = true;
     if (win) {
         addLog(`🌟 NEXUS BURST ПОБЕДИЛ!`);
-        const exp = Math.floor(40 + Math.random() * 50);
-        addLog(`+${exp} EXP`);
-        if (Math.random() > 0.4 && typeof catchHeroFromLunadex === 'function') {
-            setTimeout(() => catchHeroFromLunadex(currentBattle.enemy), 1000);
-        }
     } else {
         addLog(`🌑 Тьма победила...`);
     }
@@ -205,7 +235,7 @@ function endBattle(win) {
 
 // ====================== ЗАПУСК ======================
 function initBattleSystem() {
-    console.log('%c🚀 BATTLE v2.2 — AI + Mega + Z-move загружен', 'color:#C084FC; font-weight:bold');
+    console.log('%c🚀 BATTLE v2.3 — EXP + Левелинг + Эволюция загружен', 'color:#C084FC; font-weight:bold');
     window.startBattle = startBattle;
     window.battleAction = battleAction;
     window.endBattle = endBattle;
@@ -213,4 +243,4 @@ function initBattleSystem() {
 
 if (typeof window !== 'undefined') window.addEventListener('load', initBattleSystem);
 
-console.log('%c✅ battle.js v2.2 ГОТОВ К БОЮ!', 'color:#C084FC; font-size:18px');
+console.log('%c✅ battle.js v2.3 ГОТОВ К БОЮ!', 'color:#C084FC; font-size:18px');
