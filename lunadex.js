@@ -1,72 +1,67 @@
 function showLunadexSection(section) {
   const content = document.getElementById('lunadex-content');
   content.innerHTML = '';
+
   if (section === 'lunadex') {
-    content.innerHTML = `<div style="text-align:center;padding:30px 20px;background:#1a0033;border-radius:20px;">
-      <h2 style="color:#C084FC;">🌑 Лунная База Данных Бездны</h2>
-      <p style="line-height:1.6;margin:20px 0;">Здесь собраны все сущности...<br>Какой мир ты хочешь узреть?</p>
-      <button onclick="selectWorld('pokemon')" class="big-button">Мир Покемонов</button>
-      <button onclick="selectWorld('smeshariki')" class="big-button">Мир Смешарики</button>
-      <button onclick="selectWorld('darkmoon')" class="big-button">Мир Dark Moon</button>
-    </div>`;
-  } else if (section === 'my') {
-    renderPartyWithSynergy();
+    content.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;background:#1a0033;border-radius:24px;border:4px solid #C084FC;">
+        <h2 style="color:#C084FC;margin-bottom:30px;">🌑 Лунная база данных</h2>
+        <button onclick="selectWorld('pokemon')" class="big-button" style="margin:12px 0;">🌲 Мир Покемонов</button>
+        <button onclick="selectWorld('smeshariki')" class="big-button" style="margin:12px 0;">🌼 Мир Смешариков</button>
+        <button onclick="selectWorld('darkmoon')" class="big-button" style="margin:12px 0;">🌑 Бездна Dark Moon</button>
+      </div>`;
+  } 
+  else if (section === 'my') {
+    renderParty();
   }
 }
 
 function selectWorld(world) {
   const content = document.getElementById('lunadex-content');
-  content.innerHTML = `<h3 style="margin-bottom:15px;">🌐 ${world === 'pokemon' ? 'Мир Покемонов' : world === 'smeshariki' ? 'Мир Смешарики' : 'Мир Dark Moon'}</h3>`;
-  const grid = document.createElement('div'); grid.className = 'pokedex-grid'; grid.id = 'world-grid';
+  content.innerHTML = `<h3 style="color:#C084FC;text-align:center;margin:20px 0;">${world === 'pokemon' ? '🌲 Мир Покемонов' : world === 'smeshariki' ? '🌼 Мир Смешариков' : '🌑 Бездна Dark Moon'}</h3>`;
+  
+  const grid = document.createElement('div');
+  grid.className = 'pokedex-grid';
   content.appendChild(grid);
-  renderWorldGrid(world);
-}
 
-function renderWorldGrid(world) {
-  const grid = document.getElementById('world-grid');
-  grid.innerHTML = '';
   gameData.universes[world].forEach(h => {
     const card = document.createElement('div');
     card.className = 'pokedex-card';
-    card.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><strong>${h.num || ''}</strong><br><span>${h.ru}</span>`;
+    card.innerHTML = `<img src="${h.sprite}" style="width:100%;height:120px;object-fit:contain;"><strong>${h.num}</strong><br><span>${h.ru}</span>`;
     card.onclick = () => showHeroDetail(h);
     grid.appendChild(card);
   });
 }
 
+function renderParty() {
+  const content = document.getElementById('lunadex-content');
+  content.innerHTML = `<h3 style="margin-bottom:15px;color:#C084FC;">👤 Мои герои (${myHeroes.length})</h3>`;
+  const container = document.createElement('div');
+  myHeroes.forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'party-card';
+    div.innerHTML = `<img src="${h.sprite}" style="width:70px;height:70px;"><div><strong>#${h.num} ${h.ru}</strong><br>Lv.${h.level}</div></div>`;
+    container.appendChild(div);
+  });
+  content.appendChild(container);
+}
+
 function showHeroDetail(h) {
   const caught = myHeroes.some(m => m.num === h.num);
   document.getElementById('modal-content').innerHTML = `
-    <div style="text-align:center;">
-      <img src="${h.sprite}" style="width:170px;height:170px;margin:15px auto;display:block;">
-      <h2>#${h.num || ''} ${h.ru}</h2>
+    <div style="text-align:center;padding:20px;">
+      <img src="${h.sprite}" style="width:180px;height:180px;">
+      <h2>#${h.num} ${h.ru}</h2>
       <p style="color:#C084FC">${h.en || ''}</p>
-      ${caught ? '<p style="color:#00cc66;">✓ Уже в Архиве Тьмы</p>' : ''}
-      ${!caught ? `<button onclick="catchHeroFromLunadex('${h.num || h.ru}', '${h.ru}', '${h.sprite}')" style="background:#00cc66;width:100%;padding:18px;margin:10px 0;border-radius:16px;font-size:18px;">🔥 Поймать</button>` : ''}
-      <button onclick="closeModal()" style="width:100%;">Закрыть</button>
+      ${caught ? '<p style="color:#00ff88;">✓ Уже пойман</p>' : `<button onclick="catchHeroFromLunadex('${h.num}','${h.ru}','${h.sprite}')" class="big-button" style="background:#00cc66;">🔥 Поймать</button>`}
+      <button onclick="closeModal()" class="big-button" style="background:#9B59B6;">Закрыть</button>
     </div>`;
   document.getElementById('modal').style.display = 'flex';
 }
 
 function catchHeroFromLunadex(num, ru, sprite) {
-  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1, attack:50, defense:40, exp:0, type: gameData.universes.pokemon.some(p=>p.num===num) ? 'nature' : gameData.universes.smeshariki.some(s=>s.num===num) ? 'toon' : 'chaos'});
+  myHeroes.push({num, ru, sprite, hp:180, maxHp:180, level:1, attack:50, defense:40, exp:0, type:'nature'});
   saveMyHeroes();
-  currentParty = myHeroes.slice(0, 3);
   closeModal();
-  alert(`✅ ${ru} добавлен в Архив Тьмы!`);
-  showLunadexSection('my');
-}
-
-function renderPartyWithSynergy() {
-  const synergy = getNEXUSMultiplier(currentParty);
-  let html = `<h3 style="color:#C084FC;">👤 Моя партия (${currentParty.length}/3) — NEXUS BURST ×${synergy}</h3><div id="party-list"></div>`;
-  document.getElementById('lunadex-content').innerHTML = html;
-  const container = document.getElementById('party-list');
-  currentParty.forEach(h => {
-    const percent = Math.floor((h.hp / h.maxHp) * 100);
-    const div = document.createElement('div');
-    div.className = 'party-card';
-    div.innerHTML = `<img src="${h.sprite}" alt="${h.ru}"><div class="party-info"><div class="party-name">#${h.num} ${h.ru}</div><div class="party-lv">Lv.${h.level}</div><div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div><small>${h.hp}/${h.maxHp} HP</small></div>`;
-    container.appendChild(div);
-  });
+  alert(`✅ ${ru} пойман и добавлен в Архив!`);
 }
