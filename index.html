@@ -57,27 +57,10 @@
         <div style="font-size:24px;">🌑</div>
     </div>
 
-    <!-- КЛУБ -->
-    <div id="club-screen" class="screen active">
-        <div id="club-content" class="glass"></div>
-    </div>
+    <div id="club-screen" class="screen active"><div id="club-content" class="glass"></div></div>
+    <div id="game-screen" class="screen"><div id="overworld-container" style="width:480px;height:480px;margin:0 auto;"></div></div>
+    <div id="archive-screen" class="screen"><div id="lunadex-content" class="glass"></div></div>
 
-    <!-- ИГРА -->
-    <div id="game-screen" class="screen">
-        <div id="overworld-container" style="width:480px;height:480px;margin:0 auto;"></div>
-        <div style="text-align:center;margin:10px 0;">
-            <button onclick="changeZone('pokemon')" style="margin:5px;background:#223300;color:white;border:none;padding:12px 20px;border-radius:12px;">🌲 Мир Покемонов</button>
-            <button onclick="changeZone('smeshariki')" style="margin:5px;background:#00AA88;color:white;border:none;padding:12px 20px;border-radius:12px;">🦔 Мир Смешариков</button>
-            <button onclick="changeZone('darkmoon')" style="margin:5px;background:#110033;color:white;border:none;padding:12px 20px;border-radius:12px;">🌑 Бездна Dark Moon</button>
-        </div>
-    </div>
-
-    <!-- АРХИВ ТЬМЫ -->
-    <div id="archive-screen" class="screen">
-        <div id="lunadex-content" class="glass"></div>
-    </div>
-
-    <!-- BOTTOM NAV -->
     <div class="nav">
         <div class="nav-btn active" onclick="switchTab('club')">🏠 Клуб</div>
         <div class="nav-btn" onclick="switchTab('game')">🌍 Игра</div>
@@ -100,7 +83,6 @@
         window.Telegram = window.Telegram || { WebApp: { ready:()=>{}, expand:()=>{} } };
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-        console.log('%c🌑 NĒXUS • DARK MOON — БЕТА-ГОТОВ!', 'color:#C084FC;font-size:18px');
     </script>
 </body>
 </html>
