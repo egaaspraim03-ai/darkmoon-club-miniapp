@@ -1,8 +1,8 @@
-// ====================== js/core/data-loader.js ======================
-// Загружает данные и присваивает покемонам стартовые мувы
++// ====================== js/core/data-loader.js ======================
+// Загружает данные и ОБЯЗАТЕЛЬНО присваивает покемонам мувы
 
 async function loadAllData() {
-    console.log('%c📥 Загрузка данных...', 'color:#C084FC; font-weight:bold');
+    console.log('%c📥 Загрузка данных из data/...', 'color:#C084FC; font-weight:bold');
 
     try {
         const [pokedexRes, movesRes, typechartRes] = await Promise.all([
@@ -15,18 +15,18 @@ async function loadAllData() {
         window.movesData = await movesRes.json();
         window.typechartData = await typechartRes.json();
 
-        // Преобразуем в массив покемонов + даём 4 стартовых мува
+        // Преобразуем покемонов + даём им 4 мува
         window.pokedexData = Object.keys(window.rawPokedex).map(key => {
             const p = window.rawPokedex[key];
             const stats = p.baseStats || {};
 
-            // Берём первые 4 мува, которые подходят по типу (или любые)
-            let starterMoves = Object.values(window.movesData)
+            // Берём мувы, которые соответствуют типу покемона (или любые, если ничего не нашлось)
+            let starterMoves = Object.values(window.movesData || {})
                 .filter(m => m.type && p.types && p.types.includes(m.type))
                 .slice(0, 4);
 
-            if (starterMoves.length < 4) {
-                starterMoves = Object.values(window.movesData).slice(0, 4);
+            if (starterMoves.length === 0) {
+                starterMoves = Object.values(window.movesData || {}).slice(0, 4);
             }
 
             return {
@@ -44,12 +44,13 @@ async function loadAllData() {
                 speed: stats.spe || 60,
                 level: 10,
                 exp: 0,
-                moves: starterMoves,
-                currentPP: {}
+                moves: starterMoves,           // ← здесь мувы
+                currentPP: {}                  // для PP
             };
         });
 
-        console.log(`%c✅ Загружено ${window.pokedexData.length} покемонов с мувами`, 'color:#C084FC; font-size:16px');
+        console.log(`%c✅ Загружено ${window.pokedexData.length} покемонов`, 'color:#C084FC');
+        console.log(`%c✅ Пример мувов у первого покемона:`, window.pokedexData[0]?.moves?.slice(0,2));
 
     } catch (e) {
         console.error('❌ Ошибка загрузки данных', e);
