@@ -6,10 +6,7 @@
     <title>NĒXUS • DARK MOON</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <style>
-        :root {
-            --luna: #C084FC;
-            --abyss: #0a001f;
-        }
+        :root { --luna: #C084FC; --abyss: #0a001f; }
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             background: linear-gradient(#0a001f, #1a0033);
@@ -21,7 +18,7 @@
             height: 100vh;
         }
         .header {
-            background: rgba(26, 0, 51, 0.9);
+            background: rgba(26,0,51,0.95);
             padding: 15px;
             text-align: center;
             border-bottom: 3px solid var(--luna);
@@ -29,12 +26,9 @@
             align-items: center;
             gap: 12px;
         }
-        .header img { width: 42px; height: 42px; border-radius: 50%; }
         .header h1 { font-size: 22px; flex:1; color: var(--luna); }
-        
         .screen { display: none; height: calc(100vh - 140px); overflow-y: auto; padding: 15px; }
         .screen.active { display: block; }
-        
         .nav {
             position: fixed;
             bottom: 0;
@@ -42,64 +36,43 @@
             right: 0;
             max-width: 480px;
             margin: 0 auto;
-            background: rgba(26, 0, 51, 0.95);
+            background: rgba(26,0,51,0.95);
             display: flex;
             justify-content: space-around;
             padding: 8px 0;
             border-top: 3px solid var(--luna);
             z-index: 100;
         }
-        .nav-btn {
-            text-align: center;
-            color: #aaa;
-            font-size: 11px;
-            flex: 1;
-        }
-        .nav-btn.active { color: var(--luna); }
-        
-        .glass {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(12px);
-            border: 2px solid rgba(192, 132, 252, 0.3);
-            border-radius: 18px;
-            padding: 15px;
-        }
-        
-        .world-card, .hero-card {
-            transition: all 0.3s;
-        }
-        .world-card:hover, .hero-card:hover {
-            transform: scale(1.06);
-            box-shadow: 0 0 25px #C084FC;
-        }
-        
+        .nav-btn { text-align:center; color:#aaa; font-size:11px; flex:1; }
+        .nav-btn.active { color:var(--luna); }
+        .glass { background:rgba(255,255,255,0.08); backdrop-filter:blur(12px); border:2px solid rgba(192,132,252,0.3); border-radius:18px; padding:15px; }
         .shake { animation: shake 0.4s; }
         @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <div class="header">
-        <img src="https://i.postimg.cc/0yY7zZ0K/moon-icon.png" alt="Moon">
         <h1>NĒXUS • DARK MOON</h1>
-        <div style="font-size:18px;">🌑</div>
+        <div style="font-size:24px;">🌑</div>
     </div>
 
-    <!-- ТАБЫ -->
+    <!-- КЛУБ -->
     <div id="club-screen" class="screen active">
         <div id="club-content" class="glass"></div>
     </div>
 
+    <!-- ИГРА -->
     <div id="game-screen" class="screen">
         <div id="overworld-container" style="width:480px;height:480px;margin:0 auto;"></div>
-        <div style="text-align:center;margin-top:10px;">
-            <button onclick="changeZone('pokemon')" style="margin:5px;background:#223300;color:white;border:none;padding:10px 18px;border-radius:12px;">🌲 Мир Покемонов</button>
-            <button onclick="changeZone('smeshariki')" style="margin:5px;background:#00AA88;color:white;border:none;padding:10px 18px;border-radius:12px;">🦔 Мир Смешариков</button>
-            <button onclick="changeZone('darkmoon')" style="margin:5px;background:#110033;color:white;border:none;padding:10px 18px;border-radius:12px;">🌑 Бездна Dark Moon</button>
+        <div style="text-align:center;margin:10px 0;">
+            <button onclick="changeZone('pokemon')" style="margin:5px;background:#223300;color:white;border:none;padding:12px 20px;border-radius:12px;">🌲 Мир Покемонов</button>
+            <button onclick="changeZone('smeshariki')" style="margin:5px;background:#00AA88;color:white;border:none;padding:12px 20px;border-radius:12px;">🦔 Мир Смешариков</button>
+            <button onclick="changeZone('darkmoon')" style="margin:5px;background:#110033;color:white;border:none;padding:12px 20px;border-radius:12px;">🌑 Бездна Dark Moon</button>
         </div>
     </div>
 
+    <!-- АРХИВ ТЬМЫ -->
     <div id="archive-screen" class="screen">
         <div id="lunadex-content" class="glass"></div>
     </div>
@@ -111,7 +84,6 @@
         <div class="nav-btn" onclick="switchTab('archive')">🌑 Архив Тьмы</div>
     </div>
 
-    <!-- СКРИПТЫ -->
     <script src="data.js"></script>
     <script src="pokedex-data.js"></script>
     <script src="johto-data.js"></script>
@@ -125,12 +97,10 @@
     <script src="main.js"></script>
 
     <script>
-        // Автозапуск при загрузке
-        window.Telegram = window.Telegram || {};
-        window.Telegram.WebApp = window.Telegram.WebApp || { ready: () => {}, expand: () => {} };
+        window.Telegram = window.Telegram || { WebApp: { ready:()=>{}, expand:()=>{} } };
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
+        console.log('%c🌑 NĒXUS • DARK MOON — БЕТА-ГОТОВ!', 'color:#C084FC;font-size:18px');
     </script>
-
 </body>
 </html>
