@@ -1,11 +1,10 @@
 // ====================== js/core/data-loader.js ======================
-// Загружает все данные из data/ и подготавливает их для игры
+// Загружает данные и присваивает покемонам стартовые мувы
 
 async function loadAllData() {
-    console.log('%c📥 Загрузка данных из data/...', 'color:#C084FC; font-weight:bold');
+    console.log('%c📥 Загрузка данных...', 'color:#C084FC; font-weight:bold');
 
     try {
-        // Загружаем основные файлы
         const [pokedexRes, movesRes, typechartRes] = await Promise.all([
             fetch('data/pokedex.json'),
             fetch('data/moves.json'),
@@ -16,10 +15,19 @@ async function loadAllData() {
         window.movesData = await movesRes.json();
         window.typechartData = await typechartRes.json();
 
-        // Преобразуем pokedex в удобный массив
+        // Преобразуем в массив покемонов + даём 4 стартовых мува
         window.pokedexData = Object.keys(window.rawPokedex).map(key => {
             const p = window.rawPokedex[key];
             const stats = p.baseStats || {};
+
+            // Берём первые 4 мува, которые подходят по типу (или любые)
+            let starterMoves = Object.values(window.movesData)
+                .filter(m => m.type && p.types && p.types.includes(m.type))
+                .slice(0, 4);
+
+            if (starterMoves.length < 4) {
+                starterMoves = Object.values(window.movesData).slice(0, 4);
+            }
 
             return {
                 num: String(p.num).padStart(4, '0'),
@@ -36,12 +44,12 @@ async function loadAllData() {
                 speed: stats.spe || 60,
                 level: 10,
                 exp: 0,
-                moves: [], // пока пусто, заполним позже
+                moves: starterMoves,
                 currentPP: {}
             };
         });
 
-        console.log(`%c✅ Загружено: ${window.pokedexData.length} покемонов, ${Object.keys(window.movesData).length} мувов`, 'color:#C084FC; font-size:16px');
+        console.log(`%c✅ Загружено ${window.pokedexData.length} покемонов с мувами`, 'color:#C084FC; font-size:16px');
 
     } catch (e) {
         console.error('❌ Ошибка загрузки данных', e);
