@@ -1,5 +1,5 @@
-// ====================== BATTLE.JS — v2.8 СТАБИЛЬНЫЙ ======================
-// Исправлено отображение 4 мувов + запуск боя
+// ====================== BATTLE.JS — v2.9 СТАБИЛЬНЫЙ ======================
+// Ждёт загрузки данных + исправлено отображение мувов
 
 let currentBattle = null;
 let battleLog = [];
@@ -62,9 +62,7 @@ function calculateDamage(user, target, move) {
     if (target.types) {
         target.types.forEach(t => {
             const chart = typechartData[t];
-            if (chart?.damage_taken?.[move.type] !== undefined) {
-                typeMod *= chart.damage_taken[move.type];
-            }
+            if (chart?.damage_taken?.[move.type] !== undefined) typeMod *= chart.damage_taken[move.type];
         });
     }
 
@@ -157,9 +155,11 @@ function renderMoveButtons() {
     if (!container || !currentBattle) return;
 
     const player = currentBattle.player;
+    const moves = player.moves || [];
+
     let html = '';
 
-    (player.moves || []).forEach((move, i) => {
+    moves.forEach((move, i) => {
         const pp = player.currentPP[move.id] !== undefined ? player.currentPP[move.id] : (move.pp || 20);
         html += `
             <button onclick="useMove(${i})" style="padding:14px; background:#1a0033; border:2px solid #C084FC; border-radius:12px; color:white; text-align:left;">
@@ -168,12 +168,11 @@ function renderMoveButtons() {
             </button>`;
     });
 
-    container.innerHTML = html || '<p style="color:#aaa; text-align:center; grid-column:1/-1;">Мувы не загружены</p>';
+    container.innerHTML = html || '<p style="color:#aaa; text-align:center; grid-column:1/-1; padding:20px;">Мувы не загружены</p>';
 }
 
 function useMove(index) {
     if (!currentBattle || currentBattle.ended) return;
-
     const player = currentBattle.player;
     const move = player.moves[index];
     if (!move) return;
@@ -204,14 +203,13 @@ function useMove(index) {
 // ====================== AI ======================
 function enemyAI() {
     const { enemy, player } = currentBattle;
-    const availableMoves = enemy.moves || Object.values(movesData).slice(0, 4);
-    const move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    const moves = enemy.moves || Object.values(movesData).slice(0, 4);
+    const move = moves[Math.floor(Math.random() * moves.length)];
 
     const dmg = calculateDamage(enemy, player, move);
     player.hp = Math.max(0, player.hp - dmg);
 
     addLog(`💥 ${enemy.ru || enemy.name} использует <strong>${move.name || move.id}</strong>! (-${dmg} HP)`);
-    if (move.category === 'Status' && move.status) applyStatus(player, move.status);
 }
 
 // ====================== БОЙ ======================
@@ -258,32 +256,25 @@ function endBattle(win) {
 }
 
 function useItem(itemType) {
-    // Простая заглушка для зелья и покебола
+    if (!currentBattle) return;
     if (itemType === 'potion') {
         currentBattle.player.hp = Math.min(currentBattle.player.maxhp, currentBattle.player.hp + 60);
-        addLog(`🧪 Использовано Зелье (+60 HP)`);
+        addLog(`🧪 Зелье (+60 HP)`);
         updateHPBars();
-    }
-    if (itemType === 'pokeball') {
-        addLog(`🎣 Бросаем Покебол...`);
-        if (Math.random() > 0.5) {
-            addLog(`🎉 ${currentBattle.enemy.ru} пойман!`);
-            if (window.myHeroes) window.myHeroes.unshift(currentBattle.enemy);
-            setTimeout(() => endBattle(true), 800);
-        } else {
-            addLog(`❌ Не удалось поймать...`);
-        }
     }
 }
 
 // ====================== ЗАПУСК ======================
 async function initBattleSystem() {
-    await new Promise(r => setTimeout(r, 800)); // ждём data-loader
+    // Ждём загрузки данных
+    while (!window.dataLoaded) {
+        await new Promise(r => setTimeout(r, 300));
+    }
 
     typechartData = window.typechartData || {};
     movesData = window.movesData || {};
 
-    console.log('%c🚀 BATTLE v2.8 — готов к использованию', 'color:#C084FC; font-weight:bold');
+    console.log('%c🚀 BATTLE v2.9 — готов', 'color:#C084FC; font-weight:bold');
 
     window.startBattle = startBattle;
     window.useItem = useItem;
