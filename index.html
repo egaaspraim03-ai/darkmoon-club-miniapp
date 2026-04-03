@@ -14,8 +14,8 @@
             font-family: 'Segoe UI', sans-serif;
             max-width: 480px;
             margin: 0 auto;
-            overflow: hidden;
             height: 100vh;
+            overflow: hidden;
         }
         .header {
             background: rgba(26,0,51,0.95);
@@ -80,9 +80,20 @@
     <script src="main.js"></script>
 
     <script>
-        window.Telegram = window.Telegram || { WebApp: { ready:()=>{}, expand:()=>{} } };
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        // Принудительная инициализация после загрузки всех скриптов
+        window.addEventListener('load', () => {
+            window.Telegram = window.Telegram || { WebApp: { ready:()=>{}, expand:()=>{} } };
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+
+            // Запускаем все экраны
+            if (typeof initMain === 'function') initMain();
+            if (typeof initLunadex === 'function') initLunadex();
+            if (typeof initBattleSystem === 'function') initBattleSystem();
+            if (typeof initOverworld === 'function') initOverworld();
+
+            console.log('%c🌑 NĒXUS полностью загружен и готов!', 'color:#C084FC; font-size:18px');
+        });
     </script>
 </body>
 </html>
