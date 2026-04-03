@@ -1,16 +1,13 @@
 // ====================== js/core/data-loader.js ======================
-// NĒXUS • DARK MOON — ЗАГРУЗКА JSON + ПРЕОБРАЗОВАНИЕ ДАННЫХ
+// NĒXUS • DARK MOON — ЗАГРУЗКА JSON + СТАРТОВЫЕ МУВЫ
 
 async function loadAllData() {
-    console.log('%c📥 Загрузка данных из data/ (pokedex.json + moves.json)', 'color:#C084FC; font-weight:bold');
+    console.log('%c📥 Загрузка данных из data/...', 'color:#C084FC; font-weight:bold');
 
-    // 1. Загружаем все JSON
     const files = {
         rawPokedex: 'data/pokedex.json',
         movesData: 'data/moves.json',
-        typechartData: 'data/typechart.json',
-        abilitiesData: 'data/abilities.json',
-        itemsData: 'data/items.json'
+        typechartData: 'data/typechart.json'
     };
 
     for (const [key, path] of Object.entries(files)) {
@@ -20,44 +17,48 @@ async function loadAllData() {
             console.log(`✅ ${key} загружен`);
         } catch (e) {
             console.error(`❌ ${path}`, e);
-            window[key] = key === 'rawPokedex' ? {} : [];
         }
     }
 
-    // 2. Преобразуем pokedex в удобный массив (как было раньше)
+    // Преобразуем pokedex в массив + добавляем статы и 4 стартовых мува
     window.pokedexData = Object.keys(window.rawPokedex).map(key => {
         const p = window.rawPokedex[key];
+        const stats = p.baseStats || {};
+
+        // Выбираем 4 стартовых мува (2 физ/спец + 1-2 статусных по типу)
+        const pokemonTypes = p.types || ['Normal'];
+        const starterMoves = Object.values(window.movesData || {})
+            .filter(m => pokemonTypes.includes(m.type) && m.base_power !== undefined)
+            .slice(0, 4);
+
         return {
             num: String(p.num).padStart(4, '0'),
-            ru: p.species || key,                    // пока английское имя (можно добавить ru позже)
+            ru: p.species || key,
             en: p.species || key,
             sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.num}.png`,
-            types: p.types || ['Normal'],
-            hp: p.baseStats?.hp || 60,
-            maxhp: p.baseStats?.hp || 60,
-            attack: p.baseStats?.atk || 60,
-            defense: p.baseStats?.def || 60,
-            specialattack: p.baseStats?.spa || 60,
-            specialdefense: p.baseStats?.spd || 60,
-            speed: p.baseStats?.spe || 60,
+            types: pokemonTypes,
+            hp: stats.hp || 60,
+            maxhp: stats.hp || 60,
+            attack: stats.atk || 60,
+            defense: stats.def || 60,
+            specialattack: stats.spa || 60,
+            specialdefense: stats.spd || 60,
+            speed: stats.spe || 60,
             level: 10,
             exp: 0,
-            evolution: p.evos ? { ru: p.evos[0] } : null,   // простая эволюция
-            baseStats: p.baseStats
+            moves: starterMoves.length ? starterMoves : Object.values(window.movesData || {}).slice(0, 4), // fallback
+            currentPP: {}, // будет заполнено ниже
+            evolution: p.evos ? { ru: p.evos[0] } : null
         };
     });
 
-    // 3. Глобальные переменные для совместимости
     window.movesData = window.movesData || {};
     window.typechartData = window.typechartData || {};
-    window.smesharikiData = window.smesharikiData || [];   // пока пусто
-    window.darkmoonData = window.darkmoonData || [];
 
-    console.log(`%c🚀 Данные готовы! ${window.pokedexData.length} покемонов с реальными статами`, 'color:#C084FC; font-size:16px');
+    console.log(`%c🚀 Данные готовы! ${window.pokedexData.length} покемонов с 4 мувами`, 'color:#C084FC; font-size:16px');
     return true;
 }
 
-// Автозагрузка
 if (typeof window !== 'undefined') {
     window.addEventListener('load', loadAllData);
 }
