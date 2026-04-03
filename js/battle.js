@@ -1,11 +1,10 @@
-// ====================== BATTLE.JS — v2.5 NEXUS JSON ======================
-// AI + Mega + Z-move + EXP + Левелинг + Эволюция + ПРЕДМЕТЫ
-// Данные берутся из data-loader.js (pokedex.json + moves.json + typechart.json)
+// ====================== BATTLE.JS — v2.6 NEXUS MOVES ======================
+// 4 реальных мува + PP + улучшенный интерфейс + JSON данные
 
 let currentBattle = null;
 let battleLog = [];
 
-// Глобальные данные (будут заполнены из data-loader.js)
+// Глобальные данные из data-loader.js
 let typechartData = {};
 let movesData = {};
 
@@ -57,10 +56,8 @@ function calculateDamage(user, target, move) {
     const level = user.level || 50;
     let basePower = move.base_power || 40;
 
-    // STAB
     const stab = (user.types && user.types.includes(move.type)) ? 1.5 : 1.0;
 
-    // Type effectiveness
     let typeMod = 1.0;
     if (target.types) {
         target.types.forEach(t => {
@@ -72,20 +69,18 @@ function calculateDamage(user, target, move) {
     }
 
     const atk = move.category === 'Physical' 
-        ? (user.attack || user.base_attack || 80) 
-        : (user.specialattack || user.base_specialattack || 80);
+        ? (user.attack || 80) 
+        : (user.specialattack || 80);
 
     const def = move.category === 'Physical' 
-        ? (target.defense || target.base_defense || 80) 
-        : (target.specialdefense || target.base_specialdefense || 80);
+        ? (target.defense || 80) 
+        : (target.specialdefense || 80);
 
     let dmg = Math.floor((((2 * level / 5 + 2) * basePower * atk / def) / 50) + 2);
     dmg = Math.floor(dmg * stab * typeMod);
 
-    // Критический удар (6.25%)
-    if (Math.random() < 0.0625) dmg = Math.floor(dmg * 1.5);
+    if (Math.random() < 0.0625) dmg = Math.floor(dmg * 1.5); // критик
 
-    // Синергия партии
     const synergy = getNEXUSMultiplier(currentBattle?.party || [user]);
     dmg = Math.floor(dmg * synergy);
 
@@ -108,114 +103,135 @@ function updateHPBars() {
     if (e) e.style.width = Math.max(0, (currentBattle.enemy.hp / currentBattle.enemy.maxhp) * 100) + '%';
 }
 
-// ====================== MEGA + Z-MOVE ======================
-let megaUsed = false;
-let zMoveUsed = false;
+// ====================== ИНТЕРФЕЙС БОЯ С 4 МУВАМИ ======================
+function showBattleScreen() {
+    const battleHTML = `
+        <div style="background:#0a001f; padding:15px; border-radius:20px; border:3px solid #C084FC;">
+            <div style="text-align:center; margin-bottom:15px;">
+                <h2 style="color:#C084FC;">⚔️ БИТВА</h2>
+            </div>
 
-function tryMegaEvolve(user) {
-    if (megaUsed) return false;
-    megaUsed = true;
-    user.name = (user.ru || user.name) + " Mega";
-    addLog(`🔥 MEGA ЭВОЛЮЦИЯ! ${user.name}`);
-    return true;
+            <!-- Враг -->
+            <div style="background:#1a0033; padding:12px; border-radius:12px; margin-bottom:15px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="${currentBattle.enemy.sprite}" style="width:80px; height:80px; image-rendering:pixelated;">
+                    <div>
+                        <strong>${currentBattle.enemy.ru || currentBattle.enemy.name}</strong><br>
+                        <span style="color:#C084FC;">Lv.${currentBattle.enemy.level || 10}</span>
+                    </div>
+                </div>
+                <div style="height:12px; background:#333; border-radius:6px; margin-top:8px; overflow:hidden;">
+                    <div id="enemy-hp-bar" style="height:100%; width:100%; background:#ff4444;"></div>
+                </div>
+            </div>
+
+            <!-- Игрок -->
+            <div style="background:#1a0033; padding:12px; border-radius:12px; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="${currentBattle.player.sprite}" style="width:80px; height:80px; image-rendering:pixelated;">
+                    <div>
+                        <strong>${currentBattle.player.ru || currentBattle.player.name}</strong><br>
+                        <span style="color:#C084FC;">Lv.${currentBattle.player.level || 10}</span>
+                    </div>
+                </div>
+                <div style="height:12px; background:#333; border-radius:6px; margin-top:8px; overflow:hidden;">
+                    <div id="player-hp-bar" style="height:100%; width:100%; background:#44ff44;"></div>
+                </div>
+            </div>
+
+            <!-- Лог -->
+            <div id="battle-log" style="height:120px; overflow-y:auto; background:#0a001f; padding:10px; border-radius:12px; font-size:13px; margin-bottom:15px; border:1px solid #C084FC;"></div>
+
+            <!-- Кнопки мувов -->
+            <div id="moves-container" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+
+            <!-- Предметы -->
+            <div style="margin-top:15px; display:flex; gap:10px;">
+                <button onclick="battleAction('potion')" style="flex:1; padding:12px; background:#4B0082; color:white; border:none; border-radius:12px;">🧪 Зелье</button>
+                <button onclick="battleAction('pokeball')" style="flex:1; padding:12px; background:#4B0082; color:white; border:none; border-radius:12px;">🎣 Покебол</button>
+            </div>
+        </div>
+    `;
+
+    const gameScreen = document.getElementById('game-screen');
+    if (gameScreen) gameScreen.innerHTML = battleHTML;
+
+    renderMoveButtons();
 }
 
-function tryZMove(user, move) {
-    if (zMoveUsed) return move;
-    zMoveUsed = true;
-    const zPower = Math.floor((move.base_power || 40) * 1.5);
-    addLog(`✨ Z-MOVE АКТИВИРОВАН!`);
-    return { ...move, base_power: zPower };
+function renderMoveButtons() {
+    const container = document.getElementById('moves-container');
+    if (!container || !currentBattle) return;
+
+    const player = currentBattle.player;
+    let html = '';
+
+    player.moves.forEach((move, index) => {
+        const pp = player.currentPP[move.id] !== undefined ? player.currentPP[move.id] : (move.pp || 20);
+        const disabled = pp <= 0 ? 'opacity:0.5; pointer-events:none;' : '';
+
+        html += `
+            <button onclick="useMove(${index})" 
+                    style="padding:14px; background:#1a0033; border:2px solid #C084FC; border-radius:12px; color:white; ${disabled}">
+                <strong>${move.name || move.id}</strong><br>
+                <small>${move.type} • ${move.category} • PP: ${pp}</small>
+            </button>`;
+    });
+
+    container.innerHTML = html;
 }
 
-// ====================== EXP + ЛЕВЕЛИНГ + ЭВОЛЮЦИЯ ======================
-function giveExp(winner, loser) {
-    const baseExp = 35 + Math.floor(loser.level || 50) * 2;
-    const expGain = Math.floor(baseExp * (1 + getNEXUSMultiplier(currentBattle?.party || []) - 1));
-    winner.exp = (winner.exp || 0) + expGain;
-    addLog(`✨ +${expGain} EXP`);
+function useMove(moveIndex) {
+    if (!currentBattle || currentBattle.ended) return;
 
-    const expToNext = winner.level * 25 + 50;
-    if (winner.exp >= expToNext) {
-        winner.level++;
-        winner.exp = 0;
-        winner.hp = Math.floor(winner.hp * 1.12);
-        winner.maxhp = winner.hp;
-        winner.attack = Math.floor((winner.attack || 80) * 1.08);
-        winner.specialattack = Math.floor((winner.specialattack || 80) * 1.08);
-        addLog(`🎉 ${winner.ru || winner.name} → уровень ${winner.level}!`);
+    const player = currentBattle.player;
+    const move = player.moves[moveIndex];
+    if (!move) return;
 
-        if (winner.level >= 16 && winner.evolution) {
-            const evolved = { ...winner, ...winner.evolution };
-            addLog(`🌟 ЭВОЛЮЦИЯ! ${winner.ru || winner.name} → ${evolved.ru}`);
-            Object.assign(winner, evolved);
-        }
+    // Уменьшаем PP
+    if (!player.currentPP[move.id]) player.currentPP[move.id] = move.pp || 20;
+    player.currentPP[move.id]--;
+
+    const dmg = calculateDamage(player, currentBattle.enemy, move);
+
+    currentBattle.enemy.hp = Math.max(0, currentBattle.enemy.hp - dmg);
+    addLog(`📌 ${player.ru || player.name} использует <strong>${move.name || move.id}</strong>! (-${dmg} HP)`);
+
+    // Анимация тряски врага
+    const sprite = document.getElementById('enemy-sprite');
+    if (sprite) {
+        sprite.classList.add('shake');
+        setTimeout(() => sprite.classList.remove('shake'), 420);
     }
-}
 
-// ====================== ПРЕДМЕТЫ ======================
-let inventory = JSON.parse(localStorage.getItem('inventory')) || { pokeball: 5, potion: 3 };
+    updateHPBars();
+    renderMoveButtons();
 
-function useItem(itemType) {
-    if (!currentBattle) return;
-
-    if (itemType === 'potion' && inventory.potion > 0) {
-        inventory.potion--;
-        currentBattle.player.hp = Math.min(currentBattle.player.maxhp, currentBattle.player.hp + 60);
-        addLog(`🧪 Использовано ЗЕЛЬЕ (+60 HP)`);
-        updateHPBars();
-        saveInventory();
+    if (currentBattle.enemy.hp <= 0) {
+        addLog(`🎉 ПОБЕДА!`);
+        giveExp(player, currentBattle.enemy);
+        setTimeout(() => endBattle(true), 900);
+        return;
     }
 
-    if (itemType === 'pokeball' && inventory.pokeball > 0) {
-        inventory.pokeball--;
-        addLog(`🎣 БРОСАЕМ ПОКЕБОЛ...`);
-        saveInventory();
-
-        const catchRate = Math.random();
-        const hpPercent = currentBattle.enemy.hp / currentBattle.enemy.maxhp;
-
-        if (catchRate > hpPercent * 0.7) {
-            addLog(`🎉 ${currentBattle.enemy.ru || currentBattle.enemy.name} пойман!`);
-            if (window.myHeroes) window.myHeroes.unshift(currentBattle.enemy);
-            if (window.saveMyHeroes) window.saveMyHeroes();
-            setTimeout(() => endBattle(true), 800);
-        } else {
-            addLog(`❌ Покебол не сработал...`);
-        }
-    }
-}
-
-function saveInventory() {
-    localStorage.setItem('inventory', JSON.stringify(inventory));
+    setTimeout(enemyTurn, 650);
 }
 
 // ====================== AI ======================
 function enemyAI() {
     const { enemy, player } = currentBattle;
-    let move = { 
-        base_power: 60, 
-        type: enemy.types ? enemy.types[0] : 'Normal', 
-        category: 'Physical' 
-    };
+    const availableMoves = enemy.moves || Object.values(movesData).slice(0, 4);
 
-    if (Math.random() < 0.35 && !player.status) {
-        move = { base_power: 0, category: 'Status', status: Math.random() > 0.5 ? 'par' : 'psn' };
-    } else if (Math.random() < 0.4) {
-        move = { 
-            base_power: 90, 
-            type: enemy.types ? enemy.types[0] : 'Normal', 
-            category: 'Special' 
-        };
-    }
+    const move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
 
     const dmg = calculateDamage(enemy, player, move);
     player.hp = Math.max(0, player.hp - dmg);
-    addLog(`💥 ${enemy.ru || enemy.name} использует ${move.category === 'Status' ? 'СТАТУС' : 'АТАКУ'}! (-${dmg} HP)`);
-    if (move.status) applyStatus(player, move.status);
+
+    addLog(`💥 ${enemy.ru || enemy.name} использует <strong>${move.name || move.id}</strong>! (-${dmg} HP)`);
+    if (move.category === 'Status' && move.status) applyStatus(player, move.status);
 }
 
-// ====================== БОЙ ======================
+// ====================== Остальные функции (startBattle, endBattle и т.д.) ======================
 function startBattle(playerHero, enemyHero, party = []) {
     currentBattle = {
         player: JSON.parse(JSON.stringify(playerHero)),
@@ -225,57 +241,20 @@ function startBattle(playerHero, enemyHero, party = []) {
         ended: false
     };
 
-    // Устанавливаем базовые HP и статы, если их нет
     currentBattle.player.hp = currentBattle.player.hp || currentBattle.player.maxhp || 120;
     currentBattle.player.maxhp = currentBattle.player.maxhp || currentBattle.player.hp;
     currentBattle.enemy.hp = currentBattle.enemy.hp || currentBattle.enemy.maxhp || 120;
     currentBattle.enemy.maxhp = currentBattle.enemy.maxhp || currentBattle.enemy.hp;
 
-    megaUsed = false;
-    zMoveUsed = false;
+    // Инициализируем PP
+    currentBattle.player.currentPP = {};
+    currentBattle.enemy.currentPP = {};
+
     battleLog = [];
-
     addLog(`🌑 БИТВА НАЧАЛАСЬ! ${playerHero.ru || playerHero.name} vs ${enemyHero.ru || enemyHero.name}`);
-    if (typeof showBattleScreen === 'function') showBattleScreen();
+
+    showBattleScreen();
     updateHPBars();
-}
-
-function battleAction(actionType) {
-    if (!currentBattle || currentBattle.ended) return;
-    const { player, enemy } = currentBattle;
-
-    if (actionType === 'potion' || actionType === 'pokeball') {
-        useItem(actionType);
-        setTimeout(enemyTurn, 400);
-        return;
-    }
-
-    let move = actionType === 'attack' 
-        ? { base_power: 60, type: player.types ? player.types[0] : 'Normal', category: 'Physical' }
-        : { base_power: 95, type: player.types ? player.types[0] : 'Normal', category: 'Special' };
-
-    if (actionType === 'mega' && tryMegaEvolve(player)) return battleAction('attack');
-    if (actionType === 'zmove') move = tryZMove(player, move);
-
-    const dmg = calculateDamage(player, enemy, move);
-    enemy.hp = Math.max(0, enemy.hp - dmg);
-    addLog(`📌 ${player.ru || player.name} → ${actionType.toUpperCase()}! (-${dmg} HP)`);
-
-    const sprite = document.getElementById('enemy-sprite');
-    if (sprite) {
-        sprite.classList.add('shake');
-        setTimeout(() => sprite.classList.remove('shake'), 420);
-    }
-
-    updateHPBars();
-    if (enemy.hp <= 0) {
-        addLog(`🎉 ПОБЕДА!`);
-        giveExp(player, enemy);
-        setTimeout(() => endBattle(true), 900);
-        return;
-    }
-
-    setTimeout(enemyTurn, 650);
 }
 
 function enemyTurn() {
@@ -284,6 +263,7 @@ function enemyTurn() {
     updateHPBars();
     processStatusDamage(currentBattle.player);
     if (currentBattle.player.hp <= 0) endBattle(false);
+    else renderMoveButtons();
 }
 
 function endBattle(win) {
@@ -298,23 +278,19 @@ function endBattle(win) {
 
 // ====================== ЗАПУСК ======================
 async function initBattleSystem() {
-    // Ждём загрузки данных из data-loader.js
-    if (!window.typechartData || Object.keys(window.typechartData).length === 0) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-    }
+    await new Promise(resolve => setTimeout(resolve, 600)); // ждём data-loader
 
     typechartData = window.typechartData || {};
     movesData = window.movesData || {};
 
-    console.log('%c🚀 BATTLE v2.5 — JSON данные загружены успешно', 'color:#C084FC; font-weight:bold');
-    
+    console.log('%c🚀 BATTLE v2.6 — система 4 мувов готова!', 'color:#C084FC; font-weight:bold');
+
     window.startBattle = startBattle;
-    window.battleAction = battleAction;
-    window.endBattle = endBattle;
+    window.battleAction = () => {}; // больше не используется
 }
 
 if (typeof window !== 'undefined') {
     window.addEventListener('load', initBattleSystem);
 }
 
-console.log('%c✅ battle.js v2.5 готов (работает с JSON)', 'color:#C084FC; font-size:16px');
+console.log('%c✅ battle.js v2.6 с 4 мувами загружен', 'color:#C084FC; font-size:16px');
