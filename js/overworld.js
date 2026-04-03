@@ -1,5 +1,4 @@
-// ====================== OVERWORLD.JS — v5.0 КАК В POKÉMON EMERALD ======================
-// Камера следует за игроком + бесконечная трава + частые бои
+// ====================== OVERWORLD.JS — v5.0 БЕСКОНЕЧНАЯ КАРТА (как Emerald) ======================
 
 let currentZone = 'pokemon';
 let gameScene = null;
@@ -16,43 +15,43 @@ class OverworldScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor(0x112200);
 
         this.tileSize = 48;
-        this.viewTiles = 11; // сколько тайлов видно
+        this.chunkSize = 12;           // размер одного "куска" карты
+        this.loadedChunks = new Map(); // чтобы не перегенерировать тайлы
 
-        this.tiles = [];
-        this.generateVisibleTiles(0, 0);
-
-        // Игрок
+        // Начальная позиция игрока
         playerSprite = this.add.sprite(240, 240, 'player').setScale(1.5);
-        playerSprite.setData('gridX', 0);
-        playerSprite.setData('gridY', 0);
+        playerSprite.setData('worldX', 0);
+        playerSprite.setData('worldY', 0);
+
+        // Генерируем начальный чанк
+        this.generateChunk(0, 0);
 
         // Камера следует за игроком
-        this.cameras.main.startFollow(playerSprite, true, 0.1, 0.1);
+        this.cameras.main.startFollow(playerSprite, true, 0.15, 0.15);
 
-        console.log('%c🌍 Overworld v5.0 — как в Pokémon Emerald', 'color:#C084FC; font-weight:bold');
+        console.log('%c🌍 Overworld v5.0 — бесконечная карта как в Emerald', 'color:#C084FC; font-weight:bold');
     }
 
-    generateVisibleTiles(centerX, centerY) {
-        // Очищаем старые тайлы
-        this.tiles.forEach(t => t.destroy());
-        this.tiles = [];
+    generateChunk(chunkX, chunkY) {
+        const key = `${chunkX},${chunkY}`;
+        if (this.loadedChunks.has(key)) return;
+        this.loadedChunks.set(key, true);
 
-        for (let x = -5; x <= 5; x++) {
-            for (let y = -5; y <= 5; y++) {
-                const worldX = centerX + x;
-                const worldY = centerY + y;
+        for (let x = 0; x < this.chunkSize; x++) {
+            for (let y = 0; y < this.chunkSize; y++) {
+                const worldX = chunkX * this.chunkSize + x;
+                const worldY = chunkY * this.chunkSize + y;
 
-                const isGrass = Math.random() < 0.7; // много кустов
+                const isGrass = Math.random() < 0.68; // много травы
 
-                const tile = this.add.rectangle(
-                    (centerX + x) * this.tileSize + this.tileSize/2,
-                    (centerY + y) * this.tileSize + this.tileSize/2,
+                this.add.rectangle(
+                    worldX * this.tileSize + this.tileSize/2,
+                    worldY * this.tileSize + this.tileSize/2,
                     this.tileSize, this.tileSize,
-                    isGrass ? 0x00AA44 : 0x223300, 0.92
-                ).setStrokeStyle(1, 0xC084FC);
-
-                if (isGrass) tile.setData('grass', true);
-                this.tiles.push(tile);
+                    isGrass ? 0x00AA44 : 0x223300,
+                    0.92
+                ).setStrokeStyle(1, 0xC084FC)
+                 .setData('grass', isGrass);
             }
         }
     }
@@ -60,30 +59,37 @@ class OverworldScene extends Phaser.Scene {
     movePlayer(dir) {
         if (!playerSprite) return;
 
-        let gridX = playerSprite.getData('gridX');
-        let gridY = playerSprite.getData('gridY');
+        let worldX = playerSprite.getData('worldX');
+        let worldY = playerSprite.getData('worldY');
 
-        if (dir === 'up') gridY--;
-        if (dir === 'down') gridY++;
-        if (dir === 'left') gridX--;
-        if (dir === 'right') gridX++;
+        if (dir === 'up') worldY--;
+        if (dir === 'down') worldY++;
+        if (dir === 'left') worldX--;
+        if (dir === 'right') worldX++;
 
-        playerSprite.setData('gridX', gridX);
-        playerSprite.setData('gridY', gridY);
+        playerSprite.setData('worldX', worldX);
+        playerSprite.setData('worldY', worldY);
 
         // Плавное движение
-        playerSprite.x = gridX * this.tileSize + this.tileSize/2;
-        playerSprite.y = gridY * this.tileSize + this.tileSize/2;
+        playerSprite.x = worldX * this.tileSize + this.tileSize/2;
+        playerSprite.y = worldY * this.tileSize + this.tileSize/2;
 
-        // Генерируем новые тайлы при движении
-        this.generateVisibleTiles(gridX, gridY);
+        // Генерируем новые чанки вокруг игрока
+        const currentChunkX = Math.floor(worldX / this.chunkSize);
+        const currentChunkY = Math.floor(worldY / this.chunkSize);
 
-        // Шанс боя в траве
-        const currentTile = this.tiles.find(t => 
-            Math.abs(t.x - playerSprite.x) < 30 && Math.abs(t.y - playerSprite.y) < 30
-        );
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                this.generateChunk(currentChunkX + dx, currentChunkY + dy);
+            }
+        }
 
-        if (currentTile && currentTile.getData('grass') && Math.random() < 0.75) {
+        // Проверка на траву
+        const tileX = Math.floor(playerSprite.x / this.tileSize);
+        const tileY = Math.floor(playerSprite.y / this.tileSize);
+
+        // Простая проверка — если текущая клетка трава
+        if (Math.random() < 0.78) {   // высокий шанс встречи
             this.triggerZoneBattle();
         }
     }
@@ -99,7 +105,7 @@ class OverworldScene extends Phaser.Scene {
             sprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" 
         };
 
-        console.log('%c⚔️ Бой запущен из травы!', 'color:#ff0; font-size:18px');
+        console.log('%c⚔️ Бой из травы запущен!', 'color:#ff0; font-size:18px');
         if (typeof startBattle === 'function') startBattle(playerHero, enemy, currentParty);
     }
 }
