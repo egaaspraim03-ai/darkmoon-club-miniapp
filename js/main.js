@@ -1,3 +1,6 @@
+// ====================== js/main.js ======================
+// NĒXUS • DARK MOON — Главный файл управления вкладками
+
 function switchTab(tab) {
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     const screen = document.getElementById(tab + '-screen');
@@ -7,9 +10,14 @@ function switchTab(tab) {
     const btn = document.querySelector(`[onclick="switchTab('${tab}')"]`);
     if (btn) btn.classList.add('active');
 
+    // Специальные действия при переключении вкладок
     if (tab === 'club') renderClubScreen();
-    else if (tab === 'game') { if (typeof initOverworld === 'function') initOverworld(); }
-    else if (tab === 'archive') { if (typeof showLunadexSection === 'function') showLunadexSection('lunadex'); }
+    else if (tab === 'game') {
+        if (typeof initOverworld === 'function') initOverworld();
+    }
+    else if (tab === 'archive') {
+        if (typeof showLunadexSection === 'function') showLunadexSection('lunadex');
+    }
 }
 
 function renderClubScreen() {
@@ -34,16 +42,38 @@ function renderClubScreen() {
 }
 
 function openLink(url) {
-    if (typeof Telegram !== 'undefined' && Telegram.WebApp) Telegram.WebApp.openLink(url);
-    else window.open(url, '_blank');
+    if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+        Telegram.WebApp.openLink(url);
+    } else {
+        window.open(url, '_blank');
+    }
 }
 
+// ====================== ЗАКРЫТИЕ БОЯ ======================
+function closeBattleScreen() {
+    const gameScreen = document.getElementById('game-screen');
+    if (gameScreen) {
+        gameScreen.innerHTML = `<div id="overworld-container" style="width:480px;height:480px;margin:0 auto;"></div>`;
+    }
+    if (typeof initOverworld === 'function') {
+        setTimeout(initOverworld, 100);
+    }
+    console.log('%c🔄 Бой закрыт, возвращаемся в оверворлд', 'color:#C084FC');
+}
+
+// ====================== ИНИЦИАЛИЗАЦИЯ ======================
 function initMain() {
-    console.log('%c🚀 MAIN.JS загружен', 'color:#C084FC');
+    console.log('%c🚀 MAIN.JS v2.6 загружен — NĒXUS • DARK MOON', 'color:#C084FC; font-size:16px');
+    
+    // Переключаемся на Архив по умолчанию
     switchTab('archive');
+    
+    // Глобальные экспорты
+    window.switchTab = switchTab;
+    window.openLink = openLink;
+    window.closeBattleScreen = closeBattleScreen;
 }
 
-window.switchTab = switchTab;
-window.openLink = openLink;
-
-if (typeof window !== 'undefined') window.addEventListener('load', initMain);
+if (typeof window !== 'undefined') {
+    window.addEventListener('load', initMain);
+}
