@@ -1,8 +1,10 @@
-// ====================== OVERWORLD.JS — v3.2 КНОПКИ ВСЕГДА ВИДНЫ ======================
+// ====================== OVERWORLD.JS — v3.4 С КРАСИВЫМИ КНОПКАМИ ======================
 
 let currentZone = 'pokemon';
 let gameScene = null;
 let playerSprite = null;
+let overworldSceneInstance = null;
+let useJoystick = false; // false = стрелки, true = джойстик (пока только стрелки)
 
 class OverworldScene extends Phaser.Scene {
     constructor() {
@@ -14,6 +16,8 @@ class OverworldScene extends Phaser.Scene {
     }
 
     create() {
+        overworldSceneInstance = this;
+
         this.gridSize = 10;
         this.tileSize = 48;
         this.updateZoneBackground();
@@ -39,7 +43,7 @@ class OverworldScene extends Phaser.Scene {
         playerSprite.x = 5 * this.tileSize;
         playerSprite.y = 5 * this.tileSize;
 
-        console.log(`%c🌍 Overworld v3.2 готов (зона: ${currentZone})`, 'color:#C084FC');
+        console.log('%c🌍 Overworld v3.4 — красивые кнопки готовы', 'color:#C084FC');
     }
 
     updateZoneBackground() {
@@ -48,6 +52,8 @@ class OverworldScene extends Phaser.Scene {
     }
 
     movePlayer(dir) {
+        if (!playerSprite) return;
+
         let newX = playerSprite.x;
         let newY = playerSprite.y;
 
@@ -61,7 +67,8 @@ class OverworldScene extends Phaser.Scene {
         playerSprite.x = newX;
         playerSprite.y = newY;
 
-        const tile = this.tiles.find(t => Math.abs(t.x - playerSprite.x) < 24 && Math.abs(t.y - playerSprite.y) < 24);
+        // Проверка на траву
+        const tile = this.tiles.find(t => Math.abs(t.x - playerSprite.x) < 25 && Math.abs(t.y - playerSprite.y) < 25);
         if (tile && tile.getData('grass') && Math.random() < 0.45) {
             this.triggerZoneBattle();
         }
@@ -75,7 +82,7 @@ class OverworldScene extends Phaser.Scene {
     }
 }
 
-// ====================== КНОПКИ УПРАВЛЕНИЯ ======================
+// ====================== КРАСИВЫЕ ПОЛУПРОЗРАЧНЫЕ КНОПКИ ======================
 function createControls() {
     const container = document.getElementById('overworld-container');
     if (!container) return;
@@ -84,26 +91,41 @@ function createControls() {
     controls.id = 'overworld-controls';
     controls.style.cssText = `
         position: absolute; 
-        bottom: 25px; 
+        bottom: 30px; 
         left: 50%; 
         transform: translateX(-50%); 
         display: grid; 
-        grid-template-columns: 55px 55px 55px; 
-        gap: 8px; 
+        grid-template-columns: 62px 62px 62px; 
+        gap: 10px; 
         z-index: 9999;
     `;
+
     controls.innerHTML = `
         <div></div>
-        <button onclick="window.moveDirection('up')" style="width:55px;height:55px;font-size:32px;background:#C084FC;color:#0a001f;border:none;border-radius:14px;box-shadow:0 4px 10px rgba(192,132,252,0.5);">↑</button>
+        <button id="btn-up" onclick="window.moveDirection('up')" 
+            style="width:62px;height:62px;font-size:34px;background:rgba(192,132,252,0.75);color:white;border:none;border-radius:16px;box-shadow:0 4px 15px rgba(192,132,252,0.6);backdrop-filter:blur(8px);">↑</button>
         <div></div>
         
-        <button onclick="window.moveDirection('left')" style="width:55px;height:55px;font-size:32px;background:#C084FC;color:#0a001f;border:none;border-radius:14px;box-shadow:0 4px 10px rgba(192,132,252,0.5);">←</button>
-        <button onclick="window.moveDirection('down')" style="width:55px;height:55px;font-size:32px;background:#C084FC;color:#0a001f;border:none;border-radius:14px;box-shadow:0 4px 10px rgba(192,132,252,0.5);">↓</button>
-        <button onclick="window.moveDirection('right')" style="width:55px;height:55px;font-size:32px;background:#C084FC;color:#0a001f;border:none;border-radius:14px;box-shadow:0 4px 10px rgba(192,132,252,0.5);">→</button>
+        <button id="btn-left" onclick="window.moveDirection('left')" 
+            style="width:62px;height:62px;font-size:34px;background:rgba(192,132,252,0.75);color:white;border:none;border-radius:16px;box-shadow:0 4px 15px rgba(192,132,252,0.6);backdrop-filter:blur(8px);">←</button>
+        <button id="btn-down" onclick="window.moveDirection('down')" 
+            style="width:62px;height:62px;font-size:34px;background:rgba(192,132,252,0.75);color:white;border:none;border-radius:16px;box-shadow:0 4px 15px rgba(192,132,252,0.6);backdrop-filter:blur(8px);">↓</button>
+        <button id="btn-right" onclick="window.moveDirection('right')" 
+            style="width:62px;height:62px;font-size:34px;background:rgba(192,132,252,0.75);color:white;border:none;border-radius:16px;box-shadow:0 4px 15px rgba(192,132,252,0.6);backdrop-filter:blur(8px);">→</button>
     `;
 
     container.appendChild(controls);
-    console.log('%c✅ Кнопки управления добавлены', 'color:#C084FC');
+
+    // Эффект нажатия (становится ярче)
+    const buttons = controls.querySelectorAll('button');
+    buttons.forEach(btn => {
+        btn.addEventListener('touchstart', () => btn.style.background = 'rgba(192,132,252,0.95)');
+        btn.addEventListener('touchend', () => btn.style.background = 'rgba(192,132,252,0.75)');
+        btn.addEventListener('mousedown', () => btn.style.background = 'rgba(192,132,252,0.95)');
+        btn.addEventListener('mouseup', () => btn.style.background = 'rgba(192,132,252,0.75)');
+    });
+
+    console.log('%c✅ Полупрозрачные кнопки с эффектом нажатия добавлены', 'color:#C084FC');
 }
 
 // ====================== ИНИЦИАЛИЗАЦИЯ ======================
@@ -120,10 +142,10 @@ function initOverworld() {
 
     gameScene = new Phaser.Game(config);
 
-    // Кнопки появляются чуть позже, чтобы canvas был готов
-    setTimeout(createControls, 800);
+    // Кнопки появляются чуть позже
+    setTimeout(createControls, 600);
 
-    console.log('%c🎮 Overworld v3.2 с большими кнопками загружен!', 'color:#C084FC; font-weight:bold');
+    console.log('%c🎮 Overworld v3.4 — полупрозрачные кнопки готовы!', 'color:#C084FC; font-weight:bold');
 }
 
 if (typeof window !== 'undefined') {
@@ -133,11 +155,11 @@ if (typeof window !== 'undefined') {
 window.changeZone = function(newZone) {
     currentZone = newZone;
     if (gameScene) gameScene.scene.restart();
-    setTimeout(createControls, 1000); // перерисовываем кнопки при смене зоны
+    setTimeout(createControls, 800);
 };
 
 window.moveDirection = function(dir) {
-    if (gameScene && gameScene.scene.getScene('OverworldScene')) {
-        gameScene.scene.getScene('OverworldScene').movePlayer(dir);
+    if (overworldSceneInstance) {
+        overworldSceneInstance.movePlayer(dir);
     }
 };
