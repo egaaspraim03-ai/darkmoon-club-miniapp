@@ -159,7 +159,7 @@ function renderMoveButtons() {
     const player = currentBattle.player;
     let html = '';
 
-    player.moves.forEach((move, i) => {
+    (player.moves || []).forEach((move, i) => {
         const pp = player.currentPP[move.id] !== undefined ? player.currentPP[move.id] : (move.pp || 20);
         html += `
             <button onclick="useMove(${i})" style="padding:14px; background:#1a0033; border:2px solid #C084FC; border-radius:12px; color:white; text-align:left;">
