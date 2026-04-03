@@ -14,8 +14,8 @@
             font-family: 'Segoe UI', sans-serif;
             max-width: 480px;
             margin: 0 auto;
-            height: 100vh;
             overflow: hidden;
+            height: 100vh;
         }
         .header {
             background: rgba(26,0,51,0.95);
@@ -46,8 +46,6 @@
         .nav-btn { text-align:center; color:#aaa; font-size:11px; flex:1; }
         .nav-btn.active { color:var(--luna); }
         .glass { background:rgba(255,255,255,0.08); backdrop-filter:blur(12px); border:2px solid rgba(192,132,252,0.3); border-radius:18px; padding:15px; }
-        .shake { animation: shake 0.4s; }
-        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
     </style>
 </head>
 <body>
@@ -67,33 +65,18 @@
         <div class="nav-btn" onclick="switchTab('archive')">🌑 Архив Тьмы</div>
     </div>
 
-    <script src="data.js"></script>
-    <script src="pokedex-data.js"></script>
-    <script src="johto-data.js"></script>
-    <script src="smeshariki-data.js"></script>
-    <script src="darkmoon-data.js"></script>
-    <script src="moves.js"></script>
-    <script src="typechart.js"></script>
-    <script src="overworld.js"></script>
-    <script src="battle.js"></script>
-    <script src="lunadex.js"></script>
-    <script src="main.js"></script>
+    <!-- НОВЫЙ ПОРЯДОК ЗАГРУЗКИ -->
+    <script src="js/core/data-loader.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/overworld.js"></script>
+    <script src="js/battle.js"></script>
+    <script src="js/lunadex.js"></script>
+    <script src="js/main.js"></script>
 
     <script>
-        // Принудительная инициализация после загрузки всех скриптов
-        window.addEventListener('load', () => {
-            window.Telegram = window.Telegram || { WebApp: { ready:()=>{}, expand:()=>{} } };
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-
-            // Запускаем все экраны
-            if (typeof initMain === 'function') initMain();
-            if (typeof initLunadex === 'function') initLunadex();
-            if (typeof initBattleSystem === 'function') initBattleSystem();
-            if (typeof initOverworld === 'function') initOverworld();
-
-            console.log('%c🌑 NĒXUS полностью загружен и готов!', 'color:#C084FC; font-size:18px');
-        });
+        window.Telegram = window.Telegram || { WebApp: { ready:()=>{}, expand:()=>{} } };
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
     </script>
 </body>
 </html>
