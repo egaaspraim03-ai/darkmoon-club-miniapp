@@ -1,11 +1,12 @@
 // ====================== js/core/data-loader.js ======================
-// Загружает все JSON из папки data/ и делает их доступными глобально
+// NĒXUS • DARK MOON — ЗАГРУЗКА JSON + ПРЕОБРАЗОВАНИЕ ДАННЫХ
 
 async function loadAllData() {
-    console.log('%c📥 Загрузка данных из data/...', 'color:#C084FC; font-weight:bold');
+    console.log('%c📥 Загрузка данных из data/ (pokedex.json + moves.json)', 'color:#C084FC; font-weight:bold');
 
+    // 1. Загружаем все JSON
     const files = {
-        pokedexData: 'data/pokedex.json',
+        rawPokedex: 'data/pokedex.json',
         movesData: 'data/moves.json',
         typechartData: 'data/typechart.json',
         abilitiesData: 'data/abilities.json',
@@ -15,28 +16,48 @@ async function loadAllData() {
     for (const [key, path] of Object.entries(files)) {
         try {
             const res = await fetch(path);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             window[key] = await res.json();
-            console.log(`✅ ${key} загружен (${Array.isArray(window[key]) ? window[key].length : Object.keys(window[key]).length} записей)`);
+            console.log(`✅ ${key} загружен`);
         } catch (e) {
-            console.error(`❌ Не удалось загрузить ${path}`, e);
-            window[key] = {};
+            console.error(`❌ ${path}`, e);
+            window[key] = key === 'rawPokedex' ? {} : [];
         }
     }
 
-    // Совместимость со старым кодом
-    window.pokedexData = window.pokedexData || [];
-    window.johtoData = window.pokedexData.filter(p => parseInt(p.num) >= 152); // если нужно
-    window.smesharikiData = window.smesharikiData || []; // добавим позже
-    window.darkmoonData = window.darkmoonData || [];
-    window.typechartData = window.typechartData || {};
-    window.movesData = window.movesData || {};
+    // 2. Преобразуем pokedex в удобный массив (как было раньше)
+    window.pokedexData = Object.keys(window.rawPokedex).map(key => {
+        const p = window.rawPokedex[key];
+        return {
+            num: String(p.num).padStart(4, '0'),
+            ru: p.species || key,                    // пока английское имя (можно добавить ru позже)
+            en: p.species || key,
+            sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.num}.png`,
+            types: p.types || ['Normal'],
+            hp: p.baseStats?.hp || 60,
+            maxhp: p.baseStats?.hp || 60,
+            attack: p.baseStats?.atk || 60,
+            defense: p.baseStats?.def || 60,
+            specialattack: p.baseStats?.spa || 60,
+            specialdefense: p.baseStats?.spd || 60,
+            speed: p.baseStats?.spe || 60,
+            level: 10,
+            exp: 0,
+            evolution: p.evos ? { ru: p.evos[0] } : null,   // простая эволюция
+            baseStats: p.baseStats
+        };
+    });
 
-    console.log('%c🚀 Все данные загружены и готовы!', 'color:#C084FC; font-size:16px');
+    // 3. Глобальные переменные для совместимости
+    window.movesData = window.movesData || {};
+    window.typechartData = window.typechartData || {};
+    window.smesharikiData = window.smesharikiData || [];   // пока пусто
+    window.darkmoonData = window.darkmoonData || [];
+
+    console.log(`%c🚀 Данные готовы! ${window.pokedexData.length} покемонов с реальными статами`, 'color:#C084FC; font-size:16px');
     return true;
 }
 
-// Автозагрузка при старте
+// Автозагрузка
 if (typeof window !== 'undefined') {
     window.addEventListener('load', loadAllData);
 }
