@@ -3,80 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NĒXUS • DARK MOON</title>
+    <title>NÉXUS • DARK MOON</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-    <style>
-        :root { --luna: #C084FC; --abyss: #0a001f; }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            background: linear-gradient(#0a001f, #1a0033);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            max-width: 480px;
-            margin: 0 auto;
-            overflow: hidden;
-            height: 100vh;
-        }
-        .header {
-            background: rgba(26,0,51,0.95);
-            padding: 15px;
-            text-align: center;
-            border-bottom: 3px solid var(--luna);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .header h1 { font-size: 22px; flex:1; color: var(--luna); }
-        .screen { display: none; height: calc(100vh - 140px); overflow-y: auto; padding: 15px; }
-        .screen.active { display: block; }
-        .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 480px;
-            margin: 0 auto;
-            background: rgba(26,0,51,0.95);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            border-top: 3px solid var(--luna);
-            z-index: 100;
-        }
-        .nav-btn { text-align:center; color:#aaa; font-size:11px; flex:1; }
-        .nav-btn.active { color:var(--luna); }
-        .glass { background:rgba(255,255,255,0.08); backdrop-filter:blur(12px); border:2px solid rgba(192,132,252,0.3); border-radius:18px; padding:15px; }
-    </style>
 </head>
 <body>
-
     <div class="header">
-        <h1>NĒXUS • DARK MOON</h1>
-        <div style="font-size:24px;">🌑</div>
+        <h1>🌀 NÉXUS • DARK MOON</h1>
+        <div class="tabs">
+            <button onclick="switchTab('game')">🌍 ИГРА</button>
+            <button onclick="switchTab('lunadex')">📖 LUNADEx</button>
+            <button onclick="switchTab('party')">👥 ПАРТИЯ</button>
+        </div>
     </div>
 
-    <div id="club-screen" class="screen active"><div id="club-content" class="glass"></div></div>
-    <div id="game-screen" class="screen"><div id="overworld-container" style="width:480px;height:480px;margin:0 auto;"></div></div>
-    <div id="archive-screen" class="screen"><div id="lunadex-content" class="glass"></div></div>
-
-    <div class="nav">
-        <div class="nav-btn active" onclick="switchTab('club')">🏠 Клуб</div>
-        <div class="nav-btn" onclick="switchTab('game')">🌍 Игра</div>
-        <div class="nav-btn" onclick="switchTab('archive')">🌑 Архив Тьмы</div>
+    <!-- Overworld -->
+    <div id="game-container" class="tab-content">
+        <div id="overworld-container"></div>
+        <div class="controls">
+            <button onclick="moveDirection('up')">↑</button>
+            <div class="horizontal">
+                <button onclick="moveDirection('left')">←</button>
+                <button onclick="moveDirection('down')">↓</button>
+                <button onclick="moveDirection('right')">→</button>
+            </div>
+        </div>
     </div>
 
-    <!-- НОВЫЙ ПОРЯДОК ЗАГРУЗКИ -->
-    <script src="js/core/data-loader.js"></script>
+    <!-- Lunadex -->
+    <div id="lunadex-container" class="tab-content" style="display: none;"></div>
+
+    <!-- Партия (выбор покемонов) -->
+    <div id="party-container" class="tab-content" style="display: none;">
+        <h2>Твоя партия</h2>
+        <div id="party-grid"></div>
+    </div>
+
+    <!-- Бой (скрытый до вызова) -->
+    <div id="battle-container" class="tab-content" style="display: none;"></div>
+
     <script src="js/core/utils.js"></script>
     <script src="js/overworld.js"></script>
     <script src="js/battle.js"></script>
     <script src="js/lunadex.js"></script>
     <script src="js/main.js"></script>
-
-    <script>
-        window.Telegram = window.Telegram || { WebApp: { ready:()=>{}, expand:()=>{} } };
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-    </script>
 </body>
 </html>
