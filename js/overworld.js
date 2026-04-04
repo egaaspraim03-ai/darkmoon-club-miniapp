@@ -1,12 +1,11 @@
-// ====================== OVERWORLD.JS — ФИНАЛЬНАЯ ВЕРСИЯ (ФАЗА 6) ======================
+// ====================== OVERWORLD.JS — ФИНАЛЬНАЯ ВЕРСИЯ ======================
 let overworldGame = null;
-let currentZone = 'pokemon';
 
 class OverworldScene extends Phaser.Scene {
     constructor() { super('OverworldScene'); }
 
     preload() {
-        this.load.image('player', 'https://i.postimg.cc/0yY7zZ0K/player.png'); // замени на свой спрайт
+        this.load.image('player', 'https://i.postimg.cc/0yY7zZ0K/player.png');
     }
 
     create() {
@@ -21,8 +20,6 @@ class OverworldScene extends Phaser.Scene {
 
         this.generateChunk(0, 0);
         this.cameras.main.startFollow(this.playerSprite, true, 0.15, 0.15);
-
-        console.log('%c🌍 Overworld готов к релизу (Фаза 6)', 'color:#C084FC; font-weight:bold');
     }
 
     generateChunk(chunkX, chunkY) {
@@ -77,7 +74,6 @@ class OverworldScene extends Phaser.Scene {
         if (!pool.length) return;
         const enemy = pool[Math.floor(Math.random() * pool.length)];
         const playerMon = currentParty?.[0] || { ru: "Пикачу", types: ["Electric"], hp: 130, maxhp: 130 };
-
         if (typeof startBattle === 'function') startBattle(playerMon, enemy, currentParty || []);
     }
 }
@@ -85,13 +81,8 @@ class OverworldScene extends Phaser.Scene {
 function initOverworld() {
     const container = document.getElementById('overworld-container');
     if (!container) return;
-
-    if (overworldGame) {
-        overworldGame.destroy(true);
-        overworldGame = null;
-    }
+    if (overworldGame) { overworldGame.destroy(true); overworldGame = null; }
     container.innerHTML = '';
-
     overworldGame = new Phaser.Game({
         type: Phaser.AUTO,
         width: 480,
@@ -102,10 +93,7 @@ function initOverworld() {
 }
 
 function destroyOverworld() {
-    if (overworldGame) {
-        overworldGame.destroy(true);
-        overworldGame = null;
-    }
+    if (overworldGame) { overworldGame.destroy(true); overworldGame = null; }
 }
 
 window.initOverworld = initOverworld;
