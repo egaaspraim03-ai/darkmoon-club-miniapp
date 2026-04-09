@@ -1,0 +1,42 @@
+{
+  "darkmoon": [
+    {
+      "id": 2001,
+      "ru": "Теневой Дракон",
+      "en": "Shadow Dragon",
+      "types": ["Dark", "Dragon"],
+      "stats": {
+        "hp": 95,
+        "atk": 120,
+        "def": 85,
+        "spatk": 110,
+        "spdef": 90,
+        "speed": 105
+      },
+      "evolutions": [],
+      "abilities": ["Shadow Aura"],
+      "moves": [89, 127, 154],
+      "sprite": "assets/sprites/darkmoon/shadow_dragon.png",
+      "category": "darkmoon"
+    },
+    {
+      "id": 2002,
+      "ru": "Лунный Страж",
+      "en": "Moon Guardian",
+      "types": ["Dark", "Fairy"],
+      "stats": {
+        "hp": 85,
+        "atk": 90,
+        "def": 95,
+        "spatk": 115,
+        "spdef": 110,
+        "speed": 95
+      },
+      "evolutions": [],
+      "abilities": ["Moonlight"],
+      "moves": [94, 113, 154],
+      "sprite": "assets/sprites/darkmoon/moon_guardian.png",
+      "category": "darkmoon"
+    }
+  ]
+}
