@@ -1,0 +1,61 @@
+{
+  "smeshariki": [
+    {
+      "id": 1001,
+      "ru": "Крош",
+      "en": "Krosh",
+      "types": ["Normal"],
+      "stats": {
+        "hp": 70,
+        "atk": 65,
+        "def": 60,
+        "spatk": 55,
+        "spdef": 65,
+        "speed": 75
+      },
+      "evolutions": [],
+      "abilities": ["Cute Charm"],
+      "moves": [1, 33, 45, 86],
+      "sprite": "assets/sprites/smeshariki/krosh.png",
+      "category": "smesharik"
+    },
+    {
+      "id": 1002,
+      "ru": "Ёжик",
+      "en": "Hedgehog",
+      "types": ["Normal"],
+      "stats": {
+        "hp": 65,
+        "atk": 70,
+        "def": 55,
+        "spatk": 60,
+        "spdef": 70,
+        "speed": 80
+      },
+      "evolutions": [],
+      "abilities": ["Cute Charm"],
+      "moves": [1, 33, 45, 86],
+      "sprite": "assets/sprites/smeshariki/hedgehog.png",
+      "category": "smesharik"
+    },
+    {
+      "id": 1003,
+      "ru": "Пин",
+      "en": "Pin",
+      "types": ["Normal"],
+      "stats": {
+        "hp": 80,
+        "atk": 55,
+        "def": 70,
+        "spatk": 50,
+        "spdef": 75,
+        "speed": 60
+      },
+      "evolutions": [],
+      "abilities": ["Thick Fat"],
+      "moves": [1, 33, 45, 86],
+      "sprite": "assets/sprites/smeshariki/pin.png",
+      "category": "smesharik"
+    }
+  ]
+}
