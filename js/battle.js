@@ -1,77 +1,58 @@
-// js/battle.js — УЛУЧШЕННАЯ ВЕРСИЯ
+// js/battle.js — НАДЁЖНАЯ ВЕРСИЯ (без классов CSS, только inline)
 
 let currentBattle = null;
 
 function startBattle() {
-  const enemy = getRandomWildPokemon();
+  console.log("🚀 startBattle запущен");
 
   currentBattle = {
-    playerMon: window.currentParty[0],
-    enemyMon: enemy,
-    logs: [],
-    turn: 'player'
+    playerMon: window.currentParty[0] || { name: "Твой покемон", hp: 45, maxHp: 45 },
+    enemyMon: { name: "Дикий враг", hp: 55, maxHp: 55, level: 7 },
+    logs: []
   };
 
-  renderBattleUI();
-  addLog(`Появился дикий ${currentBattle.enemyMon.name}!`);
-}
-
-function getRandomWildPokemon() {
-  const allMons = [
-    ...Object.values(window.pokedexData || {}),
-    ...window.smesharikiData || [],
-    ...window.darkmoonData || []
-  ];
-  const mon = allMons[Math.floor(Math.random() * allMons.length)];
-
-  return {
-    name: mon.ru || mon.species || "Неизвестный",
-    level: 6 + Math.floor(Math.random() * 4),
-    hp: 55,
-    maxHp: 55,
-    types: mon.types || ["Normal"]
-  };
-}
-
-function renderBattleUI() {
   const container = document.getElementById('battle-container');
-  if (!container) return;
+  if (!container) {
+    console.error("battle-container не найден!");
+    return;
+  }
 
   container.innerHTML = `
-    <div class="battle-ui">
-      <div class="battle-header">⚔️ БОЙ</div>
+    <div style="height:100%; background:#0f1f0f; color:#fff; padding:15px; display:flex; flex-direction:column;">
+      
+      <div style="text-align:center; font-size:22px; margin-bottom:10px; color:#ffcc00;">⚔️ БОЙ</div>
 
       <!-- Враг -->
-      <div class="enemy-info">
-        <div class="name-level">${currentBattle.enemyMon.name} Lv.${currentBattle.enemyMon.level}</div>
-        <div class="hp-bar-outer">
-          <div class="hp-bar-inner" id="enemy-hp-bar" style="width:100%"></div>
+      <div style="background:#1a2a1a; padding:12px; border-radius:12px; margin-bottom:15px;">
+        <div style="font-size:18px;">${currentBattle.enemyMon.name} Lv.${currentBattle.enemyMon.level}</div>
+        <div style="height:22px; background:#222; border:3px solid #ffcc00; border-radius:9999px; margin-top:8px; overflow:hidden;">
+          <div id="enemy-hp" style="height:100%; width:100%; background:#ff4444;"></div>
         </div>
       </div>
 
       <!-- Лог -->
-      <div id="battle-log" class="battle-log"></div>
-
-      <!-- Игрок -->
-      <div class="player-info">
-        <div class="hp-bar-outer">
-          <div class="hp-bar-inner" id="player-hp-bar" style="width:100%"></div>
-        </div>
-        <div class="name-level">${currentBattle.playerMon.name} Lv.${currentBattle.playerMon.level || 5}</div>
+      <div id="battle-log" style="flex:1; background:#00000088; padding:15px; border-radius:12px; overflow-y:auto; margin-bottom:15px; font-size:15px; line-height:1.5;">
       </div>
 
-      <!-- Кнопки действий -->
-      <div class="battle-actions">
-        <button onclick="useMove(0)">Удар</button>
-        <button onclick="useMove(1)">Сильный удар</button>
-        <button onclick="useMove(2)">Специальная атака</button>
-        <button onclick="openPartyMenu(true)">Сменить покемона</button>
-        <button onclick="runFromBattle()">Бежать</button>
+      <!-- Игрок -->
+      <div style="background:#1a2a1a; padding:12px; border-radius:12px; margin-bottom:20px;">
+        <div style="height:22px; background:#222; border:3px solid #ffcc00; border-radius:9999px; overflow:hidden;">
+          <div id="player-hp" style="height:100%; width:100%; background:#44ff44;"></div>
+        </div>
+        <div style="font-size:18px; text-align:right; margin-top:8px;">${currentBattle.playerMon.name}</div>
+      </div>
+
+      <!-- Кнопки -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <button onclick="useMove()" style="padding:18px; font-size:18px; background:#ffcc00; color:#112211; border:none; border-radius:12px; font-weight:bold;">АТАКА</button>
+        <button onclick="runFromBattle()" style="padding:18px; font-size:18px; background:#334422; color:#ffcc00; border:3px solid #ffcc00; border-radius:12px; font-weight:bold;">БЕЖАТЬ</button>
       </div>
     </div>
   `;
 
   updateHPBars();
+  addLog("Бой начался!");
+  console.log("✅ Бой успешно отображён");
 }
 
 function updateHPBars() {
@@ -79,67 +60,63 @@ function updateHPBars() {
   const playerPercent = Math.max(0, (currentBattle.playerMon.hp / currentBattle.playerMon.maxHp) * 100);
   const enemyPercent = Math.max(0, (currentBattle.enemyMon.hp / currentBattle.enemyMon.maxHp) * 100);
 
-  document.getElementById('player-hp-bar').style.width = playerPercent + '%';
-  document.getElementById('enemy-hp-bar').style.width = enemyPercent + '%';
+  const pBar = document.getElementById('player-hp');
+  const eBar = document.getElementById('enemy-hp');
+  if (pBar) pBar.style.width = playerPercent + '%';
+  if (eBar) eBar.style.width = enemyPercent + '%';
 }
 
 function addLog(text) {
   if (!currentBattle) return;
   currentBattle.logs.unshift(text);
-  const logEl = document.getElementById('battle-log');
-  if (logEl) logEl.innerHTML = currentBattle.logs.map(l => `<div>${l}</div>`).join('');
+  const log = document.getElementById('battle-log');
+  if (log) log.innerHTML = currentBattle.logs.map(l => `<div>${l}</div>`).join('');
 }
 
-function useMove(slot) {
-  if (currentBattle.turn !== 'player') return;
-
-  let damage = 25;
-  if (slot === 1) damage = 38;
-  if (slot === 2) damage = 45;
-
+function useMove() {
+  if (!currentBattle) return;
+  const damage = 28 + Math.floor(Math.random() * 22);
   currentBattle.enemyMon.hp -= damage;
-  addLog(`Твой покемон использовал атаку и нанёс ${damage} урона!`);
+  addLog(`Ты нанёс ${damage} урона!`);
 
   if (currentBattle.enemyMon.hp <= 0) {
     addLog(`🎉 ${currentBattle.enemyMon.name} побеждён!`);
-    setTimeout(() => endBattle(true), 1500);
+    setTimeout(() => endBattle(true), 1200);
     return;
   }
 
-  currentBattle.turn = 'enemy';
-  setTimeout(enemyTurn, 900);
+  setTimeout(enemyTurn, 800);
   updateHPBars();
 }
 
 function enemyTurn() {
-  const damage = 22 + Math.floor(Math.random() * 18);
+  if (!currentBattle) return;
+  const damage = 20 + Math.floor(Math.random() * 18);
   currentBattle.playerMon.hp -= damage;
   addLog(`Враг нанёс тебе ${damage} урона!`);
 
   if (currentBattle.playerMon.hp <= 0) {
-    addLog(`💀 Твой покемон побеждён...`);
-    setTimeout(() => endBattle(false), 1500);
+    addLog(`💀 Ты проиграл...`);
+    setTimeout(() => endBattle(false), 1200);
     return;
   }
 
-  currentBattle.turn = 'player';
   updateHPBars();
 }
 
 function runFromBattle() {
-  addLog('Ты успешно сбежал!');
+  if (!currentBattle) return;
+  addLog("Ты успешно сбежал!");
   endBattle(false);
 }
 
-function endBattle(playerWon) {
+function endBattle() {
   currentBattle = null;
-  setTimeout(() => window.switchTab('overworld'), 1200);
-}
-
-function openPartyMenu() {
-  alert('Меню смены покемона будет улучшено в следующем обновлении');
+  setTimeout(() => window.switchTab('overworld'), 1000);
 }
 
 // Экспорт
 window.startBattle = startBattle;
 window.destroyBattle = () => { currentBattle = null; };
+
+console.log("📌 battle.js загружен (надёжная версия)");
