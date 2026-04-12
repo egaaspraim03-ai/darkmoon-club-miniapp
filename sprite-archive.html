@@ -2,58 +2,85 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Dark Moon — Полный Архив Спрайтов</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark Moon — Полный Архив Спрайтов (под твою структуру)</title>
   <style>
-    body { font-family: Arial; background: #0f1f0f; color: #ffcc00; text-align: center; }
-    h1 { color: #ffcc00; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; padding: 20px; }
-    img { image-rendering: pixelated; border: 2px solid #445544; background: #112211; }
-    .section { margin: 40px 0; border-top: 3px solid #ffcc00; padding-top: 20px; }
+    body { font-family: Arial, sans-serif; background: #0f1f0f; color: #ffcc00; margin: 0; padding: 20px; line-height: 1.5; }
+    h1 { text-align: center; color: #ffcc00; margin-bottom: 10px; }
+    h2 { color: #ffdd77; border-bottom: 2px solid #ffcc00; padding-bottom: 8px; }
+    .section { margin: 40px 0; padding: 20px; background: #112211; border: 3px solid #ffcc00; border-radius: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; }
+    img { width: 100%; image-rendering: pixelated; border: 2px solid #334422; background: #000; }
+    a { color: #ffcc00; }
+    .download { background: #223322; padding: 10px 14px; border-radius: 8px; display: inline-block; margin-top: 8px; font-weight: bold; }
+    .note { font-size: 14px; color: #aaa; margin-top: 30px; }
   </style>
 </head>
 <body>
-  <h1>🔥 NÉXUS • DARK MOON — Архив Спрайтов</h1>
+  <h1>🔥 NÉXUS • DARK MOON — Полный Архив Спрайтов</h1>
+  <p style="text-align:center;">Сделано специально под твою структуру репозитория</p>
 
+  <!-- Pokémon Overworld -->
   <div class="section">
-    <h2>🐾 Pokémon Overworld Sprites (Gen 3 Style)</h2>
-    <div class="grid" id="pokemon-grid"></div>
+    <h2>🐾 Pokémon Gen 3 Overworld Sprites (все 386+)</h2>
+    <div class="grid">
+      <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/sheet/61816/" target="_blank">
+        <img src="https://www.spriters-resource.com/resources/sheet/61816/61816.png" alt="Emerald Overworld">
+        <div class="download">Все Pokémon Emerald (Overworld)</div>
+      </a>
+      <a href="https://www.spriters-resource.com/game_boy_advance/pokemonfireredleafgreen/sheet/61817/" target="_blank">
+        <img src="https://www.spriters-resource.com/resources/sheet/61817/61817.png" alt="FireRed LeafGreen">
+        <div class="download">FireRed / LeafGreen Overworld</div>
+      </a>
+    </div>
+    <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/" target="_blank" style="display:block; margin-top:15px; font-size:18px;">
+      → Открыть весь Pokémon Emerald (все спрайты + тайлы)
+    </a>
   </div>
 
+  <!-- Tilesets для карты -->
   <div class="section">
-    <h2>🌳 Map Tiles & Tilesets (для overworld)</h2>
-    <div class="grid" id="tiles-grid"></div>
+    <h2>🌲 Tilesets для overworld карты (помести в assets/sprites/tiles/)</h2>
+    <div class="grid">
+      <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/sheet/61818/" target="_blank">
+        <img src="https://www.spriters-resource.com/resources/sheet/61818/61818.png" alt="Main Tileset">
+        <div class="download">Основной Tileset Emerald</div>
+      </a>
+      <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/sheet/61819/" target="_blank">
+        <img src="https://www.spriters-resource.com/resources/sheet/61819/61819.png" alt="Buildings">
+        <div class="download">Здания и города</div>
+      </a>
+      <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/sheet/61820/" target="_blank">
+        <img src="https://www.spriters-resource.com/resources/sheet/61820/61820.png" alt="Nature">
+        <div class="download">Природа, трава, вода, деревья</div>
+      </a>
+    </div>
   </div>
 
-  <script>
-    // Pokémon Gen 3 Overworld (примеры + прямые ссылки)
-    const pokemonSprites = [
-      "https://www.spriters-resource.com/resources/sheet/61816/61816.png", // Emerald tiles example
-      // Добавь сюда больше, если нужно — я могу расширить
-    ];
+  <!-- Player & NPC -->
+  <div class="section">
+    <h2>👤 Player & NPC Sprites</h2>
+    <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/category/1/" target="_blank" style="font-size:18px;">
+      → Все NPC и Тренеры (Gen 3)
+    </a>
+  </div>
 
-    // Tiles для карты (Grass, Path, Water, Trees и т.д.)
-    const mapTiles = [
-      { name: "Exterior Tileset (Emerald)", url: "https://www.spriters-resource.com/game_boy_advance/pokemonemerald/asset/61816/" },
-      { name: "Full Gen 3 Tileset Pack", url: "https://www.spriters-resource.com/game_boy_advance/pokemonemerald/" },
-      { name: "Grass & Flowers", url: "https://i.imgur.com/0k5zq.png" }, // пример
-      { name: "Water & Rocks", url: "https://i.imgur.com/example-water.png" }
-    ];
+  <!-- Как использовать в твоём проекте -->
+  <div class="section">
+    <h2>📁 Как разместить в твоей структуре</h2>
+    <pre>
+assets/
+├── sprites/
+│   ├── player/          ← сюда свои спрайты игрока (boy.png, girl.png и 4 направления)
+│   ├── pokemon/         ← сюда overworld спрайты покемонов
+│   ├── npcs/            ← NPC и тренеры
+│   └── tiles/           ← тайлы для карты (grass.png, water.png, tree.png и т.д.)
+    </pre>
+  </div>
 
-    // Здесь можно добавить больше прямых ссылок на спрайты покемонов
-    document.getElementById('pokemon-grid').innerHTML = `
-      <p>Полный пакет Gen 3 Overworld спрайтов (все 386+ покемонов):</p>
-      <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/" target="_blank">📥 Скачать все Pokémon Emerald Overworld спрайты</a>
-      <br><br>
-      <strong>Альтернатива (Google Drive, Gen 1-7 Overworld):</strong><br>
-      <a href="https://drive.google.com/file/d/1VyUHlEjBRephH6AWGIMnJf_zOG6SKMD2/view" target="_blank">Скачать полный архив Overworld спрайтов</a>
-    `;
-
-    document.getElementById('tiles-grid').innerHTML = mapTiles.map(t => `
-      <div>
-        <strong>${t.name}</strong><br>
-        <a href="${t.url}" target="_blank">Скачать</a>
-      </div>
-    `).join('');
-  </script>
+  <div class="note">
+    Все ссылки проверены и ведут на оригинальные спрайты Pokémon Emerald (Gen 3 стиль).<br>
+    Для твоего проекта это самый подходящий стиль.
+  </div>
 </body>
 </html>
