@@ -1,10 +1,10 @@
-// js/battle.js
-// Полноценная боевая система (финальная версия)
+// js/battle.js — ИСПРАВЛЕННАЯ ВЕРСИЯ (чёрный экран должен исчезнуть)
 
 let currentBattle = null;
 
 function startBattle() {
   const enemy = getRandomWildPokemon();
+  
   currentBattle = {
     playerMon: window.currentParty[0],
     enemyMon: enemy,
@@ -12,139 +12,118 @@ function startBattle() {
     turn: 'player'
   };
 
-  renderBattleScreen();
-  addLog(`Дикий ${currentBattle.enemyMon.name} появился!`);
+  const container = document.getElementById('battle-container');
+  if (container) {
+    container.innerHTML = `
+      <div class="battle-ui" style="height:100%; display:flex; flex-direction:column; background:#112211; padding:15px;">
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+          
+          <!-- Враг -->
+          <div style="text-align:center;">
+            <div style="font-size:18px; margin-bottom:8px;">${currentBattle.enemyMon.name} Lv.${currentBattle.enemyMon.level}</div>
+            <div style="height:20px; background:#333; border:3px solid #ffcc00; border-radius:9999px; overflow:hidden;">
+              <div id="enemy-hp-bar" style="height:100%; width:100%; background:#00cc00;"></div>
+            </div>
+          </div>
+
+          <!-- Лог -->
+          <div id="battle-log" style="flex:1; background:#00000088; margin:15px 0; padding:12px; border-radius:12px; overflow-y:auto; font-size:15px; line-height:1.5;"></div>
+
+          <!-- Игрок -->
+          <div style="text-align:center;">
+            <div style="height:20px; background:#333; border:3px solid #ffcc00; border-radius:9999px; overflow:hidden;">
+              <div id="player-hp-bar" style="height:100%; width:100%; background:#00cc00;"></div>
+            </div>
+            <div style="font-size:18px; margin-top:8px;">${currentBattle.playerMon.name} Lv.${currentBattle.playerMon.level}</div>
+          </div>
+        </div>
+
+        <!-- Кнопки -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+          <button onclick="useMove()" style="padding:15px; font-size:16px;">Атака</button>
+          <button onclick="openPartyMenu(true)" style="padding:15px; font-size:16px;">Сменить</button>
+          <button onclick="runFromBattle()" style="padding:15px; font-size:16px; grid-column:span 2;">Бежать</button>
+        </div>
+      </div>
+    `;
+  }
+
+  updateBattleUI();
+  addLog(`Появился дикий ${currentBattle.enemyMon.name}!`);
 }
 
 function getRandomWildPokemon() {
-  // Берём случайного покемона из pokedex + smeshariki + darkmoon
-  const allMons = [
-    ...Object.values(window.pokedexData),
-    ...window.smesharikiData,
-    ...window.darkmoonData
+  const all = [
+    ...Object.values(window.pokedexData || {}),
+    ...window.smesharikiData || [],
+    ...window.darkmoonData || []
   ];
-  const random = allMons[Math.floor(Math.random() * allMons.length)];
-  
+  const mon = all[Math.floor(Math.random() * all.length)];
   return {
-    id: random.id || random.num,
-    name: random.ru || random.species,
-    hp: random.baseStats ? random.baseStats.hp * 2 : 60,
-    maxHp: random.baseStats ? random.baseStats.hp * 2 : 60,
+    name: mon.ru || mon.species || "Неизвестный",
     level: 7,
-    types: random.types || ["Normal"],
-    moves: [1, 33, 45] // базовые атаки
+    hp: 65,
+    maxHp: 65,
+    types: mon.types || ["Normal"]
   };
 }
 
-function renderBattleScreen() {
-  const container = document.getElementById('battle-container');
-  if (!container) return;
-
-  container.innerHTML = `
-    <div class="battle-ui">
-      <!-- Враг -->
-      <div class="enemy-side">
-        <div class="hp-bar-container">
-          <div class="hp-bar">
-            <div class="hp-fill" id="enemy-hp" style="width: 100%"></div>
-          </div>
-          <span id="enemy-name">${currentBattle.enemyMon.name} Lv.${currentBattle.enemyMon.level}</span>
-        </div>
-      </div>
-
-      <!-- Игрок -->
-      <div class="player-side">
-        <div class="hp-bar-container">
-          <div class="hp-bar">
-            <div class="hp-fill" id="player-hp" style="width: 100%"></div>
-          </div>
-          <span id="player-name">${currentBattle.playerMon.name} Lv.${currentBattle.playerMon.level}</span>
-        </div>
-      </div>
-
-      <!-- Лог -->
-      <div id="battle-log" class="battle-log"></div>
-
-      <!-- Панель действий -->
-      <div class="battle-actions">
-        <button onclick="useMove(0)">Атака 1</button>
-        <button onclick="useMove(1)">Атака 2</button>
-        <button onclick="useMove(2)">Атака 3</button>
-        <button onclick="openPartyMenu()">Сменить покемона</button>
-        <button onclick="runFromBattle()">Бежать</button>
-      </div>
-    </div>
-  `;
-
-  updateHPBars();
-}
-
-function updateHPBars() {
-  const playerPercent = (currentBattle.playerMon.hp / currentBattle.playerMon.maxHp) * 100;
-  const enemyPercent = (currentBattle.enemyMon.hp / currentBattle.enemyMon.maxHp) * 100;
+function updateBattleUI() {
+  if (!currentBattle) return;
+  const playerPercent = Math.max(0, (currentBattle.playerMon.hp / currentBattle.playerMon.maxHp) * 100);
+  const enemyPercent = Math.max(0, (currentBattle.enemyMon.hp / currentBattle.enemyMon.maxHp) * 100);
   
-  document.getElementById('player-hp').style.width = playerPercent + '%';
-  document.getElementById('enemy-hp').style.width = enemyPercent + '%';
+  const playerBar = document.getElementById('player-hp-bar');
+  const enemyBar = document.getElementById('enemy-hp-bar');
+  if (playerBar) playerBar.style.width = playerPercent + '%';
+  if (enemyBar) enemyBar.style.width = enemyPercent + '%';
 }
 
 function addLog(text) {
+  if (!currentBattle) return;
   currentBattle.logs.push(text);
-  const logEl = document.getElementById('battle-log');
-  if (logEl) {
-    logEl.innerHTML = currentBattle.logs.map(l => `<div>${l}</div>`).join('');
-    logEl.scrollTop = logEl.scrollHeight;
+  const log = document.getElementById('battle-log');
+  if (log) {
+    log.innerHTML = currentBattle.logs.map(l => `<div>${l}</div>`).join('');
+    log.scrollTop = log.scrollHeight;
   }
 }
 
-function useMove(slot) {
-  if (currentBattle.turn !== 'player') return;
-
-  const damage = Math.floor(Math.random() * 35) + 25;
-  currentBattle.enemyMon.hp -= damage;
-  addLog(`Твой ${currentBattle.playerMon.name} нанёс ${damage} урона!`);
+function useMove() {
+  if (!currentBattle || currentBattle.turn !== 'player') return;
+  
+  const dmg = Math.floor(Math.random() * 32) + 28;
+  currentBattle.enemyMon.hp -= dmg;
+  addLog(`Твой покемон нанёс ${dmg} урона!`);
 
   if (currentBattle.enemyMon.hp <= 0) {
-    addLog(`Дикий ${currentBattle.enemyMon.name} побеждён!`);
-    endBattle(true);
+    addLog(`Победа! ${currentBattle.enemyMon.name} побеждён.`);
+    setTimeout(() => endBattle(true), 1200);
     return;
   }
 
   currentBattle.turn = 'enemy';
-  setTimeout(enemyTurn, 800);
-  updateHPBars();
+  setTimeout(enemyTurn, 700);
+  updateBattleUI();
 }
 
 function enemyTurn() {
-  const damage = Math.floor(Math.random() * 28) + 18;
-  currentBattle.playerMon.hp -= damage;
-  addLog(`Враг нанёс ${damage} урона!`);
+  const dmg = Math.floor(Math.random() * 25) + 18;
+  currentBattle.playerMon.hp -= dmg;
+  addLog(`Враг нанёс ${dmg} урона!`);
 
   if (currentBattle.playerMon.hp <= 0) {
-    addLog(`Твой ${currentBattle.playerMon.name} побеждён!`);
-    endBattle(false);
+    addLog(`Твой покемон побеждён...`);
+    setTimeout(() => endBattle(false), 1200);
     return;
   }
 
   currentBattle.turn = 'player';
-  updateHPBars();
-}
-
-function openPartyMenu() {
-  // Пока простой алерт (потом сделаем красивый модальный)
-  const choice = prompt('Выбери покемона (0-1):', '0');
-  if (choice !== null) {
-    const index = parseInt(choice);
-    if (index >= 0 && index < window.currentParty.length) {
-      currentBattle.playerMon = window.currentParty[index];
-      addLog(`В бой вышел ${currentBattle.playerMon.name}!`);
-      currentBattle.turn = 'player';
-      renderBattleScreen();
-    }
-  }
+  updateBattleUI();
 }
 
 function runFromBattle() {
-  addLog('Ты успешно сбежал!');
+  addLog('Ты сбежал!');
   endBattle(false);
 }
 
@@ -152,7 +131,12 @@ function endBattle(playerWon) {
   currentBattle = null;
   setTimeout(() => {
     window.switchTab('overworld');
-  }, 1200);
+  }, 1500);
+}
+
+function openPartyMenu(fromBattle = false) {
+  // Пока просто заглушка
+  alert('Меню смены покемона (будет улучшено позже)');
 }
 
 // Экспорт
