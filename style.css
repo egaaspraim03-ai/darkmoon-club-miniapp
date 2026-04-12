@@ -219,3 +219,69 @@ button:hover {
   background: #ffcc00;
   color: #112211;
 }
+/* === BATTLE STYLES === */
+.battle-ui {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #0f1f0f;
+  color: #fff;
+  padding: 15px;
+}
+
+.battle-header {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #ffcc00;
+}
+
+.enemy-side, .player-side {
+  background: #1a2a1a;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.name-level {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.hp-bar-outer {
+  height: 24px;
+  background: #222;
+  border: 3px solid #ffcc00;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.hp-bar-inner {
+  height: 100%;
+  background: linear-gradient(to right, #ff4444, #ff8800);
+  transition: width 0.4s ease;
+}
+
+.battle-log {
+  flex: 1;
+  background: #00000088;
+  padding: 15px;
+  border-radius: 12px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.battle-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.battle-actions button {
+  padding: 16px;
+  font-size: 17px;
+  font-weight: bold;
+  border-radius: 12px;
+}
