@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Dark Moon — Полный Архив Спрайтов</title>
+  <style>
+    body { font-family: Arial; background: #0f1f0f; color: #ffcc00; text-align: center; }
+    h1 { color: #ffcc00; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; padding: 20px; }
+    img { image-rendering: pixelated; border: 2px solid #445544; background: #112211; }
+    .section { margin: 40px 0; border-top: 3px solid #ffcc00; padding-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🔥 NÉXUS • DARK MOON — Архив Спрайтов</h1>
+
+  <div class="section">
+    <h2>🐾 Pokémon Overworld Sprites (Gen 3 Style)</h2>
+    <div class="grid" id="pokemon-grid"></div>
+  </div>
+
+  <div class="section">
+    <h2>🌳 Map Tiles & Tilesets (для overworld)</h2>
+    <div class="grid" id="tiles-grid"></div>
+  </div>
+
+  <script>
+    // Pokémon Gen 3 Overworld (примеры + прямые ссылки)
+    const pokemonSprites = [
+      "https://www.spriters-resource.com/resources/sheet/61816/61816.png", // Emerald tiles example
+      // Добавь сюда больше, если нужно — я могу расширить
+    ];
+
+    // Tiles для карты (Grass, Path, Water, Trees и т.д.)
+    const mapTiles = [
+      { name: "Exterior Tileset (Emerald)", url: "https://www.spriters-resource.com/game_boy_advance/pokemonemerald/asset/61816/" },
+      { name: "Full Gen 3 Tileset Pack", url: "https://www.spriters-resource.com/game_boy_advance/pokemonemerald/" },
+      { name: "Grass & Flowers", url: "https://i.imgur.com/0k5zq.png" }, // пример
+      { name: "Water & Rocks", url: "https://i.imgur.com/example-water.png" }
+    ];
+
+    // Здесь можно добавить больше прямых ссылок на спрайты покемонов
+    document.getElementById('pokemon-grid').innerHTML = `
+      <p>Полный пакет Gen 3 Overworld спрайтов (все 386+ покемонов):</p>
+      <a href="https://www.spriters-resource.com/game_boy_advance/pokemonemerald/" target="_blank">📥 Скачать все Pokémon Emerald Overworld спрайты</a>
+      <br><br>
+      <strong>Альтернатива (Google Drive, Gen 1-7 Overworld):</strong><br>
+      <a href="https://drive.google.com/file/d/1VyUHlEjBRephH6AWGIMnJf_zOG6SKMD2/view" target="_blank">Скачать полный архив Overworld спрайтов</a>
+    `;
+
+    document.getElementById('tiles-grid').innerHTML = mapTiles.map(t => `
+      <div>
+        <strong>${t.name}</strong><br>
+        <a href="${t.url}" target="_blank">Скачать</a>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>
