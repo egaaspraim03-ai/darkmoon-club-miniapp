@@ -1,0 +1,6 @@
+{
+  "name": "Dark Forest",
+  "playerStart": { "x": 300, "y": 400 },
+  "width": 20,
+  "height": 20
+}
