@@ -3,160 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Blood Moon</title>
+  <title>The Blood Moon</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="app">
-    <!-- HEADER -->
     <header class="header">
-      <button class="icon-btn" id="btn-back" style="visibility:hidden">←</button>
-      <div class="logo">
-        <span class="logo-mark">🩸</span>
-        <span class="logo-text">BLOOD MOON</span>
-      </div>
-      <button class="icon-btn" id="btn-help">?</button>
+      <button class="icon-btn hidden" id="btn-back" type="button">‹</button>
+      <div class="logo"><span class="logo-dot"></span><span class="logo-text">THE BLOOD MOON</span></div>
+      <button class="icon-btn" id="btn-help" type="button">?</button>
     </header>
 
-    <!-- SCREENS -->
-    <main class="content" id="content">
-
-      <!-- HOME -->
+    <main class="content">
       <section class="screen active" id="screen-home">
-        <div class="hero">
-          <div class="hero-moon">🩸</div>
-          <h1>Blood Moon</h1>
-          <p class="tagline">Клуб Императоров и Вампирских Графов</p>
-        </div>
-
-        <div class="card-grid">
-          <button class="nav-card" data-screen="site">
-            <span class="nav-icon">🌐</span>
-            <span class="nav-title">Имперский сайт</span>
-            <span class="nav-sub">mangabuff.ru</span>
-          </button>
-          <button class="nav-card" data-screen="archives">
-            <span class="nav-icon">🌑</span>
-            <span class="nav-title">Архивы Тьмы</span>
-            <span class="nav-sub">Хроники и двор</span>
-          </button>
-          <button class="nav-card" data-screen="hall">
-            <span class="nav-icon">🏆</span>
-            <span class="nav-title">Зал Славы</span>
-            <span class="nav-sub">Квест и Обана</span>
-          </button>
-          <button class="nav-card" data-screen="obana">
-            <span class="nav-icon">😱</span>
-            <span class="nav-title">Обана</span>
-            <span class="nav-sub">Рекорды Империи</span>
-          </button>
-        </div>
+        <div class="moon" aria-hidden="true"></div>
+        <p class="eyebrow">Клуб Императоров и Вампирских Графов</p>
+        <h1>The Blood Moon</h1>
+        <article class="poem">
+          <p>Под кроваво-красной луной пробуждается ночь,<br>алый свет разливается по всему миру, предвещая ужасное бедствие.</p>
+          <p>Кровь льётся тёмным вином, собирается в лужах,<br>запах меди смешивается с ночным воздухом, опьяняя.</p>
+          <p>Глаза блестят в тени, дикие и немигающие,<br>хищники и жертвы заперты в танце смерти.</p>
+          <p>Луна наблюдает равнодушным взглядом,<br>устремляя свой зловещий взор на хаос внизу.</p>
+          <p class="poem-end">Ни убежища, ни спасения —<br>только бесконечная ночь<br>и ужасы, которые она несёт.</p>
+        </article>
       </section>
 
-      <!-- SITE -->
       <section class="screen" id="screen-site">
-        <h2 class="section-title">🌐 Имперский сайт</h2>
+        <h2>Имперский сайт</h2>
         <div class="panel">
-          <p>Официальный портал под покровительством Кровавой Луны.</p>
-          <p class="muted">Руководство по сайту — скоро.</p>
-          <a class="btn-primary" href="https://mangabuff.ru" target="_blank">Открыть mangabuff.ru</a>
+          <p>Портал под покровительством Кровавой Луны.</p>
+          <p class="muted">Руководство по mangabuff.ru — скоро.</p>
+          <a class="btn-primary" href="https://mangabuff.ru" target="_blank" rel="noopener">Открыть mangabuff.ru</a>
         </div>
       </section>
 
-      <!-- ARCHIVES -->
       <section class="screen" id="screen-archives">
-        <h2 class="section-title">🌑 Архивы Тьмы</h2>
-        <div class="panel">
-          <button class="list-btn" data-screen="chronicles">📜 Хроники Тьмы</button>
-          <button class="list-btn" data-screen="characters">👑 Двор Императора</button>
+        <h2>Архивы Тьмы</h2>
+        <div class="panel list">
+          <button class="row" data-go="chronicles" type="button"><span>📜</span><div><b>Хроники Тьмы</b><small>Лор и история</small></div><i>›</i></button>
+          <button class="row" data-go="characters" type="button"><span>👑</span><div><b>Двор Императора</b><small>Главные персонажи</small></div><i>›</i></button>
         </div>
       </section>
 
-      <!-- CHRONICLES -->
       <section class="screen" id="screen-chronicles">
-        <h2 class="section-title">📜 Хроники Тьмы</h2>
+        <h2>Хроники Тьмы</h2>
         <div class="panel">
-          <p>Здесь будут храниться лор клуба, история Blood Moon и легенды о вампирских графах.</p>
-          <p class="muted">(Позже добавишь полный текст)</p>
+          <p>Здесь хранятся лор клуба, история Blood Moon и легенды о вампирских графах и императорах.</p>
+          <p class="muted">Полный текст хроник добавишь позже.</p>
         </div>
       </section>
 
-      <!-- CHARACTERS -->
       <section class="screen" id="screen-characters">
-        <h2 class="section-title">👑 Двор Императора</h2>
-        <div class="panel char-list" id="char-list">
-          <button class="char-btn" data-char="inquisitor">⚔️ Инквизитор</button>
-          <button class="char-btn" data-char="emperor">🩸 Император</button>
-          <button class="char-btn" data-char="eye">👁️ Всевидящее Око</button>
-          <button class="char-btn" data-char="punisher">🔥 Каратель</button>
-          <button class="char-btn" data-char="galya">🧼 Галя</button>
-          <button class="char-btn" data-char="cheshire">😺 Чеширский Кот</button>
+        <h2>Двор Императора</h2>
+        <div class="panel list" id="char-list">
+          <button class="row char-btn" data-char="inquisitor" type="button"><span>⚔️</span><div><b>Инквизитор</b></div><i>›</i></button>
+          <button class="row char-btn" data-char="emperor" type="button"><span>🩸</span><div><b>Император</b></div><i>›</i></button>
+          <button class="row char-btn" data-char="eye" type="button"><span>👁️</span><div><b>Всевидящее Око</b></div><i>›</i></button>
+          <button class="row char-btn" data-char="punisher" type="button"><span>🔥</span><div><b>Каратель</b></div><i>›</i></button>
+          <button class="row char-btn" data-char="galya" type="button"><span>🧼</span><div><b>Галя</b></div><i>›</i></button>
+          <button class="row char-btn" data-char="cheshire" type="button"><span>😺</span><div><b>Чеширский Кот</b></div><i>›</i></button>
         </div>
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
-      <!-- HALL -->
       <section class="screen" id="screen-hall">
-        <h2 class="section-title">🏆 Зал Славы</h2>
-        <div class="panel">
-          <button class="list-btn" data-screen="quest">🎯 Квест Невыполнимый</button>
-          <button class="list-btn" data-screen="obana">😱 Обана — Рекорды</button>
+        <h2>Зал Славы</h2>
+        <div class="panel list">
+          <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>Склад и законы рангов</small></div><i>›</i></button>
+          <button class="row" data-go="obana" type="button"><span>😱</span><div><b>Обана — Рекорды</b><small>Самые безумные вклады</small></div><i>›</i></button>
         </div>
       </section>
 
-      <!-- QUEST -->
       <section class="screen" id="screen-quest">
-        <h2 class="section-title">🎯 Квест — Невыполнимое</h2>
+        <h2>Квест — Невыполнимое</h2>
         <div class="panel">
           <p>Пожертвуй карты рангов на склад Империи.</p>
-          <p><b>Иерархия крови:</b><br>E → D → C → B → G → P → A → S → X</p>
-          <p><b>Закон конвертации:</b><br>3E = 1D · 3D = 1C · и далее…</p>
-          <div class="btn-row">
-            <button class="btn-secondary">📦 Пожертвовать</button>
-            <button class="btn-secondary">📖 Законы рангов</button>
+          <div class="ranks">E → D → C → B → G → P → A → S → X</div>
+          <p><b>Закон конвертации</b><br>3E = 1D · 3D = 1C · и далее по крови.</p>
+          <button class="btn-secondary" type="button">📦 Пожертвовать на склад</button>
+          <button class="btn-secondary" type="button" id="btn-laws">📖 Законы рангов</button>
+          <button class="btn-secondary" type="button">🏆 Рекорды вкладов</button>
+          <div class="laws hidden" id="laws-box">
+            <p>E — самый малый, X — высший.<br>3E = 1D. Расколоть 1D → 2E.</p>
           </div>
         </div>
       </section>
 
-      <!-- OBANA -->
       <section class="screen" id="screen-obana">
-        <h2 class="section-title">😱 Обана — Рекорды</h2>
+        <h2>Обана — Рекорды</h2>
         <div class="panel">
           <p>Вклады, от которых кровь стынет в жилах.</p>
           <p class="quote">«Обана… как так можно?»</p>
-          <div class="btn-row vertical">
-            <button class="btn-primary">🔥 Топ за неделю</button>
-            <button class="btn-primary">📅 Топ за месяц</button>
-            <button class="btn-primary">♾️ Абсолютный топ</button>
-          </div>
-          <p class="muted example">Пример: внёс 5000 карт E за неделю — @nickname</p>
+          <button class="btn-primary top-btn" data-period="week" type="button">🔥 Топ за неделю</button>
+          <button class="btn-primary top-btn" data-period="month" type="button">📅 Топ за месяц</button>
+          <button class="btn-primary top-btn" data-period="all" type="button">♾️ Абсолютный топ</button>
+          <div id="obana-result" class="hidden" style="margin-top:12px"></div>
+          <p class="example">Пример: внёс 5000 карт E за неделю — @nickname</p>
         </div>
       </section>
-
     </main>
 
-    <!-- BOTTOM NAV (как у AniCard) -->
     <nav class="bottom-nav">
-      <button class="tab active" data-screen="home">
-        <span>🩸</span><small>Главная</small>
-      </button>
-      <button class="tab" data-screen="archives">
-        <span>🌑</span><small>Архивы</small>
-      </button>
-      <button class="tab" data-screen="hall">
-        <span>🏆</span><small>Слава</small>
-      </button>
-      <button class="tab" data-screen="obana">
-        <span>😱</span><small>Обана</small>
-      </button>
-      <button class="tab" data-screen="site">
-        <span>🌐</span><small>Сайт</small>
-      </button>
+      <button class="tab active" data-screen="home" type="button"><span>🌑</span><small>Главная</small></button>
+      <button class="tab" data-screen="archives" type="button"><span>📜</span><small>Архивы</small></button>
+      <button class="tab" data-screen="hall" type="button"><span>🏆</span><small>Слава</small></button>
+      <button class="tab" data-screen="obana" type="button"><span>😱</span><small>Обана</small></button>
+      <button class="tab" data-screen="site" type="button"><span>🌐</span><small>Сайт</small></button>
     </nav>
   </div>
-
   <script src="app.js"></script>
 </body>
-  </html>
+</html>
