@@ -3,8 +3,8 @@ if (tg) {
   tg.ready();
   tg.expand();
   try {
-    tg.setHeaderColor('#070203');
-    tg.setBackgroundColor('#070203');
+    tg.setHeaderColor('#050001');
+    tg.setBackgroundColor('#050001');
   } catch (e) {}
 }
 
@@ -17,6 +17,29 @@ const CHAR_TEXTS = {
   cheshire: '<div class="char-name">😺 Чеширский Кот</div><p>Начальник стражи и живёт там, где кормит.</p>'
 };
 
+/* false = пустой экран квеста; true = демо с прогрессами */
+const HAS_ACTIVE = false;
+
+const EVENTS = [
+  { ico: '🩸', title: 'Кровавый влог', left: '11 ч 16 мин', pct: 28 },
+  { ico: '🔥', title: 'Жатва карт', left: '3 ч 40 мин', pct: 62 },
+  { ico: '⚔️', title: 'Охота на нечисть', left: '6 ч 5 мин', pct: 45 },
+  { ico: '👑', title: 'Дар Императору', left: '14 ч 2 мин', pct: 18 }
+];
+
+const ACHIEVEMENTS = [
+  { ico: '🩸', name: 'Кровавая жатва', cur: 0, max: 5 },
+  { ico: '📦', name: 'Склад Империи', cur: 0, max: 10 },
+  { ico: '🌑', name: 'Под луной', cur: 0, max: 3 },
+  { ico: '🔥', name: 'Огонь арены', cur: 0, max: 7 }
+];
+
+const TASKS = [
+  { ico: '🩸', name: 'Кровавый влог', desc: 'Выполни 1 кровавый влог', count: '0 / 1', reward: '+50 крови' },
+  { ico: '📦', name: 'Дань складу', desc: 'Внеси карты на склад клуба', count: '0 / 10', reward: '+ранг' },
+  { ico: '⚔️', name: 'Трибута альянсу', desc: 'Вложи карты в альянс за день', count: '0 / 500 E', reward: 'слава' }
+];
+
 const stack = ['home'];
 
 function showScreen(id, push = true) {
@@ -25,8 +48,12 @@ function showScreen(id, push = true) {
   if (!el) return;
   el.classList.add('active');
 
+  let tabId = id;
+  if (id === 'chronicles' || id === 'characters') tabId = 'archives';
+  if (id === 'quest') tabId = 'hall';
+
   document.querySelectorAll('.tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.screen === id);
+    t.classList.toggle('active', t.dataset.screen === tabId || t.dataset.screen === id);
   });
 
   const back = document.getElementById('btn-back');
@@ -37,11 +64,58 @@ function showScreen(id, push = true) {
     document.getElementById('char-list').classList.remove('hidden');
     document.getElementById('char-detail').classList.add('hidden');
   }
-  if (id === 'quest') document.getElementById('laws-box')?.classList.add('hidden');
+  if (id === 'quest') renderQuest();
   if (id === 'obana') document.getElementById('obana-result')?.classList.add('hidden');
 
   if (push && stack[stack.length - 1] !== id) stack.push(id);
   window.scrollTo(0, 0);
+}
+
+function renderQuest() {
+  const empty = document.getElementById('quest-empty');
+  const active = document.getElementById('quest-active');
+  if (!empty || !active) return;
+
+  if (!HAS_ACTIVE) {
+    empty.classList.remove('hidden');
+    active.classList.add('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  active.classList.remove('hidden');
+
+  document.getElementById('event-timers').innerHTML = EVENTS.map(e => `
+    <div class="event-card">
+      <div class="event-top">
+        <div class="event-title"><span class="ico">\( {e.ico}</span> \){e.title}</div>
+        <div class="event-time">Осталось <strong>${e.left}</strong></div>
+      </div>
+      <div class="progress"><i style="width:${e.pct}%"></i></div>
+    </div>
+  `).join('');
+
+  document.getElementById('ach-grid').innerHTML = ACHIEVEMENTS.map(a => `
+    <div class="ach-card">
+      <div class="ach-ico">${a.ico}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-prog"><b>${a.cur}</b> / ${a.max}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('task-list').innerHTML = TASKS.map(t => `
+    <div class="task-card">
+      <div class="task-ico">${t.ico}</div>
+      <div class="task-body">
+        <div class="task-name">${t.name}</div>
+        <div class="task-desc">${t.desc}</div>
+      </div>
+      <div class="task-meta">
+        <div class="task-count">${t.count}</div>
+        <div class="task-reward">${t.reward}</div>
+      </div>
+    </div>
+  `).join('');
 }
 
 document.querySelectorAll('.tab').forEach(tab => {
@@ -82,6 +156,11 @@ document.getElementById('btn-laws')?.addEventListener('click', () => {
   document.getElementById('laws-box').classList.toggle('hidden');
 });
 
+document.getElementById('btn-all-ach')?.addEventListener('click', () => {
+  if (tg?.showAlert) tg.showAlert('Полный список достижений — в чате Blood Moon');
+  else alert('Полный список достижений — в чате Blood Moon');
+});
+
 document.querySelectorAll('.top-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const period = btn.dataset.period;
@@ -95,7 +174,7 @@ document.querySelectorAll('.top-btn').forEach(btn => {
 });
 
 document.getElementById('btn-help').addEventListener('click', () => {
-  const msg = 'The Blood Moon\nКлуб Императоров и Вампирских Графов\n\nПод кроваво-красной луной пробуждается ночь…';
+  const msg = 'The Blood Moon\nКлуб Императоров и Вампирских Графов';
   if (tg?.showAlert) tg.showAlert(msg);
   else alert(msg);
 });
