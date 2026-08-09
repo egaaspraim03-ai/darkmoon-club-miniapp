@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>The Blood Moon</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="style.css" />
+  <!-- style.css split: /1 base  /2 header  /3 ui  /4 quest  /5 nav -->
+  <link rel="stylesheet" href="css/1-base.css" />
+  <link rel="stylesheet" href="css/2-header-home.css" />
+  <link rel="stylesheet" href="css/3-panels-ui.css" />
+  <link rel="stylesheet" href="css/4-quest.css" />
+  <link rel="stylesheet" href="css/5-bottom-nav.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
@@ -119,7 +124,6 @@
       </section>
     </main>
 
-    <!-- AniCard-style bottom nav (blood neon) -->
     <nav class="bottom-nav" role="tablist">
       <button class="tab active" data-screen="home" type="button" role="tab">
         <span class="tab-ico" aria-hidden="true">🌑</span>
@@ -143,6 +147,7 @@
       </button>
     </nav>
   </div>
+  <!-- app.js mono; или модули: js/1-init → 2-data → 3-nav → 4-events -->
   <script src="app.js"></script>
 </body>
 </html>
