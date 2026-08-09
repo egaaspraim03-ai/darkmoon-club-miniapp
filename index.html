@@ -5,23 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>The Blood Moon</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- style.css split: /1 base  /2 header  /3 ui  /4 quest  /5 nav -->
-  <link rel="stylesheet" href="css/1-base.css" />
-  <link rel="stylesheet" href="css/2-header-home.css" />
-  <link rel="stylesheet" href="css/3-panels-ui.css" />
-  <link rel="stylesheet" href="css/4-quest.css" />
-  <link rel="stylesheet" href="css/5-bottom-nav.css" />
+
+  <!-- CRITICAL: even if style.css fails, screens stay split -->
+  <style>
+    .screen { display: none !important; }
+    .screen.active { display: block !important; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #050001; color: #ffe8ec; }
+    .app { max-width: 480px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; position: relative; }
+    .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px 16px 100px; }
+    .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; max-width: 480px; margin: 0 auto; z-index: 999; }
+  </style>
+
+  <!-- ONE file = no path bugs on Render -->
+  <link rel="stylesheet" href="style.css" />
+
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="app">
     <header class="header">
-      <button class="icon-btn hidden" id="btn-back" type="button">‹</button>
+      <button class="icon-btn hidden" id="btn-back" type="button" aria-label="Назад">‹</button>
       <div class="logo"><span class="logo-dot"></span><span class="logo-text">THE BLOOD MOON</span></div>
-      <button class="icon-btn" id="btn-help" type="button">?</button>
+      <button class="icon-btn" id="btn-help" type="button" aria-label="Помощь">?</button>
     </header>
 
-    <main class="content">
+    <main class="content" id="main-content">
+      <!-- HOME -->
       <section class="screen active" id="screen-home">
         <div class="moon" aria-hidden="true"></div>
         <p class="eyebrow">Клуб Императоров и Вампирских Графов</p>
@@ -35,6 +44,7 @@
         </article>
       </section>
 
+      <!-- SITE -->
       <section class="screen" id="screen-site">
         <h2>Имперский сайт</h2>
         <div class="panel">
@@ -44,6 +54,7 @@
         </div>
       </section>
 
+      <!-- ARCHIVES -->
       <section class="screen" id="screen-archives">
         <h2>Архивы Тьмы</h2>
         <div class="panel list">
@@ -73,6 +84,7 @@
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
+      <!-- HALL -->
       <section class="screen" id="screen-hall">
         <h2>Зал Славы</h2>
         <div class="panel list">
@@ -81,6 +93,7 @@
         </div>
       </section>
 
+      <!-- QUEST -->
       <section class="screen" id="screen-quest">
         <div class="quest-head">
           <h2>События Арены</h2>
@@ -110,6 +123,7 @@
         </div>
       </section>
 
+      <!-- OBANA -->
       <section class="screen" id="screen-obana">
         <h2>Обана — Рекорды</h2>
         <div class="panel">
@@ -124,7 +138,7 @@
       </section>
     </main>
 
-    <nav class="bottom-nav" role="tablist">
+    <nav class="bottom-nav" role="tablist" id="bottom-nav">
       <button class="tab active" data-screen="home" type="button" role="tab">
         <span class="tab-ico" aria-hidden="true">🌑</span>
         <span class="tab-label">Главная</span>
@@ -147,7 +161,7 @@
       </button>
     </nav>
   </div>
-  <!-- app.js mono; или модули: js/1-init → 2-data → 3-nav → 4-events -->
+
   <script src="app.js"></script>
 </body>
 </html>
