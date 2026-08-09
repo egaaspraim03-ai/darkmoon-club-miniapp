@@ -17,7 +17,6 @@
     </header>
 
     <main class="content">
-      <!-- HOME -->
       <section class="screen active" id="screen-home">
         <div class="moon" aria-hidden="true"></div>
         <p class="eyebrow">Клуб Императоров и Вампирских Графов</p>
@@ -31,7 +30,6 @@
         </article>
       </section>
 
-      <!-- SITE -->
       <section class="screen" id="screen-site">
         <h2>Имперский сайт</h2>
         <div class="panel">
@@ -41,7 +39,6 @@
         </div>
       </section>
 
-      <!-- ARCHIVES -->
       <section class="screen" id="screen-archives">
         <h2>Архивы Тьмы</h2>
         <div class="panel list">
@@ -71,7 +68,6 @@
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
-      <!-- HALL -->
       <section class="screen" id="screen-hall">
         <h2>Зал Славы</h2>
         <div class="panel list">
@@ -80,19 +76,16 @@
         </div>
       </section>
 
-      <!-- QUEST -->
       <section class="screen" id="screen-quest">
         <div class="quest-head">
           <h2>События Арены</h2>
           <p class="quest-note">Время событий может немного отличаться от реального</p>
         </div>
-
         <div id="quest-empty" class="panel empty-box">
           <div class="empty-icon">🩸</div>
           <p class="empty-title">Сейчас нет активных квестов и заданий</p>
           <p class="empty-sub">Когда Император объявит охоту — здесь появятся таймеры, счётчики и задания.</p>
         </div>
-
         <div id="quest-active" class="hidden">
           <div class="event-stack" id="event-timers"></div>
           <div class="section-label">Кровавые достижения</div>
@@ -102,7 +95,6 @@
           <div class="task-list" id="task-list"></div>
           <p class="footer-hint">Полный список заданий можно посмотреть в чате Blood Moon</p>
         </div>
-
         <div class="panel" style="margin-top:14px">
           <button class="btn-secondary" type="button" id="btn-laws">📖 Законы рангов</button>
           <div class="laws hidden" id="laws-box">
@@ -113,7 +105,6 @@
         </div>
       </section>
 
-      <!-- OBANA -->
       <section class="screen" id="screen-obana">
         <h2>Обана — Рекорды</h2>
         <div class="panel">
@@ -128,12 +119,28 @@
       </section>
     </main>
 
-    <nav class="bottom-nav">
-      <button class="tab active" data-screen="home" type="button"><span>🌑</span><small>Главная</small></button>
-      <button class="tab" data-screen="archives" type="button"><span>📜</span><small>Архивы</small></button>
-      <button class="tab" data-screen="hall" type="button"><span>🏆</span><small>Слава</small></button>
-      <button class="tab" data-screen="obana" type="button"><span>😱</span><small>Обана</small></button>
-      <button class="tab" data-screen="site" type="button"><span>🌐</span><small>Сайт</small></button>
+    <!-- AniCard-style bottom nav (blood neon) -->
+    <nav class="bottom-nav" role="tablist">
+      <button class="tab active" data-screen="home" type="button" role="tab">
+        <span class="tab-ico" aria-hidden="true">🌑</span>
+        <span class="tab-label">Главная</span>
+      </button>
+      <button class="tab" data-screen="archives" type="button" role="tab">
+        <span class="tab-ico" aria-hidden="true">📜</span>
+        <span class="tab-label">Архивы</span>
+      </button>
+      <button class="tab tab-center" data-screen="hall" type="button" role="tab">
+        <span class="tab-ico tab-ico-center" aria-hidden="true">🏆</span>
+        <span class="tab-label">Слава</span>
+      </button>
+      <button class="tab" data-screen="obana" type="button" role="tab">
+        <span class="tab-ico" aria-hidden="true">😱</span>
+        <span class="tab-label">Обана</span>
+      </button>
+      <button class="tab" data-screen="site" type="button" role="tab">
+        <span class="tab-ico" aria-hidden="true">🌐</span>
+        <span class="tab-label">Сайт</span>
+      </button>
     </nav>
   </div>
   <script src="app.js"></script>
