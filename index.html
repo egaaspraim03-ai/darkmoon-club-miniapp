@@ -1,56 +1,162 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NÉXUS • DARK MOON</title>
-  
-  <!-- Telegram Mini App -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Blood Moon</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Стили -->
-  <link rel="stylesheet" href="style.css">
-  
-  <!-- Phaser -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="app">
-    <!-- Навигация -->
-    <div class="tab-bar">
-      <button onclick="switchTab('overworld')" class="tab-btn active">🌍 Мир</button>
-      <button onclick="switchTab('battle')" class="tab-btn">⚔️ Бой</button>
-      <button onclick="switchTab('lunadex')" class="tab-btn">📖 Lunadex</button>
-      <button onclick="switchTab('party')" class="tab-btn">👥 Команда</button>
-      <button onclick="switchTab('inventory')" class="tab-btn">🎒 Инвентарь</button>
-    </div>
+    <!-- HEADER -->
+    <header class="header">
+      <button class="icon-btn" id="btn-back" style="visibility:hidden">←</button>
+      <div class="logo">
+        <span class="logo-mark">🩸</span>
+        <span class="logo-text">BLOOD MOON</span>
+      </div>
+      <button class="icon-btn" id="btn-help">?</button>
+    </header>
 
-    <!-- Контейнеры вкладок -->
-    <div id="overworld-container" class="tab-content active"></div>
-    <div id="battle-container" class="tab-content"></div>
-    <div id="lunadex-container" class="tab-content"></div>
-    <div id="party-container" class="tab-content"></div>
-    <div id="inventory-container" class="tab-content"></div>
+    <!-- SCREENS -->
+    <main class="content" id="content">
+
+      <!-- HOME -->
+      <section class="screen active" id="screen-home">
+        <div class="hero">
+          <div class="hero-moon">🩸</div>
+          <h1>Blood Moon</h1>
+          <p class="tagline">Клуб Императоров и Вампирских Графов</p>
+        </div>
+
+        <div class="card-grid">
+          <button class="nav-card" data-screen="site">
+            <span class="nav-icon">🌐</span>
+            <span class="nav-title">Имперский сайт</span>
+            <span class="nav-sub">mangabuff.ru</span>
+          </button>
+          <button class="nav-card" data-screen="archives">
+            <span class="nav-icon">🌑</span>
+            <span class="nav-title">Архивы Тьмы</span>
+            <span class="nav-sub">Хроники и двор</span>
+          </button>
+          <button class="nav-card" data-screen="hall">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-title">Зал Славы</span>
+            <span class="nav-sub">Квест и Обана</span>
+          </button>
+          <button class="nav-card" data-screen="obana">
+            <span class="nav-icon">😱</span>
+            <span class="nav-title">Обана</span>
+            <span class="nav-sub">Рекорды Империи</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SITE -->
+      <section class="screen" id="screen-site">
+        <h2 class="section-title">🌐 Имперский сайт</h2>
+        <div class="panel">
+          <p>Официальный портал под покровительством Кровавой Луны.</p>
+          <p class="muted">Руководство по сайту — скоро.</p>
+          <a class="btn-primary" href="https://mangabuff.ru" target="_blank">Открыть mangabuff.ru</a>
+        </div>
+      </section>
+
+      <!-- ARCHIVES -->
+      <section class="screen" id="screen-archives">
+        <h2 class="section-title">🌑 Архивы Тьмы</h2>
+        <div class="panel">
+          <button class="list-btn" data-screen="chronicles">📜 Хроники Тьмы</button>
+          <button class="list-btn" data-screen="characters">👑 Двор Императора</button>
+        </div>
+      </section>
+
+      <!-- CHRONICLES -->
+      <section class="screen" id="screen-chronicles">
+        <h2 class="section-title">📜 Хроники Тьмы</h2>
+        <div class="panel">
+          <p>Здесь будут храниться лор клуба, история Blood Moon и легенды о вампирских графах.</p>
+          <p class="muted">(Позже добавишь полный текст)</p>
+        </div>
+      </section>
+
+      <!-- CHARACTERS -->
+      <section class="screen" id="screen-characters">
+        <h2 class="section-title">👑 Двор Императора</h2>
+        <div class="panel char-list" id="char-list">
+          <button class="char-btn" data-char="inquisitor">⚔️ Инквизитор</button>
+          <button class="char-btn" data-char="emperor">🩸 Император</button>
+          <button class="char-btn" data-char="eye">👁️ Всевидящее Око</button>
+          <button class="char-btn" data-char="punisher">🔥 Каратель</button>
+          <button class="char-btn" data-char="galya">🧼 Галя</button>
+          <button class="char-btn" data-char="cheshire">😺 Чеширский Кот</button>
+        </div>
+        <div class="panel hidden" id="char-detail"></div>
+      </section>
+
+      <!-- HALL -->
+      <section class="screen" id="screen-hall">
+        <h2 class="section-title">🏆 Зал Славы</h2>
+        <div class="panel">
+          <button class="list-btn" data-screen="quest">🎯 Квест Невыполнимый</button>
+          <button class="list-btn" data-screen="obana">😱 Обана — Рекорды</button>
+        </div>
+      </section>
+
+      <!-- QUEST -->
+      <section class="screen" id="screen-quest">
+        <h2 class="section-title">🎯 Квест — Невыполнимое</h2>
+        <div class="panel">
+          <p>Пожертвуй карты рангов на склад Империи.</p>
+          <p><b>Иерархия крови:</b><br>E → D → C → B → G → P → A → S → X</p>
+          <p><b>Закон конвертации:</b><br>3E = 1D · 3D = 1C · и далее…</p>
+          <div class="btn-row">
+            <button class="btn-secondary">📦 Пожертвовать</button>
+            <button class="btn-secondary">📖 Законы рангов</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- OBANA -->
+      <section class="screen" id="screen-obana">
+        <h2 class="section-title">😱 Обана — Рекорды</h2>
+        <div class="panel">
+          <p>Вклады, от которых кровь стынет в жилах.</p>
+          <p class="quote">«Обана… как так можно?»</p>
+          <div class="btn-row vertical">
+            <button class="btn-primary">🔥 Топ за неделю</button>
+            <button class="btn-primary">📅 Топ за месяц</button>
+            <button class="btn-primary">♾️ Абсолютный топ</button>
+          </div>
+          <p class="muted example">Пример: внёс 5000 карт E за неделю — @nickname</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM NAV (как у AniCard) -->
+    <nav class="bottom-nav">
+      <button class="tab active" data-screen="home">
+        <span>🩸</span><small>Главная</small>
+      </button>
+      <button class="tab" data-screen="archives">
+        <span>🌑</span><small>Архивы</small>
+      </button>
+      <button class="tab" data-screen="hall">
+        <span>🏆</span><small>Слава</small>
+      </button>
+      <button class="tab" data-screen="obana">
+        <span>😱</span><small>Обана</small>
+      </button>
+      <button class="tab" data-screen="site">
+        <span>🌐</span><small>Сайт</small>
+      </button>
+    </nav>
   </div>
 
-  <!-- Все скрипты в правильном порядке -->
-  <script src="js/core/constants.js"></script>
-  <script src="js/core/utils.js"></script>
-  <script src="js/core/data-loader.js"></script>
-  <script src="js/core/save-system.js"></script>
-
-  <script src="js/main.js"></script>
-  <script src="js/overworld.js"></script>
-  <script src="js/battle.js"></script>
-  <script src="js/lunadex.js"></script>
-  <script src="js/party.js"></script>
-  <script src="js/inventory.js"></script>
-  <script src="js/ui.js"></script>
-
-  <script>
-    // Telegram WebApp готов
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-  </script>
+  <script src="app.js"></script>
 </body>
-</html>
+  </html>
