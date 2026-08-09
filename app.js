@@ -1,3 +1,4 @@
+/* js / 1 — INIT (Telegram WebApp) */
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
@@ -8,6 +9,7 @@ if (tg) {
   } catch (e) {}
 }
 
+/* js / 2 — DATA */
 const CHAR_TEXTS = {
   inquisitor: '<div class="char-name">⚔️ Инквизитор</div><p>Мужик, священным мечом крушит нечисть, любит мыло.</p>',
   emperor: '<div class="char-name">🩸 Император</div><p>Бессмертное существо, которое любит искать мыло для инквизитора.</p>',
@@ -17,7 +19,6 @@ const CHAR_TEXTS = {
   cheshire: '<div class="char-name">😺 Чеширский Кот</div><p>Начальник стражи и живёт там, где кормит.</p>'
 };
 
-/* false = пустой экран квеста; true = демо с прогрессами */
 const HAS_ACTIVE = false;
 
 const EVENTS = [
@@ -42,6 +43,7 @@ const TASKS = [
 
 const stack = ['home'];
 
+/* js / 3 — NAV / SCREENS */
 function showScreen(id, push = true) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('screen-' + id);
@@ -118,6 +120,7 @@ function renderQuest() {
   `).join('');
 }
 
+/* js / 4 — EVENTS */
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const id = tab.dataset.screen;
