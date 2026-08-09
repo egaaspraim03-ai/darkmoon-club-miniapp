@@ -6,7 +6,7 @@
   <title>The Blood Moon</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div class="app">
@@ -17,6 +17,7 @@
     </header>
 
     <main class="content">
+      <!-- HOME -->
       <section class="screen active" id="screen-home">
         <div class="moon" aria-hidden="true"></div>
         <p class="eyebrow">Клуб Императоров и Вампирских Графов</p>
@@ -30,6 +31,7 @@
         </article>
       </section>
 
+      <!-- SITE -->
       <section class="screen" id="screen-site">
         <h2>Имперский сайт</h2>
         <div class="panel">
@@ -39,6 +41,7 @@
         </div>
       </section>
 
+      <!-- ARCHIVES -->
       <section class="screen" id="screen-archives">
         <h2>Архивы Тьмы</h2>
         <div class="panel list">
@@ -68,29 +71,49 @@
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
+      <!-- HALL -->
       <section class="screen" id="screen-hall">
         <h2>Зал Славы</h2>
         <div class="panel list">
-          <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>Склад и законы рангов</small></div><i>›</i></button>
+          <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>События, прогресс, задания</small></div><i>›</i></button>
           <button class="row" data-go="obana" type="button"><span>😱</span><div><b>Обана — Рекорды</b><small>Самые безумные вклады</small></div><i>›</i></button>
         </div>
       </section>
 
+      <!-- QUEST -->
       <section class="screen" id="screen-quest">
-        <h2>Квест — Невыполнимое</h2>
-        <div class="panel">
-          <p>Пожертвуй карты рангов на склад Империи.</p>
-          <div class="ranks">E → D → C → B → G → P → A → S → X</div>
-          <p><b>Закон конвертации</b><br>3E = 1D · 3D = 1C · и далее по крови.</p>
-          <button class="btn-secondary" type="button">📦 Пожертвовать на склад</button>
+        <div class="quest-head">
+          <h2>События Арены</h2>
+          <p class="quest-note">Время событий может немного отличаться от реального</p>
+        </div>
+
+        <div id="quest-empty" class="panel empty-box">
+          <div class="empty-icon">🩸</div>
+          <p class="empty-title">Сейчас нет активных квестов и заданий</p>
+          <p class="empty-sub">Когда Император объявит охоту — здесь появятся таймеры, счётчики и задания.</p>
+        </div>
+
+        <div id="quest-active" class="hidden">
+          <div class="event-stack" id="event-timers"></div>
+          <div class="section-label">Кровавые достижения</div>
+          <div class="ach-grid" id="ach-grid"></div>
+          <button class="btn-secondary" type="button" id="btn-all-ach">Открыть все достижения</button>
+          <div class="section-label">Популярные задания</div>
+          <div class="task-list" id="task-list"></div>
+          <p class="footer-hint">Полный список заданий можно посмотреть в чате Blood Moon</p>
+        </div>
+
+        <div class="panel" style="margin-top:14px">
           <button class="btn-secondary" type="button" id="btn-laws">📖 Законы рангов</button>
-          <button class="btn-secondary" type="button">🏆 Рекорды вкладов</button>
           <div class="laws hidden" id="laws-box">
-            <p>E — самый малый, X — высший.<br>3E = 1D. Расколоть 1D → 2E.</p>
+            <p><b>E</b> — низший · <b>X</b> — высший</p>
+            <p>3E = 1D · 3D = 1C · 3C = 1B · и далее по крови.</p>
+            <p class="muted">Раскол 1D → 2E. На сайте D = 3E.</p>
           </div>
         </div>
       </section>
 
+      <!-- OBANA -->
       <section class="screen" id="screen-obana">
         <h2>Обана — Рекорды</h2>
         <div class="panel">
