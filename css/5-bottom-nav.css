@@ -1,0 +1,136 @@
+/* ============================================
+   style.css / 5  —  BOTTOM NAV (AniCard style)
+   Нижняя панель: glass, неон, центр, active
+   ============================================ */
+
+.bottom-nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding: 0 4px env(safe-area-inset-bottom);
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  z-index: 40;
+  background: linear-gradient(180deg, rgba(28, 4, 12, 0.55) 0%, rgba(8, 0, 4, 0.97) 40%);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  border-top: 1px solid rgba(255, 45, 85, 0.45);
+  box-shadow:
+    0 -1px 0 rgba(255, 80, 120, 0.25),
+    0 -8px 32px rgba(255, 45, 85, 0.18),
+    0 -20px 48px rgba(120, 0, 30, 0.25);
+}
+
+.bottom-nav::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 45, 85, 0.9) 30%,
+    rgba(255, 120, 150, 0.95) 50%,
+    rgba(255, 45, 85, 0.9) 70%,
+    transparent
+  );
+  box-shadow: 0 0 12px var(--glow), 0 0 24px var(--glow-soft);
+  pointer-events: none;
+}
+
+.tab {
+  position: relative;
+  flex: 1;
+  max-width: 88px;
+  border: none;
+  background: transparent;
+  color: #8a5a62;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 2px 6px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 28px;
+  font-size: 20px;
+  line-height: 1;
+  border-radius: 12px;
+  transition: transform 0.2s ease, filter 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tab-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.tab-center .tab-ico-center {
+  width: 44px;
+  height: 44px;
+  margin-top: -14px;
+  font-size: 22px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ff2d55, #8b0018);
+  border: 2px solid rgba(255, 120, 150, 0.55);
+  box-shadow:
+    0 0 16px var(--glow),
+    0 0 28px rgba(255, 45, 85, 0.35),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 200, 210, 0.35);
+}
+.tab-center .tab-label { margin-top: 2px; }
+
+.tab.active { color: var(--neon); }
+.tab.active .tab-label {
+  opacity: 1;
+  text-shadow: 0 0 10px var(--glow);
+}
+.tab.active .tab-ico {
+  filter: drop-shadow(0 0 8px var(--neon));
+  transform: translateY(-1px);
+}
+.tab.active:not(.tab-center) .tab-ico {
+  background: rgba(255, 45, 85, 0.18);
+  box-shadow: 0 0 14px var(--glow-soft);
+}
+.tab-center.active .tab-ico-center {
+  box-shadow:
+    0 0 20px var(--neon),
+    0 0 40px var(--glow),
+    0 4px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 200, 210, 0.4);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--neon);
+  box-shadow: 0 0 8px var(--neon), 0 0 14px var(--glow);
+}
+.tab-center.active::after { bottom: 3px; }
+
+.tab:active { transform: scale(0.94); }
+.tab:active .tab-ico { filter: brightness(1.15); }
