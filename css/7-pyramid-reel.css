@@ -1,0 +1,146 @@
+/* 7 — RANK PYRAMID + PRIZE REEL */
+
+/* --- Pyramid --- */
+.pyramid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0 4px;
+}
+.pyr-tier {
+  width: var(--w, 100%);
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: linear-gradient(90deg, rgba(255,45,85,0.18), rgba(20,5,10,0.85));
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-shadow: 0 0 14px var(--glow-soft);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pyr-tier.me {
+  border-color: var(--neon);
+  box-shadow: 0 0 20px var(--glow);
+}
+.pyr-tier.apex {
+  background: linear-gradient(90deg, rgba(201,162,39,0.25), rgba(40,10,10,0.9));
+  border-color: rgba(201,162,39,0.5);
+}
+.pyr-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pyr-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.pyr-sub { font-size: 11px; color: var(--muted); }
+.pyr-right { text-align: right; flex-shrink: 0; }
+.pyr-count {
+  font-size: 14px; font-weight: 800; color: var(--neon);
+  text-shadow: 0 0 8px var(--glow);
+}
+.pyr-pct { font-size: 10px; color: var(--muted); }
+.pyr-legend {
+  margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.4; text-align: center;
+}
+
+/* XP bar */
+.xp-block { margin-top: 12px; }
+.xp-labels {
+  display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px;
+}
+.xp-labels b { color: var(--neon); }
+
+/* --- Prize reel --- */
+.reel-wrap {
+  position: relative;
+  margin: 12px 0 8px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,0.35);
+  overflow: hidden;
+  box-shadow: 0 0 24px var(--glow-soft), inset 0 0 40px rgba(255,45,85,0.06);
+}
+.reel-window {
+  height: 110px;
+  overflow: hidden;
+  position: relative;
+}
+.reel-track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 10px;
+  padding: 12px;
+  will-change: transform;
+  transform: translate3d(0,0,0);
+}
+.reel-track.spinning {
+  transition: transform 4.8s cubic-bezier(0.12, 0.85, 0.08, 1);
+}
+.reel-card {
+  flex: 0 0 88px;
+  width: 88px;
+  height: 86px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(40,10,16,0.98), rgba(12,2,8,0.98));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 0 10px rgba(255,45,85,0.12);
+}
+.reel-card .ri { font-size: 26px; filter: drop-shadow(0 0 8px var(--glow)); }
+.reel-card .rn { font-size: 10px; text-align: center; line-height: 1.15; color: #ffd0d8; padding: 0 4px; }
+.reel-card.r-common { border-color: rgba(160,112,120,0.4); }
+.reel-card.r-rare { border-color: rgba(80,140,255,0.55); box-shadow: 0 0 12px rgba(80,140,255,0.25); }
+.reel-card.r-epic { border-color: rgba(180,80,255,0.55); box-shadow: 0 0 14px rgba(180,80,255,0.3); }
+.reel-card.r-legend {
+  border-color: rgba(255,45,85,0.7);
+  box-shadow: 0 0 18px var(--glow);
+  background: linear-gradient(180deg, rgba(80,10,20,0.98), rgba(20,0,8,0.98));
+}
+.reel-pointer {
+  position: absolute;
+  top: 0; bottom: 0; left: 50%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--neon), transparent);
+  box-shadow: 0 0 12px var(--neon);
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+.reel-pointer::before {
+  content: "▼";
+  position: absolute;
+  top: 2px; left: 50%;
+  transform: translateX(-50%);
+  color: var(--neon);
+  font-size: 12px;
+  text-shadow: 0 0 8px var(--glow);
+}
+.reel-result {
+  text-align: center;
+  margin-top: 10px;
+  min-height: 48px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.reel-result .win {
+  font-family: Cinzel, serif;
+  color: var(--neon);
+  text-shadow: 0 0 12px var(--glow);
+  font-size: 16px;
+}
+.reel-note {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 8px;
+  line-height: 1.35;
+}
+.btn-spin:disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
