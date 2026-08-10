@@ -1,0 +1,200 @@
+/* 9 — Blood Snake (Змейка крови) */
+
+.snake-hud {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.snake-hud .stat {
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 45, 85, 0.08);
+}
+.snake-hud .stat .v {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--neon);
+  text-shadow: 0 0 8px var(--glow);
+}
+.snake-hud .stat .l {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.snake-levels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.snake-level-btn {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(40, 8, 16, 0.95), rgba(12, 2, 8, 0.98));
+  border-radius: 14px;
+  padding: 12px 10px;
+  text-align: left;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--glow-soft);
+}
+.snake-level-btn:active,
+.snake-level-btn.selected {
+  border-color: var(--neon);
+  box-shadow: 0 0 18px var(--glow);
+}
+.snake-level-btn .lv-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: var(--neon);
+  text-shadow: 0 0 8px var(--glow);
+}
+.snake-level-btn .lv-sub {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+.snake-level-btn .lv-tag {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--gold);
+}
+
+.snake-stage-wrap {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: #0a0206;
+  box-shadow: 0 0 24px var(--glow-soft), inset 0 0 40px rgba(255, 45, 85, 0.08);
+  margin-bottom: 10px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#snake-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+  background: radial-gradient(ellipse at center, #1a080c 0%, #050001 70%);
+}
+
+.snake-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 0, 1, 0.82);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+  padding: 16px;
+  text-align: center;
+}
+.snake-overlay.hidden { display: none !important; }
+.snake-overlay h3 {
+  font-family: Cinzel, Georgia, serif;
+  color: var(--neon);
+  text-shadow: 0 0 14px var(--glow);
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+.snake-overlay p {
+  font-size: 13px;
+  color: #ffd0d8;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  max-width: 280px;
+}
+
+.snake-pad {
+  display: grid;
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: 48px 48px 48px;
+  gap: 6px;
+  justify-content: center;
+  margin: 10px 0 4px;
+}
+.snake-pad .pad-btn {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(50, 10, 18, 0.95), rgba(15, 3, 8, 0.98));
+  color: var(--neon);
+  font-size: 18px;
+  box-shadow: 0 0 10px var(--glow-soft);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.snake-pad .pad-btn:active {
+  border-color: var(--neon);
+  box-shadow: 0 0 16px var(--glow);
+  transform: scale(0.94);
+}
+.snake-pad .pad-up { grid-column: 2; grid-row: 1; }
+.snake-pad .pad-left { grid-column: 1; grid-row: 2; }
+.snake-pad .pad-right { grid-column: 3; grid-row: 2; }
+.snake-pad .pad-down { grid-column: 2; grid-row: 3; }
+
+.snake-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.snake-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 45, 85, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+}
+.snake-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.snake-scores { margin-top: 8px; }
+.snake-scores .lb-row .who { font-size: 12px; }
+
+.snake-rules {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #ffd0d8;
+}
+.snake-rules li {
+  margin-bottom: 8px;
+  display: flex;
+  gap: 8px;
+}
+.snake-rules .n {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 45, 85, 0.2);
+  border: 1px solid var(--line);
+  color: var(--neon);
+}
