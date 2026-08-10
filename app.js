@@ -6,7 +6,6 @@
 (function () {
   'use strict';
 
-  /* ===================== CONFIG ===================== */
   var CONFIG = {
     HAS_ACTIVE_QUEST: false,
     CLUB_NAME: 'The Blood Moon',
@@ -66,12 +65,8 @@
     }
     if (current.level >= 9) {
       return Object.assign({}, current, {
-        total_cards: total,
-        next_min: null,
-        next_name: null,
-        progress_pct: 100,
-        cards_to_next: 0,
-        is_max: true
+        total_cards: total, next_min: null, next_name: null,
+        progress_pct: 100, cards_to_next: 0, is_max: true
       });
     }
     var nxt = NECRO_RANKS[current.level + 1];
@@ -79,12 +74,9 @@
     var done = total - current.min_cards;
     var pct = span <= 0 ? 0 : Math.min(100, Math.max(0, (done / span) * 100));
     return Object.assign({}, current, {
-      total_cards: total,
-      next_min: nxt.min_cards,
-      next_name: nxt.name,
+      total_cards: total, next_min: nxt.min_cards, next_name: nxt.name,
       progress_pct: Math.round(pct * 10) / 10,
-      cards_to_next: Math.max(0, nxt.min_cards - total),
-      is_max: false
+      cards_to_next: Math.max(0, nxt.min_cards - total), is_max: false
     });
   }
 
@@ -228,8 +220,13 @@
     return typeof s.totalCards === 'number' ? s.totalCards : CONFIG.DEMO_TOTAL_CARDS;
   }
 
-  /* === END PART 1 — сразу ниже вставь PART 2 === */
- function renderUserProfileCard(rootId, data) {
+  /* === END APP 1 — дальше app 2/3 === */
+ /* ===================== UserProfileCard (render) ===================== */
+  /**
+   * Рендерит карточку профиля в #profile-root
+   * Данные: { name, photo, totalCards }
+   */
+  function renderUserProfileCard(rootId, data) {
     var root = document.getElementById(rootId || 'profile-root');
     if (!root) return;
     data = data || {};
@@ -289,6 +286,7 @@
     }).join('');
   }
 
+  /* ===================== Navigation ===================== */
   var stack = ['home'];
 
   function showScreen(id, push) {
@@ -300,7 +298,7 @@
 
     var tabId = id;
     if (id === 'chronicles' || id === 'characters' || id === 'rules') tabId = 'archives';
-    if (id === 'quest' || id === 'pyramid' || id === 'reel' || id === 'profile') tabId = 'hall';
+    if (id === 'quest' || id === 'pyramid' || id === 'reel' || id === 'profile' || id === 'snake') tabId = 'hall';
 
     document.querySelectorAll('.tab').forEach(function (t) {
       var ds = t.getAttribute('data-screen');
@@ -330,6 +328,8 @@
     if (id === 'site') updateRankCalc();
     if (id === 'pyramid') renderPyramid();
     if (id === 'reel') ensureReelBuilt();
+    if (id === 'snake' && window.BloodSnake && window.BloodSnake.onShow) window.BloodSnake.onShow();
+    if (id !== 'snake' && window.BloodSnake && window.BloodSnake.onHide) window.BloodSnake.onHide();
     if (id === 'profile') {
       renderUserProfileCard('profile-root');
       renderRankLadder();
@@ -361,6 +361,7 @@
     } catch (e) {}
   }
 
+  /* ===================== Renderers (quest/obana/...) ===================== */
   function renderQuest() {
     var empty = document.getElementById('quest-empty');
     var active = document.getElementById('quest-active');
@@ -451,8 +452,8 @@
     if (leg) leg.innerHTML = 'Твой путь: <b style="color:var(--neon)">' + rank.name + '</b> (Lv.' + rank.level + ')';
   }
 
-  /* === END PART 2 — сразу ниже вставь PART 3 === */
- var reelBuilt = false;
+  /* ===================== Prize Roulette ===================== */
+  var reelBuilt = false;
   var reelBusy = false;
   var reelCards = [];
   var STRIP_LEN = 56;
@@ -490,6 +491,11 @@
     reelBuilt = true;
   }
 
+  /**
+   * spinRoulette client:
+   * 1) если CONFIG.REEL_API_URL — fetch → { prize_id, strip_index }
+   * 2) иначе demo weightedPick (НЕ для реальных призов)
+   */
   function requestSpinResult() {
     if (CONFIG.REEL_API_URL) {
       return fetch(CONFIG.REEL_API_URL, {
@@ -509,13 +515,15 @@
         };
       });
     }
+    /* DEMO only */
     var prize = weightedPick(CONFIG.REEL_PRIZES);
     var idx = 42 + Math.floor(Math.random() * 8);
     if (idx >= STRIP_LEN) idx = STRIP_LEN - 3;
     return Promise.resolve({ prize_id: prize.id, strip_index: idx, prize: prize });
   }
 
-  function spinReel() {
+  /* === END APP 2 — сразу APP 3 === */
+ function spinReel() {
     if (reelBusy) return;
     var track = document.getElementById('reel-track');
     var result = document.getElementById('reel-result');
@@ -569,6 +577,7 @@
     });
   }
 
+  /* ===================== Home UI ===================== */
   function applyUserHome() {
     var u = getTgUser();
     var w = document.getElementById('welcome');
@@ -627,13 +636,14 @@
       sp = String(sp).toLowerCase();
       var allowed = {
         home: 1, site: 1, archives: 1, hall: 1, quest: 1, obana: 1,
-        chronicles: 1, characters: 1, rules: 1, pyramid: 1, reel: 1, profile: 1
+        chronicles: 1, characters: 1, rules: 1, pyramid: 1, reel: 1, profile: 1, snake: 1
       };
       if (allowed[sp]) return sp;
     } catch (e) {}
     return 'home';
   }
 
+  /* ===================== Bind ===================== */
   function bind() {
     initTelegram();
     var state = bumpRetention();
