@@ -1,0 +1,114 @@
+/* 6 — ATMOSPHERE + retention UI */
+.app::after {
+  content: "";
+  pointer-events: none;
+  position: fixed; inset: 0; max-width: 480px; margin: 0 auto;
+  z-index: 900; opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+.vignette {
+  pointer-events: none;
+  position: fixed; inset: 0; max-width: 480px; margin: 0 auto;
+  z-index: 2;
+  background: radial-gradient(ellipse at center, transparent 42%, rgba(40, 0, 10, 0.5) 100%);
+}
+.welcome {
+  text-align: center; margin: 0 0 8px; font-size: 12px; color: var(--muted);
+}
+.welcome b { color: var(--neon); text-shadow: 0 0 10px var(--glow); font-weight: 600; }
+.night-line {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 0 0 12px; font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gold);
+}
+.night-line .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--neon); box-shadow: 0 0 8px var(--neon);
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+.home-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 0 14px;
+}
+.home-actions .chip {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(40, 8, 16, 0.9), rgba(12, 2, 8, 0.95));
+  border-radius: 14px; padding: 12px 8px; text-align: center;
+  color: var(--text); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 0 14px var(--glow-soft);
+}
+.home-actions .chip span {
+  display: block; font-size: 20px; margin-bottom: 4px;
+  filter: drop-shadow(0 0 8px var(--glow));
+}
+.home-actions .chip:active { border-color: var(--neon); box-shadow: 0 0 18px var(--glow); }
+
+.stats-bar {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+  margin-bottom: 14px;
+}
+.stat {
+  text-align: center; padding: 10px 6px; border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 45, 85, 0.08);
+}
+.stat .v {
+  font-size: 16px; font-weight: 800; color: var(--neon);
+  text-shadow: 0 0 8px var(--glow);
+}
+.stat .l { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+.tip-card {
+  margin-top: 12px; padding: 12px 14px; border-radius: 14px;
+  border: 1px dashed var(--line);
+  background: rgba(255, 45, 85, 0.06);
+  font-size: 13px; line-height: 1.45; color: #ffd0d8;
+}
+.tip-card .tip-h {
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 6px;
+}
+
+.toast {
+  position: fixed; left: 50%;
+  bottom: calc(var(--nav-h) + 18px + var(--safe-b));
+  transform: translateX(-50%) translateY(16px);
+  max-width: min(420px, calc(100% - 32px));
+  background: rgba(20, 4, 10, 0.96);
+  border: 1px solid var(--line); color: var(--text);
+  padding: 12px 16px; border-radius: 12px; font-size: 13px;
+  z-index: 2000; opacity: 0; pointer-events: none;
+  box-shadow: 0 0 24px var(--glow);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.splash {
+  position: fixed; inset: 0; z-index: 5000; background: #050001;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.55s ease, visibility 0.55s ease;
+}
+.splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash .splash-moon {
+  width: 84px; height: 84px; border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #ff7a8a, #ff1f45 40%, #8b0018 75%, #1a0206);
+  box-shadow: 0 0 30px var(--glow), 0 0 60px rgba(196,18,46,0.45);
+  margin-bottom: 16px; animation: moonPulse 1.4s ease-in-out infinite;
+}
+.splash .splash-title {
+  font-family: Cinzel, serif; letter-spacing: 0.18em; font-size: 13px;
+  color: var(--neon); text-shadow: 0 0 12px var(--glow);
+}
+.splash .splash-sub { margin-top: 8px; font-size: 11px; color: var(--muted); }
+
+.rank-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 99px;
+  border: 1px solid var(--line); background: rgba(255,45,85,0.12);
+  font-size: 11px; color: var(--neon); margin-top: 6px;
+}
+.footer-ver {
+  text-align: center; font-size: 10px; color: #5a3a40;
+  margin: 18px 0 4px; letter-spacing: 0.06em;
+}
