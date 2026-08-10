@@ -2,34 +2,44 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#050001" />
+  <meta name="description" content="The Blood Moon — клуб Императоров и Вампирских Графов" />
   <title>The Blood Moon</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- fallback: экраны разделены даже если CSS ещё грузится -->
   <style>
     .screen { display: none !important; }
     .screen.active { display: block !important; }
+    html, body { height: 100%; overflow: hidden; background: #050001; margin: 0; }
   </style>
-
-  <!--
-    Модульный CSS (не трогаем разбиение).
-    Порядок: 1 → 2 → 3 → 4 → 5
-    Файл №1 ОБЯЗАН называться: css/1-base.css  (не .cs)
-  -->
   <link rel="stylesheet" href="css/1-base.css" />
   <link rel="stylesheet" href="css/2-header-home.css" />
   <link rel="stylesheet" href="css/3-panels-ui.css" />
   <link rel="stylesheet" href="css/4-quest.css" />
   <link rel="stylesheet" href="css/5-bottom-nav.css" />
-
+  <link rel="stylesheet" href="css/6-atmosphere.css" />
+  <link rel="stylesheet" href="css/7-pyramid-reel.css" />
+  <link rel="stylesheet" href="css/8-profile-ranks.css" />
+  <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div class="splash" id="splash">
+    <div class="splash-moon"></div>
+    <div class="splash-title">THE BLOOD MOON</div>
+    <div class="splash-sub">Кровавая ночь пробуждается…</div>
+  </div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status"></div>
+
   <div class="app">
     <header class="header">
       <button class="icon-btn hidden" id="btn-back" type="button" aria-label="Назад">‹</button>
-      <div class="logo"><span class="logo-dot"></span><span class="logo-text">THE BLOOD MOON</span></div>
+      <div class="header-user">
+        <div class="avatar-fallback" id="avatar-fallback">🩸</div>
+        <img class="avatar hidden" id="avatar" alt="" width="28" height="28" />
+        <div class="logo"><span class="logo-dot"></span><span class="logo-text">THE BLOOD MOON</span></div>
+      </div>
       <button class="icon-btn" id="btn-help" type="button" aria-label="Помощь">?</button>
     </header>
 
@@ -37,8 +47,21 @@
       <!-- HOME -->
       <section class="screen active" id="screen-home">
         <div class="moon" aria-hidden="true"></div>
+        <p class="welcome" id="welcome">Добро пожаловать в ночь, <b>гость</b></p>
+        <div class="night-line"><span class="dot"></span> Ночь активна · <span id="home-rank-mini">Смертный</span></div>
         <p class="eyebrow">Клуб Императоров и Вампирских Графов</p>
         <h1>The Blood Moon</h1>
+        <div class="stats-bar" id="stats-bar">
+          <div class="stat"><div class="v" id="stat-visits">1</div><div class="l">визитов</div></div>
+          <div class="stat"><div class="v" id="stat-streak">1</div><div class="l">дней подряд</div></div>
+          <div class="stat"><div class="v" id="stat-rank">E</div><div class="l">твой ранг*</div></div>
+        </div>
+        <div class="home-actions">
+          <button class="chip" type="button" data-go="profile"><span>🧛</span>Профиль</button>
+          <button class="chip" type="button" data-go="hall"><span>🏆</span>Слава</button>
+          <button class="chip" type="button" data-go="reel"><span>🎰</span>Лента</button>
+          <button class="chip" type="button" data-go="obana"><span>😱</span>Обана</button>
+        </div>
         <article class="poem">
           <p>Под кроваво-красной луной пробуждается ночь,<br>алый свет разливается по всему миру, предвещая ужасное бедствие.</p>
           <p>Кровь льётся тёмным вином, собирается в лужах,<br>запах меди смешивается с ночным воздухом, опьяняя.</p>
@@ -46,16 +69,81 @@
           <p>Луна наблюдает равнодушным взглядом,<br>устремляя свой зловещий взор на хаос внизу.</p>
           <p class="poem-end">Ни убежища, ни спасения —<br>только бесконечная ночь<br>и ужасы, которые она несёт.</p>
         </article>
+        <div class="tip-card" id="tip-card">
+          <div class="tip-h">🩸 Совет ночи</div>
+          <div id="tip-text">Внеси карты на склад — даже 10 E уже шаг к Обане.</div>
+        </div>
+        <div class="panel" style="margin-top:12px">
+          <button class="btn-primary" type="button" id="btn-share">🌑 Пригласить в Blood Moon</button>
+          <button class="btn-secondary" type="button" data-go="rules">📖 Законы клуба</button>
+        </div>
+        <p class="footer-ver">v1.3 · The Blood Moon · *ранг локально, позже с бота</p>
       </section>
 
       <!-- SITE -->
       <section class="screen" id="screen-site">
-        <h2>Имперский сайт</h2>
+        <h2>Всё о сайте</h2>
         <div class="panel">
           <p>Портал под покровительством Кровавой Луны.</p>
-          <p class="muted">Руководство по mangabuff.ru — скоро.</p>
+          <p class="muted">Руководство mangabuff.ru — сюда позже вставишь свой текст.</p>
           <a class="btn-primary" href="https://mangabuff.ru" target="_blank" rel="noopener">Открыть mangabuff.ru</a>
         </div>
+        <div class="panel">
+          <p><b>Telegram клуба</b></p>
+          <div class="links-grid">
+            <a class="row" data-ext href="https://t.me/mangabuff" target="_blank" rel="noopener">
+              <span>📰</span><div><b>Новости</b><small>канал клуба / mangabuff</small></div><i>›</i>
+            </a>
+            <a class="row" data-ext href="https://t.me/" target="_blank" rel="noopener">
+              <span>🛡</span><div><b>Чатик модераторов</b><small>замени href на свой</small></div><i>›</i>
+            </a>
+            <a class="row" data-ext href="https://t.me/" target="_blank" rel="noopener">
+              <span>👂</span><div><b>Подслушано</b><small>на mangabuff</small></div><i>›</i>
+            </a>
+          </div>
+        </div>
+        <div class="panel">
+          <p><b>Калькулятор рангов</b></p>
+          <p class="muted">3E = 1D · 3D = 1C · … · X — вершина</p>
+          <div class="calc-row">
+            <div>
+              <label>Количество</label>
+              <input id="rank-amount" type="number" min="1" value="3" inputmode="numeric" />
+            </div>
+            <div class="calc-eq">→</div>
+            <div>
+              <label>Ранг</label>
+              <select id="rank-from">
+                <option value="0">E</option>
+                <option value="1">D</option>
+                <option value="2">C</option>
+                <option value="3">B</option>
+                <option value="4">A</option>
+                <option value="5">S</option>
+                <option value="6">G</option>
+                <option value="7">P</option>
+                <option value="8">X</option>
+              </select>
+            </div>
+          </div>
+          <div class="calc-out" id="rank-out">3 E ≈ 1 D</div>
+          <button class="btn-secondary" type="button" id="btn-rank-calc">Пересчитать</button>
+        </div>
+      </section>
+
+      <!-- RULES -->
+      <section class="screen" id="screen-rules">
+        <h2>Законы клуба</h2>
+        <div class="panel">
+          <ul class="rules-list">
+            <li><span class="n">1</span><span>Уважай двор: Инквизитор, Император, Око, Каратель, Галя, Кот.</span></li>
+            <li><span class="n">2</span><span>Дань складу и альянсу — путь к славе. Ранги: E → X.</span></li>
+            <li><span class="n">3</span><span>Обана — не хвастовство, а легенда. Рекорды пишутся в крови.</span></li>
+            <li><span class="n">4</span><span>Квест Невыполнимый — только для тех, кто не боится ночи.</span></li>
+            <li><span class="n">5</span><span>Мыло — святое. Кто нашёл — не скрывай от Инквизитора.</span></li>
+          </ul>
+        </div>
+        <button class="btn-primary" type="button" data-go="home">← На главную</button>
       </section>
 
       <!-- ARCHIVES -->
@@ -64,26 +152,28 @@
         <div class="panel list">
           <button class="row" data-go="chronicles" type="button"><span>📜</span><div><b>Хроники Тьмы</b><small>Лор и история</small></div><i>›</i></button>
           <button class="row" data-go="characters" type="button"><span>👑</span><div><b>Двор Императора</b><small>Главные персонажи</small></div><i>›</i></button>
+          <button class="row" data-go="rules" type="button"><span>⚖️</span><div><b>Законы клуба</b><small>5 кровавых правил</small></div><i>›</i></button>
         </div>
       </section>
 
       <section class="screen" id="screen-chronicles">
         <h2>Хроники Тьмы</h2>
         <div class="panel">
-          <p>Здесь хранятся лор клуба, история Blood Moon и легенды о вампирских графах и императорах.</p>
-          <p class="muted">Полный текст хроник добавишь позже.</p>
+          <p>Под кровавой луной родился клуб, где карта — это кровь, а вклад — клятва.</p>
+          <p>Императоры и графы ведут счёт ночам. Те, кто достиг Обаны, навсегда вписаны в Зал Славы.</p>
+          <p class="muted">Полный лор — дополнишь сам, когда будешь готов.</p>
         </div>
       </section>
 
       <section class="screen" id="screen-characters">
         <h2>Двор Императора</h2>
         <div class="panel list" id="char-list">
-          <button class="row char-btn" data-char="inquisitor" type="button"><span>⚔️</span><div><b>Инквизитор</b></div><i>›</i></button>
-          <button class="row char-btn" data-char="emperor" type="button"><span>🩸</span><div><b>Император</b></div><i>›</i></button>
-          <button class="row char-btn" data-char="eye" type="button"><span>👁️</span><div><b>Всевидящее Око</b></div><i>›</i></button>
-          <button class="row char-btn" data-char="punisher" type="button"><span>🔥</span><div><b>Каратель</b></div><i>›</i></button>
-          <button class="row char-btn" data-char="galya" type="button"><span>🧼</span><div><b>Галя</b></div><i>›</i></button>
-          <button class="row char-btn" data-char="cheshire" type="button"><span>😺</span><div><b>Чеширский Кот</b></div><i>›</i></button>
+          <button class="row char-btn" data-char="inquisitor" type="button"><span>⚔️</span><div><b>Инквизитор</b><small>Меч и мыло</small></div><i>›</i></button>
+          <button class="row char-btn" data-char="emperor" type="button"><span>🩸</span><div><b>Император</b><small>Бессмертный</small></div><i>›</i></button>
+          <button class="row char-btn" data-char="eye" type="button"><span>👁️</span><div><b>Всевидящее Око</b><small>Видит всё</small></div><i>›</i></button>
+          <button class="row char-btn" data-char="punisher" type="button"><span>🔥</span><div><b>Каратель</b><small>Наказание</small></div><i>›</i></button>
+          <button class="row char-btn" data-char="galya" type="button"><span>🧼</span><div><b>Галя</b><small>Помощница главы</small></div><i>›</i></button>
+          <button class="row char-btn" data-char="cheshire" type="button"><span>😺</span><div><b>Чеширский Кот</b><small>Начальник стражи</small></div><i>›</i></button>
         </div>
         <div class="panel hidden" id="char-detail"></div>
       </section>
@@ -92,8 +182,15 @@
       <section class="screen" id="screen-hall">
         <h2>Зал Славы</h2>
         <div class="panel list">
-          <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>События, прогресс, задания</small></div><i>›</i></button>
-          <button class="row" data-go="obana" type="button"><span>😱</span><div><b>Обана — Рекорды</b><small>Самые безумные вклады</small></div><i>›</i></button>
+          <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>События и задания</small></div><i>›</i></button>
+          <button class="row" data-go="obana" type="button"><span>😱</span><div><b>Обана — Рекорды</b><small>Безумные вклады</small></div><i>›</i></button>
+          <button class="row" data-go="profile" type="button"><span>🧛</span><div><b>Профиль крови</b><small>Аура ранга 0–9 · прогресс</small></div><i>›</i></button>
+          <button class="row" data-go="pyramid" type="button"><span>🔺</span><div><b>Пирамида крови</b><small>Квоты: массы внизу · единицы наверху</small></div><i>›</i></button>
+          <button class="row" data-go="reel" type="button"><span>🎰</span><div><b>Кровавая лента</b><small>Рулетка призов (CS-style)</small></div><i>›</i></button>
+        </div>
+        <div class="tip-card">
+          <div class="tip-h">🔥 Мотивация</div>
+          Запишись в Обану — пусть зависть станет топливом для следующего вклада.
         </div>
       </section>
 
@@ -115,7 +212,7 @@
           <button class="btn-secondary" type="button" id="btn-all-ach">Открыть все достижения</button>
           <div class="section-label">Популярные задания</div>
           <div class="task-list" id="task-list"></div>
-          <p class="footer-hint">Полный список заданий можно посмотреть в чате Blood Moon</p>
+          <p class="footer-hint">Полный список заданий — в чате Blood Moon</p>
         </div>
         <div class="panel" style="margin-top:14px">
           <button class="btn-secondary" type="button" id="btn-laws">📖 Законы рангов</button>
@@ -133,11 +230,70 @@
         <div class="panel">
           <p>Вклады, от которых кровь стынет в жилах.</p>
           <p class="quote">«Обана… как так можно?»</p>
-          <button class="btn-primary top-btn" data-period="week" type="button">🔥 Топ за неделю</button>
-          <button class="btn-primary top-btn" data-period="month" type="button">📅 Топ за месяц</button>
-          <button class="btn-primary top-btn" data-period="all" type="button">♾️ Абсолютный топ</button>
-          <div id="obana-result" class="hidden" style="margin-top:12px"></div>
-          <p class="example">Пример: внёс 5000 карт E за неделю — @nickname</p>
+          <div class="home-actions" style="margin-bottom:8px">
+            <button class="chip top-btn" data-period="week" type="button"><span>🔥</span>Неделя</button>
+            <button class="chip top-btn" data-period="month" type="button"><span>📅</span>Месяц</button>
+            <button class="chip top-btn" data-period="all" type="button"><span>♾️</span>Всё время</button>
+            <button class="chip" type="button" id="btn-claim"><span>🩸</span>Хочу в топ</button>
+          </div>
+          <div id="obana-result"></div>
+          <p class="example">Формат: 5000 E / неделя — @nickname</p>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="screen" id="screen-profile">
+        <h2>Профиль крови</h2>
+        <div id="profile-root"></div>
+        <div class="panel">
+          <p><b>Пирамида Нечисти</b> — все уровни</p>
+          <div class="rank-ladder" id="rank-ladder"></div>
+        </div>
+        <div class="panel">
+          <p class="muted">Демо: подвигай «карты», чтобы увидеть ауру (потом — с бота).</p>
+          <label class="muted" style="display:block;margin-bottom:6px;font-size:12px">Всего карт (демо)</label>
+          <input id="sim-cards" type="range" min="0" max="8000" step="50" value="120"
+            style="width:100%;accent-color:#ff2d55" />
+          <button class="btn-secondary" type="button" data-go="pyramid" style="margin-top:10px">🔺 К пирамиде квот</button>
+        </div>
+      </section>
+
+      <!-- PYRAMID -->
+      <section class="screen" id="screen-pyramid">
+        <h2>Пирамида крови</h2>
+        <div class="panel">
+          <p>Внизу — массы. На вершине — единицы. Ранг = место в крови клуба.</p>
+          <div class="pyramid" id="pyramid-box"></div>
+          <div class="xp-block">
+            <div class="xp-labels"><span>До следующего титула</span><b id="xp-label">0 / 100</b></div>
+            <div class="progress"><i id="xp-bar" style="width:12%"></i></div>
+          </div>
+          <p class="pyr-legend" id="pyr-legend">Твой слой подсвечен. Топ жёстко ограничен квотами.</p>
+        </div>
+        <div class="panel">
+          <p class="muted">Скоро: ранг с сервера по вкладам (E→X и квоты). Сейчас — демо-пирамида.</p>
+        </div>
+      </section>
+
+      <!-- REEL -->
+      <section class="screen" id="screen-reel">
+        <h2>Кровавая лента</h2>
+        <div class="panel">
+          <p>Прямолинейная рулетка призов. Крути — и пусть ночь решит.</p>
+          <div class="reel-wrap">
+            <div class="reel-pointer" aria-hidden="true"></div>
+            <div class="reel-window">
+              <div class="reel-track" id="reel-track"></div>
+            </div>
+          </div>
+          <div class="reel-result" id="reel-result">
+            <span class="muted">Нажми «Крутить» — лента остановится на призе</span>
+          </div>
+          <button class="btn-primary btn-spin" type="button" id="btn-spin">🎰 Крутить ленту</button>
+          <p class="reel-note">
+            Важно: в бою за реальные призы победитель <b>всегда</b> выбирается на сервере.
+            Сейчас — честный клиентский демо-рандом (для красоты).
+          </p>
         </div>
       </section>
     </main>
@@ -152,7 +308,7 @@
         <span class="tab-label">Архивы</span>
       </button>
       <button class="tab tab-center" data-screen="hall" type="button" role="tab">
-        <span class="tab-ico tab-ico-center" aria-hidden="true">🏆</span>
+        <span class="tab-ico tab-ico-center" aria-hidden="true">🏆<span class="tab-badge hidden" id="hall-badge">!</span></span>
         <span class="tab-label">Слава</span>
       </button>
       <button class="tab" data-screen="obana" type="button" role="tab">
@@ -165,21 +321,6 @@
       </button>
     </nav>
   </div>
-
   <script src="app.js"></script>
-  <script>
-    /* Полезно: если CSS не подхватился — увидишь в Console */
-    (function () {
-      setTimeout(function () {
-        var neon = getComputedStyle(document.body).getPropertyValue('--neon').trim();
-        if (!neon) {
-          console.error(
-            '[Blood Moon] CSS modules не загружены. ' +
-            'На GitHub переименуй css/1-base.cs → css/1-base.css'
-          );
-        }
-      }, 300);
-    })();
-  </script>
 </body>
-</html>
+                  </html>
