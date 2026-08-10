@@ -1,45 +1,64 @@
-/* ============================================
-   style.css / 2  —  HEADER + HOME
-   Шапка, логотип, луна, поэма, заголовки
-   ============================================ */
-
+/* 2 — HEADER + HOME */
 .header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  gap: 10px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--line);
   background: rgba(5, 0, 1, 0.92);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 0 24px var(--glow-soft);
-  position: sticky;
-  top: 0;
   z-index: 20;
 }
-
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  justify-content: center;
+}
+.avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  box-shadow: 0 0 10px var(--glow-soft);
+  background: #1a080c;
+  flex-shrink: 0;
+}
+.avatar-fallback {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  background: linear-gradient(145deg, #ff2d55, #5a0014);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
 .logo { display: flex; align-items: center; gap: 8px; }
-
 .logo-dot {
-  width: 10px; height: 10px; border-radius: 50%;
+  width: 9px; height: 9px; border-radius: 50%;
   background: var(--neon);
-  box-shadow: 0 0 8px var(--neon), 0 0 16px var(--glow), 0 0 28px var(--glow-soft);
+  box-shadow: 0 0 8px var(--neon), 0 0 16px var(--glow);
   animation: pulseDot 2s ease-in-out infinite;
 }
-
 @keyframes pulseDot {
   0%, 100% { box-shadow: 0 0 8px var(--neon), 0 0 16px var(--glow); }
-  50% { box-shadow: 0 0 14px var(--neon), 0 0 28px var(--glow), 0 0 42px var(--glow-soft); }
+  50% { box-shadow: 0 0 14px var(--neon), 0 0 28px var(--glow); }
 }
-
 .logo-text {
   font-family: Cinzel, Georgia, serif;
-  font-size: 12px;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  letter-spacing: 0.16em;
   font-weight: 700;
   color: var(--neon);
-  text-shadow: 0 0 8px var(--neon), 0 0 20px var(--glow);
+  text-shadow: 0 0 8px var(--neon);
+  white-space: nowrap;
 }
-
 .icon-btn {
   width: 36px; height: 36px; border-radius: 12px;
   border: 1px solid var(--line);
@@ -47,26 +66,28 @@
   color: var(--text);
   font-size: 18px;
   box-shadow: 0 0 12px var(--glow-soft);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 .icon-btn.hidden { visibility: hidden; pointer-events: none; }
 
 .moon {
-  width: 128px; height: 128px; margin: 10px auto 18px; border-radius: 50%;
+  width: 110px; height: 110px;
+  margin: 4px auto 12px;
+  border-radius: 50%;
   position: relative;
   background: radial-gradient(circle at 32% 28%, #ff7a8a, #ff1f45 38%, #8b0018 70%, #1a0206 100%);
   box-shadow:
     0 0 0 3px rgba(255, 45, 85, 0.35),
     0 0 24px rgba(255, 45, 85, 0.75),
-    0 0 48px rgba(196, 18, 46, 0.55),
-    0 0 90px rgba(120, 0, 20, 0.4),
+    0 0 48px rgba(196, 18, 46, 0.5),
     inset -12px -10px 28px rgba(0, 0, 0, 0.45);
   animation: moonPulse 3.2s ease-in-out infinite;
 }
-
 .moon::before {
   content: "";
   position: absolute;
-  inset: -14px;
+  inset: -12px;
   border-radius: 50%;
   border: 2px solid transparent;
   background:
@@ -80,7 +101,6 @@
   animation: ringSpin 8s linear infinite;
   pointer-events: none;
 }
-
 @keyframes moonPulse {
   0%, 100% { filter: brightness(1); }
   50% { filter: brightness(1.12); }
@@ -88,40 +108,44 @@
 @keyframes ringSpin { to { transform: rotate(360deg); } }
 
 .eyebrow {
-  text-align: center; font-size: 11px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
-  text-shadow: 0 0 10px rgba(255, 200, 100, 0.25);
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
 }
-
 h1 {
   text-align: center;
   font-family: Cinzel, Georgia, serif;
-  font-size: 28px;
+  font-size: 24px;
   color: var(--neon);
-  text-shadow: 0 0 10px var(--neon), 0 0 28px var(--glow), 0 0 50px rgba(196, 18, 46, 0.45);
-  margin-bottom: 18px;
-  letter-spacing: 0.06em;
+  text-shadow: 0 0 10px var(--neon), 0 0 28px var(--glow);
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
 }
-
 h2 {
   font-family: Cinzel, Georgia, serif;
-  font-size: 18px;
-  margin-bottom: 14px;
+  font-size: 17px;
+  margin-bottom: 12px;
   text-shadow: 0 0 12px var(--glow-soft);
 }
-
 .poem {
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 16.5px; line-height: 1.55; text-align: center; color: #ffd0d8;
+  font-size: 15px;
+  line-height: 1.55;
+  text-align: center;
+  color: #ffd0d8;
   background: linear-gradient(180deg, rgba(30, 5, 12, 0.95), rgba(10, 0, 6, 0.98));
   border: 1px solid var(--line);
   border-radius: 18px;
-  padding: 18px 16px;
-  box-shadow: 0 0 30px var(--glow-soft), inset 0 0 40px rgba(255, 45, 85, 0.05);
+  padding: 16px 14px;
+  box-shadow: 0 0 30px var(--glow-soft);
 }
-.poem p { margin-bottom: 14px; }
+.poem p { margin-bottom: 12px; }
 .poem-end {
   color: var(--neon);
   font-style: italic;
   text-shadow: 0 0 12px var(--glow);
-}
+  margin-bottom: 0 !important;
+     }
