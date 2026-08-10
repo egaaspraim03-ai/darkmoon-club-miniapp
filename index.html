@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="css/6-atmosphere.css" />
   <link rel="stylesheet" href="css/7-pyramid-reel.css" />
   <link rel="stylesheet" href="css/8-profile-ranks.css" />
+  <link rel="stylesheet" href="css/9-blood-snake.css" />
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
@@ -44,7 +45,6 @@
     </header>
 
     <main class="content" id="main-content">
-      <!-- HOME -->
       <section class="screen active" id="screen-home">
         <div class="moon" aria-hidden="true"></div>
         <p class="welcome" id="welcome">Добро пожаловать в ночь, <b>гость</b></p>
@@ -59,7 +59,7 @@
         <div class="home-actions">
           <button class="chip" type="button" data-go="profile"><span>🧛</span>Профиль</button>
           <button class="chip" type="button" data-go="hall"><span>🏆</span>Слава</button>
-          <button class="chip" type="button" data-go="reel"><span>🎰</span>Лента</button>
+          <button class="chip" type="button" data-go="snake"><span>🐍</span>Змейка</button>
           <button class="chip" type="button" data-go="obana"><span>😱</span>Обана</button>
         </div>
         <article class="poem">
@@ -77,10 +77,9 @@
           <button class="btn-primary" type="button" id="btn-share">🌑 Пригласить в Blood Moon</button>
           <button class="btn-secondary" type="button" data-go="rules">📖 Законы клуба</button>
         </div>
-        <p class="footer-ver">v1.3 · The Blood Moon · *ранг локально, позже с бота</p>
+        <p class="footer-ver">v1.3 · The Blood Moon · *ранг — локально, позже с бота</p>
       </section>
 
-      <!-- SITE -->
       <section class="screen" id="screen-site">
         <h2>Всё о сайте</h2>
         <div class="panel">
@@ -131,7 +130,6 @@
         </div>
       </section>
 
-      <!-- RULES -->
       <section class="screen" id="screen-rules">
         <h2>Законы клуба</h2>
         <div class="panel">
@@ -146,7 +144,6 @@
         <button class="btn-primary" type="button" data-go="home">← На главную</button>
       </section>
 
-      <!-- ARCHIVES -->
       <section class="screen" id="screen-archives">
         <h2>Архивы Тьмы</h2>
         <div class="panel list">
@@ -178,7 +175,6 @@
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
-      <!-- HALL -->
       <section class="screen" id="screen-hall">
         <h2>Зал Славы</h2>
         <div class="panel list">
@@ -187,6 +183,7 @@
           <button class="row" data-go="profile" type="button"><span>🧛</span><div><b>Профиль крови</b><small>Аура ранга 0–9 · прогресс</small></div><i>›</i></button>
           <button class="row" data-go="pyramid" type="button"><span>🔺</span><div><b>Пирамида крови</b><small>Квоты: массы внизу · единицы наверху</small></div><i>›</i></button>
           <button class="row" data-go="reel" type="button"><span>🎰</span><div><b>Кровавая лента</b><small>Рулетка призов (CS-style)</small></div><i>›</i></button>
+          <button class="row" data-go="snake" type="button"><span>🐍</span><div><b>Змейка крови</b><small>Капли · камни · рейтинг чести</small></div><i>›</i></button>
         </div>
         <div class="tip-card">
           <div class="tip-h">🔥 Мотивация</div>
@@ -194,7 +191,6 @@
         </div>
       </section>
 
-      <!-- QUEST -->
       <section class="screen" id="screen-quest">
         <div class="quest-head">
           <h2>События Арены</h2>
@@ -224,7 +220,6 @@
         </div>
       </section>
 
-      <!-- OBANA -->
       <section class="screen" id="screen-obana">
         <h2>Обана — Рекорды</h2>
         <div class="panel">
@@ -241,7 +236,6 @@
         </div>
       </section>
 
-      <!-- PROFILE -->
       <section class="screen" id="screen-profile">
         <h2>Профиль крови</h2>
         <div id="profile-root"></div>
@@ -258,7 +252,6 @@
         </div>
       </section>
 
-      <!-- PYRAMID -->
       <section class="screen" id="screen-pyramid">
         <h2>Пирамида крови</h2>
         <div class="panel">
@@ -275,7 +268,93 @@
         </div>
       </section>
 
-      <!-- REEL -->
+<!-- === END INDEX 1 — сразу INDEX 2 === -->
+      <!-- BLOOD SNAKE -->
+      <section class="screen" id="screen-snake">
+        <h2>Змейка крови</h2>
+        <div class="panel">
+          <p class="muted" style="margin-bottom:10px">Наград нет — только <b style="color:var(--neon)">рейтинг чести</b>. Ешь капли крови, не грызи камень.</p>
+          <div class="snake-levels" id="snake-levels">
+            <button class="snake-level-btn selected" type="button" data-level="shadow">
+              <div class="lv-title">🌑 Тень</div>
+              <div class="lv-sub">Медленно, мало камней, стены-телепорт</div>
+              <span class="lv-tag">Сытый · новичок</span>
+            </button>
+            <button class="snake-level-btn" type="button" data-level="ghoul">
+              <div class="lv-title">🦇 Упырь</div>
+              <div class="lv-sub">Аппетит растёт, стены убивают</div>
+              <span class="lv-tag">Шалун · средний</span>
+            </button>
+            <button class="snake-level-btn" type="button" data-level="vampire">
+              <div class="lv-title">🩸 Вампир</div>
+              <div class="lv-sub">Камни + кости, скорость кусается</div>
+              <span class="lv-tag">Голодный · хард</span>
+            </button>
+            <button class="snake-level-btn" type="button" data-level="emperor">
+              <div class="lv-title">👑 Жажда Императора</div>
+              <div class="lv-sub">Узкий ад. Камень = прах</div>
+              <span class="lv-tag">Тебя кормят? · ад</span>
+            </button>
+          </div>
+
+          <div class="snake-hud">
+            <div class="stat"><div class="v" id="snake-score">0</div><div class="l">кровь</div></div>
+            <div class="stat"><div class="v" id="snake-best">0</div><div class="l">рекорд</div></div>
+            <div class="stat"><div class="v" id="snake-len">3</div><div class="l">длина</div></div>
+          </div>
+          <div class="snake-hud" style="grid-template-columns:1fr 1fr">
+            <div class="stat"><div class="v" id="snake-spd">1.0×</div><div class="l">скорость</div></div>
+            <div class="stat"><div class="v" id="snake-hunger">20%</div><div class="l">жажда</div></div>
+          </div>
+
+          <div class="snake-stage-wrap" id="snake-stage">
+            <canvas id="snake-canvas" width="300" height="360" aria-label="Поле змейки"></canvas>
+            <div class="snake-overlay" id="snake-overlay">
+              <h3 id="snake-ov-title">🌑 Тень</h3>
+              <p id="snake-ov-body">Выбери уровень и начни охоту.</p>
+              <button class="btn-primary" type="button" id="snake-btn-start" style="max-width:240px;margin:0 auto">🩸 Начать охоту</button>
+            </div>
+          </div>
+
+          <div class="snake-legend">
+            <span><i style="background:#ff2d55"></i>Алая +10</span>
+            <span><i style="background:#a855f7"></i>Фиолет ⚡</span>
+            <span><i style="background:#22d3ee"></i>Лунная ⚡⚡</span>
+            <span><i style="background:#c9a227"></i>Золотая 🐢</span>
+            <span><i style="background:#3a0a14;border:1px solid #7f1d1d"></i>Сгусток −</span>
+            <span><i style="background:#f0f9ff;border:1px solid #fff"></i>🧼 Мыло-щит</span>
+            <span><i style="background:#fb7185"></i>Жажда 🔥</span>
+            <span><i style="background:#4a4a52;border-radius:2px"></i>Камень</span>
+            <span><i style="background:#e8dcc8;border-radius:2px"></i>Кость</span>
+          </div>
+
+          <div class="snake-pad" aria-label="Управление">
+            <button class="pad-btn pad-up" type="button" id="snake-up">▲</button>
+            <button class="pad-btn pad-left" type="button" id="snake-left">◀</button>
+            <button class="pad-btn pad-right" type="button" id="snake-right">▶</button>
+            <button class="pad-btn pad-down" type="button" id="snake-down">▼</button>
+          </div>
+          <button class="btn-secondary" type="button" id="snake-btn-pause">⏸ Пауза</button>
+        </div>
+
+        <div class="panel">
+          <p><b>📜 Законы охоты</b></p>
+          <ul class="snake-rules" style="list-style:none;padding:0;margin:0">
+            <li><span class="n">1</span><span>Ешь <b>капли крови</b>. Цвет = временная скорость. <b>Комбо</b> одного цвета даёт бонус очков.</span></li>
+            <li><span class="n">2</span><span>Чем <b>длиннее</b> тело — тем быстрее (до потолка уровня).</span></li>
+            <li><span class="n">3</span><span><b>Жажда</b> растёт без еды (полоска сверху поля). На «Императоре» 100% = смерть.</span></li>
+            <li><span class="n">4</span><span><b>🧼 Святое мыло</b> — щит на 1 удар (камень/стена/себя). Редкий дроп.</span></li>
+            <li><span class="n">5</span><span><b>Камень/кость</b> — смерть (если нет щита). <b>Сгусток</b> укорачивает.</span></li>
+            <li><span class="n">6</span><span>Наград нет — только <b>рейтинг чести</b>. Свайп / WASD / кнопки.</span></li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <p><b>😱 Рейтинг охотников</b></p>
+          <div class="snake-scores" id="snake-scoreboard"></div>
+        </div>
+      </section>
+
       <section class="screen" id="screen-reel">
         <h2>Кровавая лента</h2>
         <div class="panel">
@@ -296,6 +375,7 @@
           </p>
         </div>
       </section>
+
     </main>
 
     <nav class="bottom-nav" role="tablist" id="bottom-nav">
@@ -322,5 +402,6 @@
     </nav>
   </div>
   <script src="app.js"></script>
+  <script src="js/snake.js"></script>
 </body>
-                  </html>
+</html>
