@@ -1,5 +1,5 @@
-/* Blood Moon — Змейка крови v2 (unique gameplay)
-   Наград нет — только рейтинг чести.
+/* Blood Moon — Змейка крови v2.1
+   Fullscreen + virtual joystick + no freeze after first drop
    window.BloodSnake = { onShow, onHide, start, levels }
 */
 (function () {
@@ -9,63 +9,33 @@
   var COLS = 15;
   var ROWS = 18;
 
-  /* Уровни: Сытый / Шалун / Голодный / Тебя кормят? */
   var LEVELS = [
     {
-      id: 'shadow',
-      title: '🌑 Тень',
-      tag: 'Сытый',
+      id: 'shadow', title: '🌑 Тень', tag: 'Сытый',
       sub: 'Новичок. Стены-портал, мало камней, лунный ритм мягкий.',
-      baseTick: 165,
-      lengthSpeed: 2.0,
-      maxSpeedMul: 1.5,
-      stones: 3,
-      wrap: true,
-      frenzyChance: 0.04,
-      soapChance: 0.03
+      baseTick: 165, lengthSpeed: 2.0, maxSpeedMul: 1.5, stones: 3,
+      wrap: true, frenzyChance: 0.04, soapChance: 0.03
     },
     {
-      id: 'ghoul',
-      title: '🦇 Упырь',
-      tag: 'Шалун',
+      id: 'ghoul', title: '🦇 Упырь', tag: 'Шалун',
       sub: 'Аппетит шалит. Стены убивают. Комбо капель даёт бонус.',
-      baseTick: 132,
-      lengthSpeed: 2.8,
-      maxSpeedMul: 1.8,
-      stones: 6,
-      wrap: false,
-      frenzyChance: 0.06,
-      soapChance: 0.04
+      baseTick: 132, lengthSpeed: 2.8, maxSpeedMul: 1.8, stones: 6,
+      wrap: false, frenzyChance: 0.06, soapChance: 0.04
     },
     {
-      id: 'vampire',
-      title: '🩸 Вампир',
-      tag: 'Голодный',
-      sub: 'Кости + камни. Жажда растёт — игнор жажды = штраф скорости.',
-      baseTick: 108,
-      lengthSpeed: 3.6,
-      maxSpeedMul: 2.1,
-      stones: 8,
-      wrap: false,
-      frenzyChance: 0.08,
-      soapChance: 0.05
+      id: 'vampire', title: '🩸 Вампир', tag: 'Голодный',
+      sub: 'Кости + камни. Жажда растёт.',
+      baseTick: 108, lengthSpeed: 3.6, maxSpeedMul: 2.1, stones: 8,
+      wrap: false, frenzyChance: 0.08, soapChance: 0.05
     },
     {
-      id: 'emperor',
-      title: '👑 Жажда Императора',
-      tag: 'Тебя кормят?',
-      sub: 'Ад. Камни плодятся, луна давит, ошибка = прах.',
-      baseTick: 88,
-      lengthSpeed: 4.4,
-      maxSpeedMul: 2.4,
-      stones: 11,
-      wrap: false,
-      frenzyChance: 0.1,
-      soapChance: 0.06
+      id: 'emperor', title: '👑 Жажда Императора', tag: 'Тебя кормят?',
+      sub: 'Ад. Камни плодятся, ошибка = прах.',
+      baseTick: 88, lengthSpeed: 4.4, maxSpeedMul: 2.4, stones: 11,
+      wrap: false, frenzyChance: 0.1, soapChance: 0.06
     }
   ];
 
-  /* Капли — уникальные эффекты */
   var DROPS = {
     red:    { color: '#ff2d55', glow: '#ff1f45', points: 10, speedMul: 1.0,  ms: 0,    label: 'Алая' },
     gold:   { color: '#c9a227', glow: '#ffd060', points: 28, speedMul: 0.82, ms: 2600, label: 'Золотая' },
@@ -77,36 +47,17 @@
   };
 
   var state = {
-    running: false,
-    paused: false,
-    over: false,
+    running: false, paused: false, over: false,
     level: LEVELS[0],
-    snake: [],
-    dir: { x: 1, y: 0 },
-    nextDir: { x: 1, y: 0 },
-    food: null,
-    stones: [],
-    bones: [],
-    score: 0,
-    best: 0,
-    tickMs: 160,
-    tempSpeedMul: 1,
-    tempUntil: 0,
-    loopId: null,
-    cell: 20,
-    canvas: null,
-    ctx: null,
-    lastTs: 0,
-    acc: 0,
-    combo: 0,
-    lastKind: null,
-    hunger: 0,
-    moonPhase: 0,
-    shield: 0,
-    frenzy: false,
-    particles: [],
-    stepsSinceFood: 0,
-    invuln: 0
+    snake: [], dir: { x: 1, y: 0 }, nextDir: { x: 1, y: 0 },
+    food: null, stones: [], bones: [],
+    score: 0, best: 0, tickMs: 160,
+    tempSpeedMul: 1, tempUntil: 0,
+    loopId: null, cell: 20, canvas: null, ctx: null,
+    lastTs: 0, acc: 0,
+    combo: 0, lastKind: null, hunger: 0, moonPhase: 0,
+    shield: 0, frenzy: false, particles: [],
+    stepsSinceFood: 0, invuln: 0
   };
 
   function loadBoard() {
@@ -123,7 +74,6 @@
   function saveBoard(b) {
     try { localStorage.setItem(STORAGE, JSON.stringify(b)); } catch (e) {}
   }
-
   function haptic(k) {
     try {
       var tg = window.Telegram && window.Telegram.WebApp;
@@ -133,7 +83,6 @@
       }
     } catch (e) {}
   }
-
   function toast(msg) {
     var el = document.getElementById('toast');
     if (!el) return;
@@ -142,25 +91,34 @@
     clearTimeout(toast._t);
     toast._t = setTimeout(function () { el.classList.remove('show'); }, 2200);
   }
+  function escape(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
 
   function randCell(exclude) {
     var free = [], x, y, k, blocked = {};
     exclude = exclude || [];
-    for (k = 0; k < exclude.length; k++) blocked[exclude[k].x + ',' + exclude[k].y] = 1;
+    for (k = 0; k < exclude.length; k++) {
+      if (exclude[k]) blocked[exclude[k].x + ',' + exclude[k].y] = 1;
+    }
     for (y = 0; y < ROWS; y++) {
       for (x = 0; x < COLS; x++) {
         if (!blocked[x + ',' + y]) free.push({ x: x, y: y });
       }
     }
-    if (!free.length) return { x: 0, y: 0 };
+    if (!free.length) return { x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) };
     return free[Math.floor(Math.random() * free.length)];
   }
 
   function pickDropType() {
     var r = Math.random();
     var lv = state.level;
-    if (r < (lv.soapChance || 0.03)) return 'soap';
-    if (r < (lv.soapChance || 0.03) + (lv.frenzyChance || 0.05)) return 'frenzy';
+    var soapC = lv.soapChance || 0.03;
+    var frenC = lv.frenzyChance || 0.05;
+    if (r < soapC) return 'soap';
+    if (r < soapC + frenC) return 'frenzy';
     r = Math.random();
     if (r < 0.48) return 'red';
     if (r < 0.66) return 'violet';
@@ -171,7 +129,6 @@
 
   function spawnFood() {
     var exclude = state.snake.concat(state.stones).concat(state.bones);
-    if (state.food) exclude.push(state.food);
     var c = randCell(exclude);
     state.food = { x: c.x, y: c.y, kind: pickDropType(), born: performance.now() };
   }
@@ -185,7 +142,9 @@
       c = randCell(exclude.concat(state.stones).concat(state.bones));
       state.stones.push(c);
     }
-    var nBones = state.level.id === 'vampire' ? 2 : (state.level.id === 'emperor' ? 4 : (state.level.id === 'ghoul' ? 1 : 0));
+    var nBones = state.level.id === 'vampire' ? 2
+      : (state.level.id === 'emperor' ? 4
+        : (state.level.id === 'ghoul' ? 1 : 0));
     for (i = 0; i < nBones; i++) {
       c = randCell(exclude.concat(state.stones).concat(state.bones));
       state.bones.push(c);
@@ -199,10 +158,10 @@
         x: x * state.cell + state.cell / 2,
         y: y * state.cell + state.cell / 2,
         vx: (Math.random() - 0.5) * 3.5,
-        vy: (Math.random() - 0.5) * 3.5,
+         vy: (Math.random() - 0.5) * 3.5,
         life: 400 + Math.random() * 300,
         age: 0,
-        color: color
+        color: color || '#ff2d55'
       });
     }
   }
@@ -230,26 +189,32 @@
     state.particles = [];
     state.stepsSinceFood = 0;
     state.invuln = 0;
-    spawnHazards(state.level.stones);
+    state.acc = 0;
+    state.lastTs = 0;
+    spawnHazards(state.level.stones || 3);
     spawnFood();
     updateHud();
   }
 
   function computeTick() {
     var len = state.snake.length;
-    var base = state.level.baseTick;
-    var speedFromLen = 1 + (len - 3) * (state.level.lengthSpeed / 100);
-    if (speedFromLen > state.level.maxSpeedMul) speedFromLen = state.level.maxSpeedMul;
-    var mul = speedFromLen * state.tempSpeedMul;
+    var base = state.level.baseTick || 140;
+    var speedFromLen = 1 + (len - 3) * ((state.level.lengthSpeed || 2) / 100);
+    if (speedFromLen > (state.level.maxSpeedMul || 2)) speedFromLen = state.level.maxSpeedMul || 2;
+    var mul = speedFromLen * (state.tempSpeedMul || 1);
     if (state.hunger > 75) mul *= 0.88;
     else if (state.hunger < 25 && state.frenzy) mul *= 1.08;
     if (mul < 0.45) mul = 0.45;
     if (mul > 3.2) mul = 3.2;
-    return Math.max(40, Math.round(base / mul));
+    var t = Math.round(base / mul);
+    if (t < 40) t = 40;
+    if (t > 400) t = 400;
+    if (!isFinite(t) || isNaN(t)) t = base;
+    return t;
   }
 
   function setDir(dx, dy) {
-    if (!state.running || state.over) return;
+    if (!state.running || state.over || state.paused) return;
     if (dx === -state.dir.x && dy === -state.dir.y) return;
     if (dx === 0 && dy === 0) return;
     state.nextDir = { x: dx, y: dy };
@@ -262,7 +227,7 @@
       state.invuln = 8;
       toast('🧼 Мыло спасло! Щит: ' + state.shield);
       haptic('warning');
-      burst(state.snake[0].x, state.snake[0].y, '#e0f2fe', 12);
+      if (state.snake[0]) burst(state.snake[0].x, state.snake[0].y, '#e0f2fe', 12);
       return true;
     }
     gameOver(reason);
@@ -272,8 +237,10 @@
   function step() {
     if (!state.running || state.paused || state.over) return;
 
-    state.dir = state.nextDir;
+    state.dir = { x: state.nextDir.x, y: state.nextDir.y };
     var head = state.snake[0];
+    if (!head) { gameOver('Пусто'); return; }
+
     var nx = head.x + state.dir.x;
     var ny = head.y + state.dir.y;
 
@@ -308,7 +275,6 @@
         return;
       }
     }
-
     if (state.over) return;
 
     state.snake.unshift({ x: nx, y: ny });
@@ -319,58 +285,65 @@
 
     var ate = state.food && state.food.x === nx && state.food.y === ny;
     if (ate) {
-      var kindKey = state.food.kind;
-      var kind = DROPS[kindKey] || DROPS.red;
-      var pts = kind.points;
+      try {
+        var kindKey = state.food.kind || 'red';
+        var kind = DROPS[kindKey] || DROPS.red;
+        var pts = kind.points || 10;
 
-      if (state.lastKind === kindKey && kindKey !== 'soap' && kindKey !== 'frenzy') {
-        state.combo += 1;
-        pts += Math.min(30, state.combo * 5);
-        if (state.combo >= 3) toast('🔥 Комбо ×' + state.combo + ' · +' + pts);
-      } else {
-        state.combo = 1;
-      }
-      state.lastKind = kindKey;
+        if (state.lastKind === kindKey && kindKey !== 'soap' && kindKey !== 'frenzy') {
+          state.combo += 1;
+          pts += Math.min(30, state.combo * 5);
+          if (state.combo >= 3) toast('🔥 Комбо ×' + state.combo + ' · +' + pts);
+        } else {
+          state.combo = 1;
+        }
+        state.lastKind = kindKey;
+        state.score += pts;
+        state.hunger = Math.max(0, state.hunger - 35);
+        state.stepsSinceFood = 0;
 
-      state.score += pts;
-      state.hunger = Math.max(0, state.hunger - 35);
-      state.stepsSinceFood = 0;
+        if (kind.ms && kind.ms > 0) {
+          state.tempSpeedMul = kind.speedMul || 1;
+          state.tempUntil = performance.now() + kind.ms;
+        } else if (kind.speedMul && kind.speedMul !== 1) {
+          state.tempSpeedMul = kind.speedMul;
+          state.tempUntil = performance.now() + 2000;
+        }
 
-      if (kind.ms) {
-        state.tempSpeedMul = kind.speedMul;
-        state.tempUntil = performance.now() + kind.ms;
-      } else if (kind.speedMul && kind.speedMul !== 1) {
-        state.tempSpeedMul = kind.speedMul;
-        state.tempUntil = performance.now() + 2000;
-      }
+        if (kind.shrink) {
+          var s = kind.shrink;
+          while (s-- > 0 && state.snake.length > 3) state.snake.pop();
+        }
+        if (kind.soap) {
+          state.shield += 1;
+          toast('🧼 Святое мыло! Щит +1 (всего ' + state.shield + ')');
+          haptic('success');
+           }
+        if (kind.frenzy) {
+          state.frenzy = true;
+          state.tempSpeedMul = 1.55;
+          state.tempUntil = performance.now() + 3500;
+          toast('🩸 ЖАЖДА! Скорость крови…');
+        }
 
-      if (kind.shrink) {
-        var s = kind.shrink;
-        while (s-- > 0 && state.snake.length > 3) state.snake.pop();
-      }
-      if (kind.soap) {
-        state.shield += 1;
-        toast('🧼 Святое мыло! Щит +1 (всего ' + state.shield + ')');
-        haptic('success');
-      }
-      if (kind.frenzy) {
-        state.frenzy = true;
-        state.tempSpeedMul = 1.55;
-        state.tempUntil = performance.now() + 3500;
-        toast('🩸 ЖАЖДА! Скорость крови…');
-      }
+        burst(nx, ny, kind.glow || kind.color, 10);
+        haptic(kind.soap ? 'success' : 'medium');
 
-      burst(nx, ny, kind.glow || kind.color, 10);
-      haptic(kind.soap ? 'success' : 'medium');
-      spawnFood();
+        state.food = null;
+        spawnFood();
 
-      if (state.level.id === 'emperor' && Math.random() < 0.14) {
-        var c = randCell(state.snake.concat(state.stones).concat(state.bones).concat([state.food]));
-        state.stones.push(c);
-      }
-      if (state.level.id === 'vampire' && state.bones.length && Math.random() < 0.1) {
-        state.bones[Math.floor(Math.random() * state.bones.length)] =
-          randCell(state.snake.concat(state.stones).concat(state.bones).concat([state.food]));
+        if (state.level.id === 'emperor' && Math.random() < 0.14) {
+          var c = randCell(state.snake.concat(state.stones).concat(state.bones).concat(state.food ? [state.food] : []));
+          state.stones.push(c);
+        }
+        if (state.level.id === 'vampire' && state.bones.length && Math.random() < 0.1) {
+          state.bones[Math.floor(Math.random() * state.bones.length)] =
+            randCell(state.snake.concat(state.stones).concat(state.bones).concat(state.food ? [state.food] : []));
+        }
+      } catch (err) {
+        if (typeof console !== 'undefined') console.warn('snake eat', err);
+        state.food = null;
+        try { spawnFood(); } catch (e2) {}
       }
     } else {
       state.snake.pop();
@@ -411,11 +384,7 @@
     } catch (e) {}
     if (!board.board) board.board = [];
     board.board.push({
-      name: nick,
-      score: state.score,
-      level: state.level.title,
-      levelId: lid,
-      at: Date.now()
+      name: nick, score: state.score, level: state.level.title, levelId: lid, at: Date.now()
     });
     board.board.sort(function (a, b) { return b.score - a.score; });
     board.board = board.board.slice(0, 15);
@@ -424,7 +393,6 @@
     showOverlay(
       '💀 ' + (reason || 'Конец'),
       'Кровь: <b style="color:var(--neon)">' + state.score + '</b><br>Рекорд: ' + state.best +
-      (state.combo > 1 ? '<br>Макс. комбо в забеге учтён в очках' : '') +
       '<br><span class="muted">Наград нет — только честь</span>',
       true
     );
@@ -432,8 +400,7 @@
     updateHud();
   }
 
-  /* === END PART 1 — сразу PART 2 === */
- function cancelAnim() {
+  function cancelAnim() {
     if (state.loopId) {
       cancelAnimationFrame(state.loopId);
       state.loopId = null;
@@ -444,6 +411,8 @@
     if (!state.running || state.over) return;
     if (!state.lastTs) state.lastTs = ts;
     var dt = ts - state.lastTs;
+    if (dt > 80) dt = 80;
+    if (dt < 0) dt = 0;
     state.lastTs = ts;
     state.moonPhase = (state.moonPhase + dt * 0.001) % 1;
 
@@ -459,14 +428,31 @@
 
     if (!state.paused) {
       state.acc += dt;
-      while (state.acc >= state.tickMs) {
+      var steps = 0;
+      while (state.acc >= state.tickMs && steps < 3) {
         state.acc -= state.tickMs;
-        step();
+        steps++;
+        try { step(); } catch (e) {
+          if (typeof console !== 'undefined') console.warn('snake step', e);
+          break;
+        }
         if (state.over) { draw(); return; }
       }
+      if (state.acc > state.tickMs * 2) state.acc = 0;
     }
-    draw();
+
+    try { draw(); } catch (e) {}
     state.loopId = requestAnimationFrame(loop);
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
   }
 
   function draw() {
@@ -475,7 +461,7 @@
     if (!ctx || !canvas) return;
     var w = canvas.width;
     var h = canvas.height;
-    var cell = state.cell;
+    var cell = state.cell || 16;
     var pad = 1;
 
     ctx.clearRect(0, 0, w, h);
@@ -498,9 +484,8 @@
       ctx.moveTo(0, gy * cell + 0.5);
       ctx.lineTo(w, gy * cell + 0.5);
       ctx.stroke();
-    }
-
-    function drawCell(x, y, fill, glow, r) {
+         }
+     function drawCell(x, y, fill, glow, r) {
       var px = x * cell + pad;
       var py = y * cell + pad;
       var s = cell - pad * 2;
@@ -542,8 +527,8 @@
       ctx.fill();
       ctx.shadowBlur = 0;
       if (state.food.kind === 'soap') {
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.font = 'bold ' + Math.floor(cell * 0.45) + 'px sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = 'bold ' + Math.floor(cell * 0.4) + 'px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('🧼', fx, fy2);
@@ -554,7 +539,9 @@
       var seg = state.snake[i];
       var t = i / Math.max(1, state.snake.length - 1);
       var isHead = i === 0;
-      var fill = isHead ? (state.frenzy ? '#ff6b85' : '#ff1f45') : 'rgb(' + Math.floor(255 - t * 80) + ',' + Math.floor(20 + t * 10) + ',' + Math.floor(50 + t * 20) + ')';
+      var fill = isHead
+        ? (state.frenzy ? '#ff6b85' : '#ff1f45')
+        : 'rgb(' + Math.floor(255 - t * 80) + ',' + Math.floor(20 + t * 10) + ',' + Math.floor(50 + t * 20) + ')';
       if (state.invuln > 0 && isHead) fill = '#e0f2fe';
       drawCell(seg.x, seg.y, fill, isHead ? '#ff2d55' : 'rgba(255,45,85,0.3)', isHead ? 6 : 4);
       if (isHead) {
@@ -562,14 +549,14 @@
         var ex = seg.x * cell + cell * 0.35;
         var ey = seg.y * cell + cell * 0.35;
         ctx.beginPath();
-        ctx.arc(ex, ey, 2.2, 0, Math.PI * 2);
-        ctx.arc(ex + cell * 0.28, ey, 2.2, 0, Math.PI * 2);
+        ctx.arc(ex, ey, Math.max(1.5, cell * 0.08), 0, Math.PI * 2);
+        ctx.arc(ex + cell * 0.28, ey, Math.max(1.5, cell * 0.08), 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#050001';
         var ox = state.dir.x * 1.2, oy = state.dir.y * 1.2;
         ctx.beginPath();
-        ctx.arc(ex + ox, ey + oy, 1.1, 0, Math.PI * 2);
-        ctx.arc(ex + cell * 0.28 + ox, ey + oy, 1.1, 0, Math.PI * 2);
+        ctx.arc(ex + ox, ey + oy, Math.max(0.8, cell * 0.04), 0, Math.PI * 2);
+        ctx.arc(ex + cell * 0.28 + ox, ey + oy, Math.max(0.8, cell * 0.04), 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -577,7 +564,7 @@
     for (var pi = 0; pi < state.particles.length; pi++) {
       p = state.particles[pi];
       var a = 1 - p.age / p.life;
-      ctx.globalAlpha = a;
+      ctx.globalAlpha = Math.max(0, a);
       ctx.fillStyle = p.color;
       ctx.beginPath();
       ctx.arc(p.x, p.y, 2.5 * a, 0, Math.PI * 2);
@@ -605,16 +592,6 @@
     }
   }
 
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
   function updateHud() {
     var sc = document.getElementById('snake-score');
     var best = document.getElementById('snake-best');
@@ -625,10 +602,16 @@
     if (best) best.textContent = String(state.best || 0);
     if (len) len.textContent = String(state.snake.length);
     if (spd) {
-      var mul = state.level.baseTick / Math.max(1, state.tickMs);
+      var mul = (state.level.baseTick || 140) / Math.max(1, state.tickMs);
       spd.textContent = mul.toFixed(1) + '×';
     }
     if (hun) hun.textContent = Math.round(state.hunger) + '%';
+    var fsS = document.getElementById('snake-fs-score');
+    var fsL = document.getElementById('snake-fs-len');
+    var fsH = document.getElementById('snake-fs-hunger');
+    if (fsS) fsS.textContent = String(state.score);
+    if (fsL) fsL.textContent = String(state.snake.length);
+    if (fsH) fsH.textContent = Math.round(state.hunger) + '%';
   }
 
   function showOverlay(title, html, showRestart) {
@@ -665,10 +648,26 @@
     }).join('') + '</div>';
   }
 
-  function escape(s) {
-    return String(s || '').replace(/[&<>"']/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-    });
+  function enterFullscreen() {
+    document.body.classList.add('snake-fs');
+    try {
+      var tg = window.Telegram && window.Telegram.WebApp;
+      if (tg) {
+        if (tg.expand) tg.expand();
+        if (tg.requestFullscreen) tg.requestFullscreen();
+      }
+    } catch (e) {}
+    fitCanvas();
+    setTimeout(fitCanvas, 80);
+    setTimeout(fitCanvas, 250);
+  }
+  function exitFullscreen() {
+    document.body.classList.remove('snake-fs');
+    try {
+      var tg = window.Telegram && window.Telegram.WebApp;
+      if (tg && tg.exitFullscreen) tg.exitFullscreen();
+    } catch (e) {}
+    setTimeout(fitCanvas, 80);
   }
 
   function fitCanvas() {
@@ -676,16 +675,20 @@
     var wrap = document.getElementById('snake-stage');
     if (!canvas || !wrap) return;
     var cssW = wrap.clientWidth || 320;
-    state.cell = Math.floor(cssW / COLS);
-    if (state.cell < 14) state.cell = 14;
-    canvas.width = state.cell * COLS;
-    canvas.height = state.cell * ROWS;
+    var cssH = wrap.clientHeight || 0;
+    var cellW = Math.floor(cssW / COLS);
+    var cellH = cssH > 40 ? Math.floor(cssH / ROWS) : cellW;
+    var cell = Math.min(cellW, cellH || cellW);
+    if (cell < 10) cell = 10;
+    if (!document.body.classList.contains('snake-fs') && cell < 14) cell = 14;
+    state.cell = cell;
+    canvas.width = cell * COLS;
+    canvas.height = cell * ROWS;
     canvas.style.width = '100%';
-    canvas.style.height = 'auto';
+    canvas.style.height = document.body.classList.contains('snake-fs') ? '100%' : 'auto';
     draw();
-  }
-
-  function startGame() {
+         }
+   function startGame() {
     if (!state.canvas) initCanvas();
     fitCanvas();
     resetSnake();
@@ -697,6 +700,7 @@
     state.tickMs = computeTick();
     hideOverlay();
     cancelAnim();
+    enterFullscreen();
     state.loopId = requestAnimationFrame(loop);
     haptic('medium');
     toast(state.level.title + ' · охота');
@@ -712,6 +716,7 @@
     } else {
       hideOverlay();
       state.lastTs = 0;
+      state.acc = 0;
       if (!state.loopId) state.loopId = requestAnimationFrame(loop);
     }
   }
@@ -725,8 +730,7 @@
     });
     showOverlay(
       lv.title,
-      lv.sub + '<br><br><span class="muted">Очки только для рейтинга — наград нет, только честь.</span><br>' +
-      '<span class="muted">Комбо цвета · жажда · мыло-щит · лунная жажда</span>',
+      lv.sub + '<br><br><span class="muted">Очки только для рейтинга. Джойстик / свайп / WASD.</span>',
       false
     );
   }
@@ -746,23 +750,78 @@
     else if (k === 'ArrowLeft' || k === 'a' || k === 'A') { e.preventDefault(); setDir(-1, 0); }
     else if (k === 'ArrowRight' || k === 'd' || k === 'D') { e.preventDefault(); setDir(1, 0); }
     else if (k === ' ' || k === 'p' || k === 'P') { e.preventDefault(); pauseToggle(); }
+    else if (k === 'Escape') { e.preventDefault(); exitFullscreen(); }
   }
 
   var touchStart = null;
   function onTouchStart(e) {
     if (!e.touches || !e.touches[0]) return;
+    var stick = document.getElementById('snake-stick');
+    if (stick && stick.contains(e.target)) return;
     touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }
   function onTouchEnd(e) {
     if (!touchStart) return;
     var t = e.changedTouches && e.changedTouches[0];
-    if (!t) return;
+    if (!t) { touchStart = null; return; }
     var dx = t.clientX - touchStart.x;
     var dy = t.clientY - touchStart.y;
     touchStart = null;
     if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
     if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
     else setDir(0, dy > 0 ? 1 : -1);
+  }
+
+  function bindJoystick() {
+    var stick = document.getElementById('snake-stick');
+    var knob = document.getElementById('snake-stick-knob');
+    if (!stick || !knob || stick._bound) return;
+    stick._bound = true;
+    var dragging = false;
+    var maxR = 36;
+
+    function apply(clientX, clientY) {
+      var rect = stick.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+      var dx = clientX - cx;
+      var dy = clientY - cy;
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var clamped = Math.min(len, maxR);
+      var nx = (dx / len) * clamped;
+      var ny = (dy / len) * clamped;
+      knob.style.transform = 'translate(' + nx + 'px,' + ny + 'px)';
+      if (len < 14) return;
+      if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+      else setDir(0, dy > 0 ? 1 : -1);
+    }
+    function end() {
+      dragging = false;
+      knob.style.transform = 'translate(0,0)';
+    }
+
+    stick.addEventListener('touchstart', function (e) {
+      dragging = true;
+      var t = e.touches[0];
+      if (t) apply(t.clientX, t.clientY);
+      e.preventDefault();
+    }, { passive: false });
+    stick.addEventListener('touchmove', function (e) {
+      if (!dragging) return;
+      var t = e.touches[0];
+      if (t) apply(t.clientX, t.clientY);
+      e.preventDefault();
+    }, { passive: false });
+    stick.addEventListener('touchend', end);
+    stick.addEventListener('touchcancel', end);
+    stick.addEventListener('mousedown', function (e) {
+      dragging = true;
+      apply(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (dragging) apply(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', end);
   }
 
   var uiBound = false;
@@ -787,6 +846,7 @@
           state.paused = false;
           hideOverlay();
           state.lastTs = 0;
+          state.acc = 0;
           if (!state.loopId) state.loopId = requestAnimationFrame(loop);
           return;
         }
@@ -797,10 +857,8 @@
     if (pause) pause.addEventListener('click', function () { pauseToggle(); haptic('light'); });
 
     var map = {
-      'snake-up': [0, -1],
-      'snake-down': [0, 1],
-      'snake-left': [-1, 0],
-      'snake-right': [1, 0]
+      'snake-up': [0, -1], 'snake-down': [0, 1],
+      'snake-left': [-1, 0], 'snake-right': [1, 0]
     };
     Object.keys(map).forEach(function (id) {
       var el = document.getElementById(id);
@@ -823,6 +881,22 @@
       if (s && s.classList.contains('active')) fitCanvas();
     });
 
+    bindJoystick();
+
+    var fsExit = document.getElementById('snake-fs-exit');
+    if (fsExit) {
+      fsExit.addEventListener('click', function () {
+        exitFullscreen();
+        if (state.running && !state.over) {
+          state.paused = true;
+          showOverlay('⏸ Пауза', 'Вышел из полного экрана. Жажда: ' + Math.round(state.hunger) + '%', false);
+          var btn = document.getElementById('snake-btn-start');
+          if (btn) btn.textContent = '▶ Продолжить';
+        }
+        haptic('light');
+      });
+    }
+
     selectLevel('shadow');
     renderScores();
     updateHud();
@@ -838,7 +912,9 @@
     if (!state.running) {
       showOverlay(
         state.level.title,
-        state.level.sub + '<br><br>Свайп / стрелки / кнопки. Капли = очки. Камень = смерть.<br>🧼 мыло = щит · комбо цвета · шкала жажды',
+        state.level.sub +
+        '<br><br>🕹 <b>Джойстик</b> (кружок) · свайп · WASD<br>' +
+        '🧼 мыло = щит · комбо цвета · шкала жажды',
         false
       );
     }
@@ -849,17 +925,23 @@
       state.paused = true;
       cancelAnim();
     }
+    exitFullscreen();
   }
 
   window.BloodSnake = {
     onShow: onShow,
     onHide: onHide,
     start: startGame,
-    levels: LEVELS
+    levels: LEVELS,
+    enterFullscreen: enterFullscreen,
+    exitFullscreen: exitFullscreen
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () {
-    if (document.getElementById('snake-canvas')) bindUI();
-  });
-  else if (document.getElementById('snake-canvas')) bindUI();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      if (document.getElementById('snake-canvas')) bindUI();
+    });
+  } else if (document.getElementById('snake-canvas')) {
+    bindUI();
+  }
 })();
