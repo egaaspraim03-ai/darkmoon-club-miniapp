@@ -45,6 +45,7 @@
     </header>
 
     <main class="content" id="main-content">
+      <!-- HOME -->
       <section class="screen active" id="screen-home">
         <div class="moon" aria-hidden="true"></div>
         <p class="welcome" id="welcome">Добро пожаловать в ночь, <b>гость</b></p>
@@ -79,7 +80,7 @@
         </div>
         <p class="footer-ver">v1.3 · The Blood Moon · *ранг — локально, позже с бота</p>
       </section>
-
+      <!-- SITE -->
       <section class="screen" id="screen-site">
         <h2>Всё о сайте</h2>
         <div class="panel">
@@ -91,13 +92,13 @@
           <p><b>Telegram клуба</b></p>
           <div class="links-grid">
             <a class="row" data-ext href="https://t.me/mangabuff" target="_blank" rel="noopener">
-              <span>📰</span><div><b>Новости</b><small>канал клуба / mangabuff</small></div><i>›</i>
+              <span>📰</span><div><b>Новости MangaBuff</b><small>официальный канал</small></div><i>›</i>
             </a>
-            <a class="row" data-ext href="https://t.me/" target="_blank" rel="noopener">
-              <span>🛡</span><div><b>Чатик модераторов</b><small>замени href на свой</small></div><i>›</i>
+            <a class="row" data-ext href="https://t.me/modermangabuff" target="_blank" rel="noopener">
+              <span>🛡</span><div><b>Чатик модераторов</b><small>@modermangabuff</small></div><i>›</i>
             </a>
-            <a class="row" data-ext href="https://t.me/" target="_blank" rel="noopener">
-              <span>👂</span><div><b>Подслушано</b><small>на mangabuff</small></div><i>›</i>
+            <a class="row" data-ext href="https://t.me/podmbff" target="_blank" rel="noopener">
+              <span>👂</span><div><b>Подслушано на MangaBuff</b><small>@podmbff</small></div><i>›</i>
             </a>
           </div>
         </div>
@@ -130,6 +131,7 @@
         </div>
       </section>
 
+      <!-- RULES -->
       <section class="screen" id="screen-rules">
         <h2>Законы клуба</h2>
         <div class="panel">
@@ -144,6 +146,7 @@
         <button class="btn-primary" type="button" data-go="home">← На главную</button>
       </section>
 
+      <!-- ARCHIVES -->
       <section class="screen" id="screen-archives">
         <h2>Архивы Тьмы</h2>
         <div class="panel list">
@@ -175,6 +178,7 @@
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
+      <!-- HALL -->
       <section class="screen" id="screen-hall">
         <h2>Зал Славы</h2>
         <div class="panel list">
@@ -191,6 +195,7 @@
         </div>
       </section>
 
+      <!-- QUEST -->
       <section class="screen" id="screen-quest">
         <div class="quest-head">
           <h2>События Арены</h2>
@@ -220,6 +225,7 @@
         </div>
       </section>
 
+      <!-- OBANA -->
       <section class="screen" id="screen-obana">
         <h2>Обана — Рекорды</h2>
         <div class="panel">
@@ -252,6 +258,7 @@
         </div>
       </section>
 
+      <!-- PYRAMID -->
       <section class="screen" id="screen-pyramid">
         <h2>Пирамида крови</h2>
         <div class="panel">
@@ -264,15 +271,13 @@
           <p class="pyr-legend" id="pyr-legend">Твой слой подсвечен. Топ жёстко ограничен квотами.</p>
         </div>
         <div class="panel">
-          <p class="muted">Скоро: ранг с сервера по вкладам (E→X и квоты). Сейчас — демо-пирамида.</p>
+          <p class="muted">Скоро: ранг с сервера по вкладам. Сейчас — демо-пирамида.</p>
         </div>
-      </section>
-
-<!-- === END INDEX 1 — сразу INDEX 2 === -->
-      <!-- BLOOD SNAKE -->
+  </section>
+  <!-- BLOOD SNAKE -->
       <section class="screen" id="screen-snake">
         <h2>Змейка крови</h2>
-        <div class="panel">
+        <div class="panel snake-meta-panel">
           <p class="muted" style="margin-bottom:10px">Наград нет — только <b style="color:var(--neon)">рейтинг чести</b>. Ешь капли крови, не грызи камень.</p>
           <div class="snake-levels" id="snake-levels">
             <button class="snake-level-btn selected" type="button" data-level="shadow">
@@ -306,16 +311,29 @@
             <div class="stat"><div class="v" id="snake-spd">1.0×</div><div class="l">скорость</div></div>
             <div class="stat"><div class="v" id="snake-hunger">20%</div><div class="l">жажда</div></div>
           </div>
+        </div>
 
-          <div class="snake-stage-wrap" id="snake-stage">
-            <canvas id="snake-canvas" width="300" height="360" aria-label="Поле змейки"></canvas>
-            <div class="snake-overlay" id="snake-overlay">
-              <h3 id="snake-ov-title">🌑 Тень</h3>
-              <p id="snake-ov-body">Выбери уровень и начни охоту.</p>
-              <button class="btn-primary" type="button" id="snake-btn-start" style="max-width:240px;margin:0 auto">🩸 Начать охоту</button>
-            </div>
+        <div class="snake-fs-bar" id="snake-fs-bar">
+          <div class="fs-stats">
+            <span>🩸 <b id="snake-fs-score">0</b></span>
+            <span>📏 <b id="snake-fs-len">3</b></span>
+            <span>🔥 <b id="snake-fs-hunger">20%</b></span>
           </div>
+          <button type="button" class="fs-btn" id="snake-fs-exit">✕ Выйти</button>
+        </div>
+        <div class="snake-stage-wrap" id="snake-stage">
+          <canvas id="snake-canvas" width="300" height="360" aria-label="Поле змейки"></canvas>
+          <div class="snake-stick-wrap" id="snake-stick" aria-label="Джойстик">
+            <div class="snake-stick-base"><div class="snake-stick-knob" id="snake-stick-knob"></div></div>
+          </div>
+          <div class="snake-overlay" id="snake-overlay">
+            <h3 id="snake-ov-title">🌑 Тень</h3>
+            <p id="snake-ov-body">Выбери уровень и начни охоту.</p>
+            <button class="btn-primary" type="button" id="snake-btn-start" style="max-width:240px;margin:0 auto">🩸 Начать охоту</button>
+          </div>
+        </div>
 
+        <div class="panel snake-meta-panel">
           <div class="snake-legend">
             <span><i style="background:#ff2d55"></i>Алая +10</span>
             <span><i style="background:#a855f7"></i>Фиолет ⚡</span>
@@ -327,7 +345,6 @@
             <span><i style="background:#4a4a52;border-radius:2px"></i>Камень</span>
             <span><i style="background:#e8dcc8;border-radius:2px"></i>Кость</span>
           </div>
-
           <div class="snake-pad" aria-label="Управление">
             <button class="pad-btn pad-up" type="button" id="snake-up">▲</button>
             <button class="pad-btn pad-left" type="button" id="snake-left">◀</button>
@@ -337,24 +354,25 @@
           <button class="btn-secondary" type="button" id="snake-btn-pause">⏸ Пауза</button>
         </div>
 
-        <div class="panel">
+        <div class="panel snake-meta-panel">
           <p><b>📜 Законы охоты</b></p>
           <ul class="snake-rules" style="list-style:none;padding:0;margin:0">
-            <li><span class="n">1</span><span>Ешь <b>капли крови</b>. Цвет = временная скорость. <b>Комбо</b> одного цвета даёт бонус очков.</span></li>
+            <li><span class="n">1</span><span>Ешь <b>капли крови</b>. Цвет = временная скорость. <b>Комбо</b> одного цвета даёт бонус.</span></li>
             <li><span class="n">2</span><span>Чем <b>длиннее</b> тело — тем быстрее (до потолка уровня).</span></li>
-            <li><span class="n">3</span><span><b>Жажда</b> растёт без еды (полоска сверху поля). На «Императоре» 100% = смерть.</span></li>
-            <li><span class="n">4</span><span><b>🧼 Святое мыло</b> — щит на 1 удар (камень/стена/себя). Редкий дроп.</span></li>
-            <li><span class="n">5</span><span><b>Камень/кость</b> — смерть (если нет щита). <b>Сгусток</b> укорачивает.</span></li>
-            <li><span class="n">6</span><span>Наград нет — только <b>рейтинг чести</b>. Свайп / WASD / кнопки.</span></li>
+            <li><span class="n">3</span><span><b>Жажда</b> растёт без еды. На «Императоре» 100% = смерть.</span></li>
+            <li><span class="n">4</span><span><b>🧼 Святое мыло</b> — щит на 1 удар.</span></li>
+            <li><span class="n">5</span><span><b>Камень/кость</b> — смерть. <b>Сгусток</b> укорачивает.</span></li>
+            <li><span class="n">6</span><span>Наград нет — только <b>рейтинг чести</b>. 🕹 Джойстик / свайп / WASD.</span></li>
           </ul>
         </div>
 
-        <div class="panel">
+        <div class="panel snake-meta-panel">
           <p><b>😱 Рейтинг охотников</b></p>
           <div class="snake-scores" id="snake-scoreboard"></div>
         </div>
       </section>
 
+      <!-- REEL -->
       <section class="screen" id="screen-reel">
         <h2>Кровавая лента</h2>
         <div class="panel">
@@ -370,8 +388,7 @@
           </div>
           <button class="btn-primary btn-spin" type="button" id="btn-spin">🎰 Крутить ленту</button>
           <p class="reel-note">
-            Важно: в бою за реальные призы победитель <b>всегда</b> выбирается на сервере.
-            Сейчас — честный клиентский демо-рандом (для красоты).
+            Важно: реальные призы выбирает <b>сервер</b>. Сейчас — демо-рандом.
           </p>
         </div>
       </section>
