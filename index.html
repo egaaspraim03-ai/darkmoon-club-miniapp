@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="css/7-pyramid-reel.css" />
   <link rel="stylesheet" href="css/8-profile-ranks.css" />
   <link rel="stylesheet" href="css/9-blood-snake.css" />
+  <link rel="stylesheet" href="css/10-court.css" />
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
@@ -80,6 +81,7 @@
         </div>
         <p class="footer-ver">v1.3 · The Blood Moon · *ранг — локально, позже с бота</p>
       </section>
+
       <!-- SITE -->
       <section class="screen" id="screen-site">
         <h2>Всё о сайте</h2>
@@ -164,17 +166,83 @@
           <p class="muted">Полный лор — дополнишь сам, когда будешь готов.</p>
         </div>
       </section>
-
+      <!-- ДВОР ИМПЕРАТОРА -->
       <section class="screen" id="screen-characters">
-        <h2>Двор Императора</h2>
-        <div class="panel list" id="char-list">
-          <button class="row char-btn" data-char="inquisitor" type="button"><span>⚔️</span><div><b>Инквизитор</b><small>Меч и мыло</small></div><i>›</i></button>
-          <button class="row char-btn" data-char="emperor" type="button"><span>🩸</span><div><b>Император</b><small>Бессмертный</small></div><i>›</i></button>
-          <button class="row char-btn" data-char="eye" type="button"><span>👁️</span><div><b>Всевидящее Око</b><small>Видит всё</small></div><i>›</i></button>
-          <button class="row char-btn" data-char="punisher" type="button"><span>🔥</span><div><b>Каратель</b><small>Наказание</small></div><i>›</i></button>
-          <button class="row char-btn" data-char="galya" type="button"><span>🧼</span><div><b>Галя</b><small>Помощница главы</small></div><i>›</i></button>
-          <button class="row char-btn" data-char="cheshire" type="button"><span>😺</span><div><b>Чеширский Кот</b><small>Начальник стражи</small></div><i>›</i></button>
+        <div class="court-stage" id="court-stage">
+          <div class="court-moon" aria-hidden="true"></div>
+          <div class="court-glow" aria-hidden="true"></div>
+
+          <svg class="court-rays" id="court-rays" viewBox="0 0 360 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <linearGradient id="rayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff2d55" stop-opacity="0.15"/>
+                <stop offset="50%" stop-color="#ff1f45" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#ff2d55" stop-opacity="0.2"/>
+              </linearGradient>
+              <filter id="rayGlow">
+                <feGaussianBlur stdDeviation="2.5" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <g id="ray-group" filter="url(#rayGlow)"></g>
+          </svg>
+
+          <button type="button" class="court-node" data-char="inquisitor" style="--nx:18%;--ny:12%">
+            <span class="cn-glass">
+              <span class="cn-ico">⚔️</span>
+              <b>Инквизитор</b>
+              <small>Клинок Правосудия</small>
+            </span>
+          </button>
+
+          <button type="button" class="court-node court-node--hero" data-char="emperor" style="--nx:50%;--ny:38%">
+            <span class="cn-glass cn-glass--portrait">
+              <span class="cn-face">🧛</span>
+              <b>Император</b>
+              <small>Бессмертный</small>
+            </span>
+          </button>
+
+          <button type="button" class="court-node" data-char="eye" style="--nx:50%;--ny:58%">
+            <span class="cn-glass">
+              <span class="cn-ico">👁️</span>
+              <b>Всевидящее Око</b>
+              <small>Видит всё</small>
+            </span>
+          </button>
+
+          <button type="button" class="court-node" data-char="punisher" style="--nx:18%;--ny:72%">
+            <span class="cn-glass">
+              <span class="cn-ico">🔥</span>
+              <b>Каратель</b>
+              <small>Наказание</small>
+            </span>
+          </button>
+
+          <button type="button" class="court-node" data-char="galya" style="--nx:78%;--ny:72%">
+            <span class="cn-glass">
+              <span class="cn-ico">📜</span>
+              <b>Галя</b>
+              <small>Помощница Главы</small>
+            </span>
+          </button>
+
+          <button type="button" class="court-node" data-char="cheshire" style="--nx:50%;--ny:88%">
+            <span class="cn-glass">
+              <span class="cn-ico">😺</span>
+              <b>Чеширский Кот</b>
+              <small>Начальник Стражи</small>
+            </span>
+          </button>
+
+          <div class="court-shatter" id="court-shatter" aria-hidden="true">
+            <div class="cs-solid">
+              <img id="cs-img" src="assets/chars/inquisitor.png" alt="" onerror="this.style.display='none'"/>
+            </div>
+            <canvas id="cs-canvas"></canvas>
+          </div>
         </div>
+
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
@@ -273,8 +341,8 @@
         <div class="panel">
           <p class="muted">Скоро: ранг с сервера по вкладам. Сейчас — демо-пирамида.</p>
         </div>
-  </section>
-  <!-- BLOOD SNAKE -->
+            </section>
+            <!-- BLOOD SNAKE -->
       <section class="screen" id="screen-snake">
         <h2>Змейка крови</h2>
         <div class="panel snake-meta-panel">
@@ -301,7 +369,6 @@
               <span class="lv-tag">Тебя кормят? · ад</span>
             </button>
           </div>
-
           <div class="snake-hud">
             <div class="stat"><div class="v" id="snake-score">0</div><div class="l">кровь</div></div>
             <div class="stat"><div class="v" id="snake-best">0</div><div class="l">рекорд</div></div>
@@ -353,19 +420,17 @@
           </div>
           <button class="btn-secondary" type="button" id="snake-btn-pause">⏸ Пауза</button>
         </div>
-
         <div class="panel snake-meta-panel">
           <p><b>📜 Законы охоты</b></p>
           <ul class="snake-rules" style="list-style:none;padding:0;margin:0">
-            <li><span class="n">1</span><span>Ешь <b>капли крови</b>. Цвет = временная скорость. <b>Комбо</b> одного цвета даёт бонус.</span></li>
-            <li><span class="n">2</span><span>Чем <b>длиннее</b> тело — тем быстрее (до потолка уровня).</span></li>
-            <li><span class="n">3</span><span><b>Жажда</b> растёт без еды. На «Императоре» 100% = смерть.</span></li>
-            <li><span class="n">4</span><span><b>🧼 Святое мыло</b> — щит на 1 удар.</span></li>
+            <li><span class="n">1</span><span>Ешь <b>капли крови</b>. Цвет = скорость. <b>Комбо</b> даёт бонус.</span></li>
+            <li><span class="n">2</span><span>Чем <b>длиннее</b> — тем быстрее.</span></li>
+            <li><span class="n">3</span><span><b>Жажда</b> растёт. На «Императоре» 100% = смерть.</span></li>
+            <li><span class="n">4</span><span><b>🧼 Мыло</b> — щит на 1 удар.</span></li>
             <li><span class="n">5</span><span><b>Камень/кость</b> — смерть. <b>Сгусток</b> укорачивает.</span></li>
-            <li><span class="n">6</span><span>Наград нет — только <b>рейтинг чести</b>. 🕹 Джойстик / свайп / WASD.</span></li>
+            <li><span class="n">6</span><span>Только <b>рейтинг чести</b>. 🕹 Джойстик / свайп / WASD.</span></li>
           </ul>
         </div>
-
         <div class="panel snake-meta-panel">
           <p><b>😱 Рейтинг охотников</b></p>
           <div class="snake-scores" id="snake-scoreboard"></div>
@@ -387,9 +452,7 @@
             <span class="muted">Нажми «Крутить» — лента остановится на призе</span>
           </div>
           <button class="btn-primary btn-spin" type="button" id="btn-spin">🎰 Крутить ленту</button>
-          <p class="reel-note">
-            Важно: реальные призы выбирает <b>сервер</b>. Сейчас — демо-рандом.
-          </p>
+          <p class="reel-note">Реальные призы выбирает <b>сервер</b>. Сейчас — демо-рандом.</p>
         </div>
       </section>
 
@@ -419,6 +482,7 @@
     </nav>
   </div>
   <script src="app.js"></script>
+  <script src="js/court.js"></script>
   <script src="js/snake.js"></script>
 </body>
 </html>
