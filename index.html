@@ -48,7 +48,9 @@
     <main class="content" id="main-content">
       <!-- HOME -->
       <section class="screen active" id="screen-home">
-        <div class="moon" aria-hidden="true"></div>
+        <div class="moon" aria-hidden="true">
+          <div class="moon-beams" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
         <p class="welcome" id="welcome">Добро пожаловать в ночь, <b>гость</b></p>
         <div class="night-line"><span class="dot"></span> Ночь активна · <span id="home-rank-mini">Смертный</span></div>
         <p class="eyebrow">Клуб Императоров и Вампирских Графов</p>
@@ -171,6 +173,10 @@
         <div class="court-stage" id="court-stage">
           <div class="court-moon" aria-hidden="true"></div>
           <div class="court-glow" aria-hidden="true"></div>
+          <div class="court-beams" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
 
           <svg class="court-rays" id="court-rays" viewBox="0 0 360 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <defs>
@@ -187,7 +193,7 @@
             <g id="ray-group" filter="url(#rayGlow)"></g>
           </svg>
 
-          <button type="button" class="court-node" data-char="inquisitor" style="--nx:18%;--ny:12%">
+          <button type="button" class="court-node" data-char="inquisitor" style="--nx:22%;--ny:14%;--nw:120px">
             <span class="cn-glass">
               <span class="cn-ico">⚔️</span>
               <b>Инквизитор</b>
@@ -195,7 +201,7 @@
             </span>
           </button>
 
-          <button type="button" class="court-node court-node--hero" data-char="emperor" style="--nx:50%;--ny:38%">
+          <button type="button" class="court-node court-node--hero" data-char="emperor" style="--nx:50%;--ny:40%;--nw:136px">
             <span class="cn-glass cn-glass--portrait">
               <span class="cn-face">🧛</span>
               <b>Император</b>
@@ -203,7 +209,7 @@
             </span>
           </button>
 
-          <button type="button" class="court-node" data-char="eye" style="--nx:50%;--ny:58%">
+          <button type="button" class="court-node" data-char="eye" style="--nx:50%;--ny:58%;--nw:128px">
             <span class="cn-glass">
               <span class="cn-ico">👁️</span>
               <b>Всевидящее Око</b>
@@ -211,7 +217,7 @@
             </span>
           </button>
 
-          <button type="button" class="court-node" data-char="punisher" style="--nx:18%;--ny:72%">
+          <button type="button" class="court-node" data-char="punisher" style="--nx:20%;--ny:74%;--nw:112px">
             <span class="cn-glass">
               <span class="cn-ico">🔥</span>
               <b>Каратель</b>
@@ -219,7 +225,7 @@
             </span>
           </button>
 
-          <button type="button" class="court-node" data-char="galya" style="--nx:78%;--ny:72%">
+          <button type="button" class="court-node" data-char="galya" style="--nx:80%;--ny:74%;--nw:112px">
             <span class="cn-glass">
               <span class="cn-ico">📜</span>
               <b>Галя</b>
@@ -227,7 +233,7 @@
             </span>
           </button>
 
-          <button type="button" class="court-node" data-char="cheshire" style="--nx:50%;--ny:88%">
+          <button type="button" class="court-node" data-char="cheshire" style="--nx:50%;--ny:90%;--nw:140px">
             <span class="cn-glass">
               <span class="cn-ico">😺</span>
               <b>Чеширский Кот</b>
@@ -341,8 +347,8 @@
         <div class="panel">
           <p class="muted">Скоро: ранг с сервера по вкладам. Сейчас — демо-пирамида.</p>
         </div>
-            </section>
-            <!-- BLOOD SNAKE -->
+      </section>
+      <!-- BLOOD SNAKE -->
       <section class="screen" id="screen-snake">
         <h2>Змейка крови</h2>
         <div class="panel snake-meta-panel">
@@ -460,23 +466,39 @@
 
     <nav class="bottom-nav" role="tablist" id="bottom-nav">
       <button class="tab active" data-screen="home" type="button" role="tab">
-        <span class="tab-ico" aria-hidden="true">🌑</span>
+        <span class="tab-ico" aria-hidden="true">
+          <img class="tab-img" src="assets/nav/home.svg" alt="" onerror="this.remove()"/>
+          <span class="tab-emoji">🌑</span>
+        </span>
         <span class="tab-label">Главная</span>
       </button>
       <button class="tab" data-screen="archives" type="button" role="tab">
-        <span class="tab-ico" aria-hidden="true">📜</span>
+        <span class="tab-ico" aria-hidden="true">
+          <img class="tab-img" src="assets/nav/archives.svg" alt="" onerror="this.remove()"/>
+          <span class="tab-emoji">📜</span>
+        </span>
         <span class="tab-label">Архивы</span>
       </button>
       <button class="tab tab-center" data-screen="hall" type="button" role="tab">
-        <span class="tab-ico tab-ico-center" aria-hidden="true">🏆<span class="tab-badge hidden" id="hall-badge">!</span></span>
+        <span class="tab-ico tab-ico-center" aria-hidden="true">
+          <img class="tab-img" src="assets/nav/hall.svg" alt="" onerror="this.remove()"/>
+          <span class="tab-emoji">🏆</span>
+          <span class="tab-badge hidden" id="hall-badge">!</span>
+        </span>
         <span class="tab-label">Слава</span>
       </button>
       <button class="tab" data-screen="obana" type="button" role="tab">
-        <span class="tab-ico" aria-hidden="true">😱</span>
+        <span class="tab-ico" aria-hidden="true">
+          <img class="tab-img" src="assets/nav/obana.svg" alt="" onerror="this.remove()"/>
+          <span class="tab-emoji">😱</span>
+        </span>
         <span class="tab-label">Обана</span>
       </button>
       <button class="tab" data-screen="site" type="button" role="tab">
-        <span class="tab-ico" aria-hidden="true">🌐</span>
+        <span class="tab-ico" aria-hidden="true">
+          <img class="tab-img" src="assets/nav/site.svg" alt="" onerror="this.remove()"/>
+          <span class="tab-emoji">🌐</span>
+        </span>
         <span class="tab-label">Сайт</span>
       </button>
     </nav>
@@ -485,4 +507,4 @@
   <script src="js/court.js"></script>
   <script src="js/snake.js"></script>
 </body>
-</html>
+        </html>
