@@ -139,8 +139,8 @@
   function todayKey() {
     var d = new Date();
     return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-      }
-function bumpRetention() {
+  }
+  function bumpRetention() {
     var s = loadState();
     var today = todayKey();
     s.visits = (s.visits || 0) + 1;
@@ -182,8 +182,7 @@ function bumpRetention() {
     { ico: '📦', name: 'Дань складу', desc: 'Внеси карты на склад', count: '0 / 10', reward: '+ранг' },
     { ico: '⚔️', name: 'Трибута альянсу', desc: 'Вложи в альянс за день', count: '0 / 500 E', reward: 'слава' }
   ];
-
-  function toE(amount, rankIdx) {
+   function toE(amount, rankIdx) {
     var n = Math.max(0, Number(amount) || 0), e = n, i;
     for (i = 0; i < rankIdx; i++) e *= 3;
     return e;
@@ -284,6 +283,7 @@ function bumpRetention() {
     if (!el) return;
     document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
     el.classList.add('active');
+
     var tabId = id;
     if (id === 'chronicles' || id === 'characters' || id === 'rules') tabId = 'archives';
     if (id === 'quest' || id === 'pyramid' || id === 'reel' || id === 'profile' || id === 'snake') tabId = 'hall';
@@ -306,10 +306,9 @@ function bumpRetention() {
     } catch (e) {}
 
     if (id === 'characters') {
-      var list = document.getElementById('char-list');
       var detail = document.getElementById('char-detail');
-      if (list) list.classList.remove('hidden');
       if (detail) detail.classList.add('hidden');
+      if (window.BloodCourt && window.BloodCourt.onShow) window.BloodCourt.onShow();
     }
     if (id === 'quest') renderQuest();
     if (id === 'obana') renderObana('week');
@@ -374,7 +373,7 @@ function bumpRetention() {
           '</div><div class="ach-prog"><b>' + a.cur + '</b> / ' + a.max + '</div></div>';
       }).join('');
     }
-    var tlist = document.getElementById('task-list');
+     var tlist = document.getElementById('task-list');
     if (tlist) {
       tlist.innerHTML = TASKS.map(function (t) {
         return '<div class="task-card"><div class="task-ico">' + t.ico + '</div><div class="task-body"><div class="task-name">' + t.name +
@@ -498,7 +497,8 @@ function bumpRetention() {
     var idx = 42 + Math.floor(Math.random() * 8);
     if (idx >= STRIP_LEN) idx = STRIP_LEN - 3;
     return Promise.resolve({ prize_id: prize.id, strip_index: idx, prize: prize });
-          }
+  }
+
   function spinReel() {
     if (reelBusy) return;
     var track = document.getElementById('reel-track');
@@ -566,8 +566,7 @@ function bumpRetention() {
       img.onerror = function () { img.classList.add('hidden'); if (fb) fb.classList.remove('hidden'); };
     }
   }
-
-  function applyRetentionUI(s) {
+   function applyRetentionUI(s) {
     var rank = getUserRank(s.totalCards != null ? s.totalCards : getTotalCards());
     var v = document.getElementById('stat-visits');
     var st = document.getElementById('stat-streak');
@@ -763,3 +762,5 @@ function bumpRetention() {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
 })();
+     
+     
