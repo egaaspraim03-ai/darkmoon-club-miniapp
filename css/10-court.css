@@ -1,4 +1,6 @@
-/* 10 — Двор Императора: позиции как на макете + луна + лучи + осколки + цитаты */
+/* 10 — Двор Императора: позиции как на макете, луна, лучи, стекло
+   The Blood Moon v1.4
+*/
 
 #screen-characters {
   padding: 0 !important;
@@ -20,6 +22,7 @@
     #050001;
 }
 
+/* —— Кровавая луна —— */
 .court-moon {
   position: absolute;
   left: 50%;
@@ -29,6 +32,8 @@
   transform: translate(-50%, -50%);
   border-radius: 50%;
   z-index: 1;
+  /* Своя картинка: assets/moon.png
+     --court-moon-img: url('../assets/moon.png'); */
   background-image:
     var(--court-moon-img, none),
     radial-gradient(circle at 34% 28%, #ff8a96 0%, #ff2d4a 18%, #c01028 36%, #7a0014 55%, #3a000c 72%, #0a0002 100%);
@@ -82,6 +87,7 @@
   animation: courtMoonPulse 5.5s ease-in-out infinite reverse;
 }
 
+/* Амбиентные лучи-спаны от луны */
 .court-beams {
   position: absolute;
   left: 50%;
@@ -123,6 +129,7 @@
   50% { opacity: 0.85; }
 }
 
+/* SVG лучи между узлами */
 .court-rays {
   position: absolute;
   inset: 0;
@@ -152,7 +159,7 @@
   0% { opacity: 1; }
   100% { opacity: 0; }
 }
-
+/* —— Узлы: размер и позиции как на макете —— */
 .court-node {
   position: absolute;
   left: var(--nx);
@@ -191,7 +198,8 @@
 }
 .cn-glass--portrait { min-height: 92px; padding-top: 12px; }
 .court-node:active .cn-glass,
-.court-node:focus-visible .cn-glass {
+.court-node:focus-visible .cn-glass,
+.court-node.focus .cn-glass {
   transform: scale(0.96);
   border-color: #ff2d55;
   box-shadow: 0 0 28px rgba(255, 45, 85, 0.55);
@@ -228,6 +236,7 @@
   line-height: 1.2;
 }
 
+/* Осколки справа */
 .court-shatter {
   position: absolute;
   right: -2%;
@@ -273,3 +282,80 @@
   box-shadow: 0 0 30px rgba(255, 30, 60, 0.25);
 }
 #screen-characters #char-detail.hidden { display: none !important; }
+
+/* —— extras v1.4 —— */
+.court-rays .ray-ambient {
+  fill: none;
+  stroke: rgba(255, 45, 85, 0.35);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  animation: ambRay 3.2s ease-in-out infinite;
+  opacity: 0.55;
+}
+@keyframes ambRay {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.7; }
+}
+.court-spark {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #ff2d55;
+  box-shadow: 0 0 8px #ff2d55;
+  pointer-events: none;
+  z-index: 3;
+  animation: sparkFly linear infinite;
+  transform: translate(-50%, -50%);
+}
+@keyframes sparkFly {
+  0% { opacity: 0; transform: translate(-50%, -50%) translate(0, 0) scale(0.4); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--sx), var(--sy)) scale(0.2); }
+}
+.court-moon.moon-pulse-hit {
+  animation: moonHit 0.55s ease-out;
+}
+@keyframes moonHit {
+  0% { filter: brightness(1); transform: translate(-50%, -50%) scale(1); }
+  40% { filter: brightness(1.35); transform: translate(-50%, -50%) scale(1.06); }
+  100% { filter: brightness(1); transform: translate(-50%, -50%) scale(1); }
+}
+.court-moon.moon-breathe {
+  animation: moonBreathe 0.9s ease-in-out;
+}
+@keyframes moonBreathe {
+  0%, 100% {
+    box-shadow:
+      0 0 50px rgba(255, 30, 60, 0.7),
+      0 0 110px rgba(180, 0, 40, 0.45),
+      0 0 180px rgba(100, 0, 25, 0.3),
+      inset -18px -14px 40px rgba(0, 0, 0, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 0 70px rgba(255, 45, 85, 0.85),
+      0 0 130px rgba(255, 20, 50, 0.5),
+      0 0 200px rgba(180, 0, 40, 0.35),
+      inset -18px -14px 40px rgba(0, 0, 0, 0.55);
+  }
+}
+.char-role {
+  font-size: 12px;
+  color: var(--neon);
+  margin: -4px 0 8px;
+  opacity: 0.9;
+}
+.court-node.focus .cn-glass {
+  border-color: #ff2d55 !important;
+  box-shadow: 0 0 28px rgba(255, 45, 85, 0.55) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .court-moon,
+  .court-glow,
+  .court-beams span,
+  .court-rays .ray-ambient,
+  .court-spark {
+    animation: none !important;
+  }
+}
