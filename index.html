@@ -33,6 +33,7 @@
   </div>
   <div class="vignette" aria-hidden="true"></div>
   <div class="toast" id="toast" role="status"></div>
+  <div class="quote-pop" id="quote-pop" aria-live="polite"></div>
 
   <div class="app">
     <header class="header">
@@ -81,7 +82,7 @@
           <button class="btn-primary" type="button" id="btn-share">🌑 Пригласить в Blood Moon</button>
           <button class="btn-secondary" type="button" data-go="rules">📖 Законы клуба</button>
         </div>
-        <p class="footer-ver">v1.3 · The Blood Moon · *ранг — локально, позже с бота</p>
+        <p class="footer-ver">v1.4 · The Blood Moon · *ранг — локально, позже с бота</p>
       </section>
 
       <!-- SITE -->
@@ -106,13 +107,20 @@
             </a>
           </div>
         </div>
+
+        <!-- КАЛЬКУЛЯТОР: 3 режима -->
         <div class="panel">
           <p><b>Калькулятор рангов</b></p>
-          <p class="muted">3E = 1D · 3D = 1C · … · X — вершина</p>
-          <div class="calc-row">
+          <p class="muted">E → D → C → B → A → S → G → P → X · 3 карты = 1 ранг выше</p>
+          <div class="calc-modes" id="calc-modes">
+            <button class="chip calc-mode active" type="button" data-mode="merge">Правка</button>
+            <button class="chip calc-mode" type="button" data-mode="split">Раскол</button>
+            <button class="chip calc-mode" type="button" data-mode="market">Рынок НН</button>
+          </div>
+          <div class="calc-row" style="margin-top:10px">
             <div>
               <label>Количество</label>
-              <input id="rank-amount" type="number" min="1" value="3" inputmode="numeric" />
+              <input id="rank-amount" type="number" min="1" max="99999999" value="3" inputmode="numeric" />
             </div>
             <div class="calc-eq">→</div>
             <div>
@@ -130,7 +138,7 @@
               </select>
             </div>
           </div>
-          <div class="calc-out" id="rank-out">3 E ≈ 1 D</div>
+          <div class="calc-out" id="rank-out">3 E → 1 D (правка)</div>
           <button class="btn-secondary" type="button" id="btn-rank-calc">Пересчитать</button>
         </div>
       </section>
@@ -154,9 +162,21 @@
       <section class="screen" id="screen-archives">
         <h2>Архивы Тьмы</h2>
         <div class="panel list">
-          <button class="row" data-go="chronicles" type="button"><span>📜</span><div><b>Хроники Тьмы</b><small>Лор и история</small></div><i>›</i></button>
-          <button class="row" data-go="characters" type="button"><span>👑</span><div><b>Двор Императора</b><small>Главные персонажи</small></div><i>›</i></button>
-          <button class="row" data-go="rules" type="button"><span>⚖️</span><div><b>Законы клуба</b><small>5 кровавых правил</small></div><i>›</i></button>
+          <button class="row" data-go="chronicles" type="button">
+            <span>📜</span>
+            <div><b>Хроники Тёмных Времён</b><small>История Первой Раны и войны</small></div>
+            <i>›</i>
+          </button>
+          <button class="row" data-go="characters" type="button">
+            <span>👑</span>
+            <div><b>Пантеон Столпов</b><small>Основатели и их наследие</small></div>
+            <i>›</i>
+          </button>
+          <button class="row" data-go="rules" type="button">
+            <span>⚖️</span>
+            <div><b>Кодекс Кровавой Луны</b><small>Пять правил Печати</small></div>
+            <i>›</i>
+          </button>
         </div>
       </section>
 
@@ -168,7 +188,7 @@
           <p class="muted">Полный лор — дополнишь сам, когда будешь готов.</p>
         </div>
       </section>
-      <!-- ДВОР ИМПЕРАТОРА -->
+      <!-- ДВОР ИМПЕРАТОРА / ПАНТЕОН СТОЛПОВ -->
       <section class="screen" id="screen-characters">
         <div class="court-stage" id="court-stage">
           <div class="court-moon" aria-hidden="true"></div>
@@ -248,20 +268,43 @@
             <canvas id="cs-canvas"></canvas>
           </div>
         </div>
-
         <div class="panel hidden" id="char-detail"></div>
       </section>
 
-      <!-- HALL -->
+      <!-- HALL / ПАНТЕОН СТОЛПОВ (меню славы) -->
       <section class="screen" id="screen-hall">
         <h2>Зал Славы</h2>
         <div class="panel list">
-          <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>События и задания</small></div><i>›</i></button>
-          <button class="row" data-go="obana" type="button"><span>😱</span><div><b>Обана — Рекорды</b><small>Безумные вклады</small></div><i>›</i></button>
-          <button class="row" data-go="profile" type="button"><span>🧛</span><div><b>Профиль крови</b><small>Аура ранга 0–9 · прогресс</small></div><i>›</i></button>
-          <button class="row" data-go="pyramid" type="button"><span>🔺</span><div><b>Пирамида крови</b><small>Квоты: массы внизу · единицы наверху</small></div><i>›</i></button>
-          <button class="row" data-go="reel" type="button"><span>🎰</span><div><b>Кровавая лента</b><small>Рулетка призов (CS-style)</small></div><i>›</i></button>
-          <button class="row" data-go="snake" type="button"><span>🐍</span><div><b>Змейка крови</b><small>Капли · камни · рейтинг чести</small></div><i>›</i></button>
+          <button class="row" data-go="quest" type="button">
+            <span>🎯</span>
+            <div><b>Квест Невыполнимый</b><small>События и задания</small></div>
+            <i>›</i>
+          </button>
+          <button class="row" data-go="obana" type="button">
+            <span>😱</span>
+            <div><b>Обана — Рекорды</b><small>Безумные вклады</small></div>
+            <i>›</i>
+          </button>
+          <button class="row" data-go="profile" type="button">
+            <span>🧛</span>
+            <div><b>Профиль крови</b><small>Аура ранга 0–9 · прогресс</small></div>
+            <i>›</i>
+          </button>
+          <button class="row" data-go="pyramid" type="button">
+            <span>🔺</span>
+            <div><b>Пирамида крови</b><small>Квоты: массы внизу · единицы наверху</small></div>
+            <i>›</i>
+          </button>
+          <button class="row" data-go="reel" type="button">
+            <span>🎰</span>
+            <div><b>Кровавая лента</b><small>Рулетка призов (CS-style)</small></div>
+            <i>›</i>
+          </button>
+          <button class="row" data-go="snake" type="button">
+            <span>🐍</span>
+            <div><b>Змейка крови</b><small>Капли · камни · рейтинг чести</small></div>
+            <i>›</i>
+          </button>
         </div>
         <div class="tip-card">
           <div class="tip-h">🔥 Мотивация</div>
@@ -299,23 +342,26 @@
         </div>
       </section>
 
-      <!-- OBANA -->
+      <!-- OBANA (свиток / папирус) -->
       <section class="screen" id="screen-obana">
         <h2>Обана — Рекорды</h2>
-        <div class="panel">
+        <div class="panel papyrus" id="obana-panel">
           <p>Вклады, от которых кровь стынет в жилах.</p>
           <p class="quote">«Обана… как так можно?»</p>
           <div class="home-actions" style="margin-bottom:8px">
-            <button class="chip top-btn" data-period="week" type="button"><span>🔥</span>Неделя</button>
+            <button class="chip top-btn active" data-period="week" type="button"><span>🔥</span>Неделя</button>
             <button class="chip top-btn" data-period="month" type="button"><span>📅</span>Месяц</button>
             <button class="chip top-btn" data-period="all" type="button"><span>♾️</span>Всё время</button>
             <button class="chip" type="button" id="btn-claim"><span>🩸</span>Хочу в топ</button>
           </div>
-          <div id="obana-result"></div>
+          <div class="scroll-sheet" id="obana-result">
+            <p class="muted">Пока пусто — стань <b style="color:var(--neon)">первой кровью</b>.</p>
+          </div>
           <p class="example">Формат: 5000 E / неделя — @nickname</p>
         </div>
       </section>
 
+      <!-- PROFILE -->
       <section class="screen" id="screen-profile">
         <h2>Профиль крови</h2>
         <div id="profile-root"></div>
@@ -329,6 +375,7 @@
           <input id="sim-cards" type="range" min="0" max="8000" step="50" value="120"
             style="width:100%;accent-color:#ff2d55" />
           <button class="btn-secondary" type="button" data-go="pyramid" style="margin-top:10px">🔺 К пирамиде квот</button>
+          <button class="btn-secondary" type="button" data-go="skills" style="margin-top:8px">🌳 Дерево навыков</button>
         </div>
       </section>
 
@@ -345,10 +392,20 @@
           <p class="pyr-legend" id="pyr-legend">Твой слой подсвечен. Топ жёстко ограничен квотами.</p>
         </div>
         <div class="panel">
-          <p class="muted">Скоро: ранг с сервера по вкладам. Сейчас — демо-пирамида.</p>
+          <p class="muted">Скоро: ранг с сервера по вкладам (E→X и квоты). Сейчас — демо-пирамида.</p>
         </div>
       </section>
-      <!-- BLOOD SNAKE -->
+
+      <!-- SKILL TREE (заглушка экрана — логика в app.js) -->
+      <section class="screen" id="screen-skills">
+        <h2>Дерево навыков</h2>
+        <div class="panel">
+          <p class="muted">280+ узлов: кровь, тень, печать, охота, ци, реликвии. Открывается вкладами в клуб.</p>
+          <div id="skill-tree-root" class="skill-tree"></div>
+        </div>
+        <button class="btn-secondary" type="button" data-go="profile">← К профилю</button>
+          </section>
+          <!-- BLOOD SNAKE -->
       <section class="screen" id="screen-snake">
         <h2>Змейка крови</h2>
         <div class="panel snake-meta-panel">
@@ -503,8 +560,9 @@
       </button>
     </nav>
   </div>
+
   <script src="app.js"></script>
   <script src="js/court.js"></script>
   <script src="js/snake.js"></script>
 </body>
-        </html>
+  </html>
