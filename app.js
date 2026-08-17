@@ -1,7 +1,7 @@
 /* ============================================================
-   The Blood Moon Mini App — v1.3
-   Ranks 0-9 (Пирамида Нечисти) + Prize Reel (server-ready)
-   Stack: HTML + Vanilla JS + modular CSS | Bot: Python
+   The Blood Moon Mini App — v1.4
+   Ranks · Calc (merge/split/market) · Quotes · Skill tree stub
+   Stack: HTML + Vanilla JS + modular CSS
    ============================================================ */
 (function () {
   'use strict';
@@ -11,10 +11,11 @@
     HAS_ACTIVE_QUEST: false,
     CLUB_NAME: 'The Blood Moon',
     INVITE_TEXT: '🌑 Вступай в The Blood Moon — клуб Императоров и Вампирских Графов.',
-    STORAGE_KEY: 'bloodmoon_v13',
+    STORAGE_KEY: 'bloodmoon_v14',
     DEMO_TOTAL_CARDS: 120,
     REEL_API_URL: '',
     REEL_COOLDOWN_MS: 5000,
+    QUOTE_INTERVAL_MS: 45000,
     TIPS: [
       'Внеси карты на склад — даже 10 E уже шаг к Обане.',
       '3E = 1D. Считай вклады, прежде чем хвастаться.',
@@ -24,6 +25,16 @@
     ],
     DEMO_TOP: { week: [], month: [], all: [] },
     RANK_NAMES: ['E', 'D', 'C', 'B', 'A', 'S', 'G', 'P', 'X'],
+    /* 3 карты одного ранга = 1 ранг выше (правка / merge) */
+    MERGE_RATIO: 3,
+    /* Раскол: 1 ранг → 2 карты рангом ниже (как на сайте: 1D → 2E) */
+    SPLIT_RATIO: 2,
+    /* Средний рынок НН (диапазоны «карт ниже» за 1 шт. ранга) */
+    MARKET_NN: {
+      X: { S: [5, 12], A: [10, 22], P: [25, 35], G: [40, 50], B: [50, 150], C: [40, 150], D: [55, 200], E: [75, 300] },
+      S: { S: [2, 2], A: [2, 4], P: [4, 8], G: [5, 16], B: [6, 20], C: [3, 12], D: [3, 35], E: [3, 25] },
+      A: { P: [2, 4], G: [3, 6], B: [4, 10], C: [3, 9], D: [3, 15], E: [5, 25] }
+    },
     PYRAMID: [
       { id: 'emperor', title: '🩸 Император', sub: 'Топ-1', quota: 1, width: '42%' },
       { id: 'counts', title: '👑 Высшие Графы', sub: 'Топ 2–6', quota: 5, width: '55%' },
@@ -41,9 +52,24 @@
       { id: 'title', name: 'Титул ночи', ico: '🌙', rarity: 'epic', weight: 3 },
       { id: 'obana', name: 'Шанс Обаны', ico: '😱', rarity: 'legend', weight: 2 },
       { id: 'blood', name: 'Кровь ×3', ico: '🩸', rarity: 'legend', weight: 1 }
+    ],
+    QUOTES: [
+      { t: 'Не бывает безвыходных ситуаций. Бывают ситуации, выход из которых тебя не устраивает.', a: 'Шикамару · Naruto' },
+      { t: 'Если ты не рискнёшь — никогда не узнаешь, на что способен.', a: 'Эдвард · Fullmetal Alchemist' },
+      { t: 'Сила — не в том, чтобы никогда не падать, а в том, чтобы снова вставать.', a: 'Гоку · Dragon Ball' },
+      { t: 'Тот, кто не ценит жизнь, не достоин жить.', a: 'Хисока · Hunter × Hunter' },
+      { t: 'Боль — это то, что делает нас сильнее.', a: 'Итачи · Naruto' },
+      { t: 'Даже в полной тьме можно найти свет, если не сдаваться.', a: 'Эрен · Attack on Titan' },
+      { t: 'Судьба — это то, что мы выбираем, а не то, что нам дают.', a: 'Луффи · One Piece' },
+      { t: 'Настоящая сила — защищать тех, кто тебе дорог.', a: 'Ичиго · Bleach' },
+      { t: 'Страх — это цепь. Сломай её — и станешь свободным.', a: 'Кен · Tokyo Ghoul' },
+      { t: 'Кровь не врёт. Она помнит каждый долг.', a: 'The Blood Moon' },
+      { t: 'Император не просит — он принимает дань.', a: 'Двор Кровавой Луны' },
+      { t: 'Мыло святое. Кто скрыл — тот уже виновен.', a: 'Инквизитор' }
     ]
   };
 
+  /* ===================== RANKS 0–9 ===================== */
   var NECRO_RANKS = [
     { level: 0, name: 'Смертный', min_cards: 0, aura: '#808080', special: null },
     { level: 1, name: 'Блуждающий Дух Крови', min_cards: 50, aura: '#ff9999', special: null },
@@ -75,12 +101,118 @@
     var done = total - current.min_cards;
     var pct = span <= 0 ? 0 : Math.min(100, Math.max(0, (done / span) * 100));
     return Object.assign({}, current, {
-      total_cards: total, next_min: nxt.min_cards, next_name: nxt.name,
+      total_cards: total,
+      next_min: nxt.min_cards,
+      next_name: nxt.name,
       progress_pct: Math.round(pct * 10) / 10,
-      cards_to_next: Math.max(0, nxt.min_cards - total), is_max: false
+      cards_to_next: Math.max(0, nxt.min_cards - total),
+      is_max: false
     });
   }
 
+  /* ===================== КАЛЬКУЛЯТОР (правка / раскол / рынок) ===================== */
+  var calcMode = 'merge';
+
+  function formatNum(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+
+  /** Правка: N карт ранга R → floor(N/3) карт R+1 + remainder R */
+  function calcMerge(amount, rankIdx) {
+    var names = CONFIG.RANK_NAMES;
+    if (rankIdx >= names.length - 1) {
+      return amount + ' ' + names[rankIdx] + ' — выше некуда (X максимум)';
+    }
+    var up = Math.floor(amount / CONFIG.MERGE_RATIO);
+    var rem = amount % CONFIG.MERGE_RATIO;
+    var lines = [];
+    if (up > 0) lines.push(formatNum(up) + ' ' + names[rankIdx + 1]);
+    if (rem > 0) lines.push(formatNum(rem) + ' ' + names[rankIdx]);
+    if (!lines.length) return '0';
+    return formatNum(amount) + ' ' + names[rankIdx] + ' → ' + lines.join(' + ') + ' (правка)';
+  }
+
+  /** Раскол: N карт ранга R → N * 2 карт R-1 (рекурсивно можно до E) */
+  function calcSplit(amount, rankIdx) {
+    var names = CONFIG.RANK_NAMES;
+    if (rankIdx <= 0) {
+      return formatNum(amount) + ' E — ниже некуда';
+    }
+    var out = amount * CONFIG.SPLIT_RATIO;
+    return formatNum(amount) + ' ' + names[rankIdx] + ' → ' +
+      formatNum(out) + ' ' + names[rankIdx - 1] + ' (раскол)';
+  }
+
+  /** Полный раскол до E */
+  function calcSplitToE(amount, rankIdx) {
+    var names = CONFIG.RANK_NAMES;
+    var n = amount;
+    for (var i = rankIdx; i > 0; i--) n = n * CONFIG.SPLIT_RATIO;
+    return formatNum(amount) + ' ' + names[rankIdx] + ' ≈ ' + formatNum(n) + ' E (полный раскол)';
+  }
+
+  /** Рынок НН: диапазон «сколько низких» за 1 карту */
+  function calcMarket(amount, rankIdx) {
+    var names = CONFIG.RANK_NAMES;
+    var name = names[rankIdx];
+    var table = CONFIG.MARKET_NN[name];
+    if (!table) {
+      return name + ': для рынка НН смотри X / S / A (или правку/раскол)';
+    }
+    var parts = [];
+    Object.keys(table).forEach(function (k) {
+      var r = table[k];
+      var lo = r[0] * amount, hi = r[1] * amount;
+      parts.push(formatNum(lo) + '–' + formatNum(hi) + ' ' + k);
+    });
+    return formatNum(amount) + ' ' + name + ' (НН) ≈ ' + parts.slice(0, 4).join(' · ') +
+      (parts.length > 4 ? '…' : '');
+  }
+
+  function runRankCalc() {
+    var amountEl = document.getElementById('rank-amount');
+    var fromEl = document.getElementById('rank-from');
+    var outEl = document.getElementById('rank-out');
+    if (!amountEl || !fromEl || !outEl) return;
+    var amount = Math.max(1, parseInt(amountEl.value, 10) || 1);
+    if (amount > 99999999) amount = 99999999;
+    amountEl.value = amount;
+    var rankIdx = parseInt(fromEl.value, 10) || 0;
+    var text;
+    if (calcMode === 'split') {
+      text = calcSplit(amount, rankIdx);
+      if (rankIdx > 1) text += '\n' + calcSplitToE(amount, rankIdx);
+    } else if (calcMode === 'market') {
+      text = calcMarket(amount, rankIdx);
+    } else {
+      text = calcMerge(amount, rankIdx);
+    }
+    outEl.textContent = text;
+  }
+
+  function bindCalcModes() {
+    var box = document.getElementById('calc-modes');
+    if (!box) return;
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest('.calc-mode');
+      if (!btn) return;
+      calcMode = btn.getAttribute('data-mode') || 'merge';
+      box.querySelectorAll('.calc-mode').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      runRankCalc();
+      haptic('light');
+    });
+    var calcBtn = document.getElementById('btn-rank-calc');
+    if (calcBtn) calcBtn.addEventListener('click', function () { runRankCalc(); haptic('light'); });
+    var amount = document.getElementById('rank-amount');
+    var from = document.getElementById('rank-from');
+    if (amount) amount.addEventListener('input', runRankCalc);
+    if (from) from.addEventListener('change', runRankCalc);
+    runRankCalc();
+  }
+
+  /* ===================== Telegram ===================== */
   var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
 
   function haptic(kind) {
@@ -126,12 +258,13 @@
     } catch (e) {}
   }
 
+  /* ===================== Storage ===================== */
   function loadState() {
     try {
       var raw = localStorage.getItem(CONFIG.STORAGE_KEY);
       if (raw) return JSON.parse(raw);
     } catch (e) {}
-    return { visits: 0, streak: 0, lastDay: '', tipIdx: 0, totalCards: CONFIG.DEMO_TOTAL_CARDS };
+    return { visits: 0, streak: 0, lastDay: '', tipIdx: 0, totalCards: CONFIG.DEMO_TOTAL_CARDS, skills: {} };
   }
   function saveState(s) {
     try { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(s)); } catch (e) {}
@@ -145,6 +278,7 @@
     var today = todayKey();
     s.visits = (s.visits || 0) + 1;
     if (typeof s.totalCards !== 'number') s.totalCards = CONFIG.DEMO_TOTAL_CARDS;
+    if (!s.skills) s.skills = {};
     if (s.lastDay !== today) {
       var y = new Date();
       y.setDate(y.getDate() - 1);
@@ -156,7 +290,7 @@
     saveState(s);
     return s;
   }
-
+   /* ===================== Content data ===================== */
   var CHAR_TEXTS = {
     inquisitor: '<div class="char-name">⚔️ Инквизитор</div><p>Мужик, священным мечом крушит нечисть, любит мыло.</p>',
     emperor: '<div class="char-name">🩸 Император</div><p>Бессмертное существо, которое любит искать мыло для инквизитора.</p>',
@@ -182,27 +316,23 @@
     { ico: '📦', name: 'Дань складу', desc: 'Внеси карты на склад', count: '0 / 10', reward: '+ранг' },
     { ico: '⚔️', name: 'Трибута альянсу', desc: 'Вложи в альянс за день', count: '0 / 500 E', reward: 'слава' }
   ];
-   function toE(amount, rankIdx) {
-    var n = Math.max(0, Number(amount) || 0), e = n, i;
-    for (i = 0; i < rankIdx; i++) e *= 3;
-    return e;
+
+  /* ===================== Quotes (всплывающие) ===================== */
+  function showQuote() {
+    var el = document.getElementById('quote-pop');
+    if (!el || !CONFIG.QUOTES || !CONFIG.QUOTES.length) return;
+    var q = CONFIG.QUOTES[Math.floor(Math.random() * CONFIG.QUOTES.length)];
+    el.innerHTML = '<div class="qp-text">«' + escapeHtml(q.t) + '»</div><div class="qp-author">— ' + escapeHtml(q.a) + '</div>';
+    el.classList.add('show');
+    clearTimeout(showQuote._t);
+    showQuote._t = setTimeout(function () { el.classList.remove('show'); }, 7000);
   }
-  function fromE(eValue, targetIdx) {
-    var e = eValue, i;
-    for (i = 0; i < targetIdx; i++) e /= 3;
-    return e;
-  }
-  function formatRankBreakdown(amount, rankIdx) {
-    var names = CONFIG.RANK_NAMES, e = toE(amount, rankIdx), lines = [], t, v;
-    lines.push('<strong>' + amount + ' ' + names[rankIdx] + '</strong> ≈ <strong>' + Math.round(e) + ' E</strong>');
-    for (t = 0; t < names.length; t++) {
-      if (t === rankIdx) continue;
-      v = fromE(e, t);
-      if (v >= 0.01) lines.push('≈ ' + (v >= 10 ? Math.round(v) : Math.round(v * 100) / 100) + ' ' + names[t]);
-    }
-    return lines.join('<br>');
+  function startQuotes() {
+    setTimeout(showQuote, 8000);
+    setInterval(showQuote, CONFIG.QUOTE_INTERVAL_MS || 45000);
   }
 
+  /* ===================== User helpers ===================== */
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
@@ -220,6 +350,7 @@
     return typeof s.totalCards === 'number' ? s.totalCards : CONFIG.DEMO_TOTAL_CARDS;
   }
 
+  /* ===================== Profile render ===================== */
   function renderUserProfileCard(rootId, data) {
     var root = document.getElementById(rootId || 'profile-root');
     if (!root) return;
@@ -228,22 +359,27 @@
     var photo = data.photo != null ? data.photo : getTgUser().photo;
     var total = data.totalCards != null ? data.totalCards : getTotalCards();
     var rank = getUserRank(total);
+
     var specialClass = '';
     if (rank.special === 'glass') specialClass = ' special-glass';
     if (rank.special === 'glitch') specialClass = ' special-glitch';
+
     var aura = rank.aura || 'rgba(255,45,85,0.5)';
     var ringStyle = rank.special
       ? (rank.special === 'glass'
         ? 'box-shadow: 0 0 0 2px rgba(255,255,255,0.35), 0 0 24px rgba(255,255,255,0.12), 0 0 40px rgba(255,45,85,0.2);'
         : 'box-shadow: 3px 0 12px rgba(255,45,85,0.5), -3px 0 12px rgba(0,220,255,0.35), 0 0 28px rgba(120,0,40,0.5);')
       : 'box-shadow: 0 0 0 2px ' + aura + ', 0 0 18px ' + aura + ', 0 0 36px ' + aura + ';';
+
     var rankColor = rank.aura || 'var(--neon)';
     var nextLine = rank.is_max
       ? 'Максимум. Император Тьмы.'
       : ('До «' + rank.next_name + '»: <b>' + rank.cards_to_next + '</b> карт · ' + rank.progress_pct + '%');
+
     var avatarHtml = photo
       ? '<img class="profile-avatar" src="' + escapeHtml(photo) + '" alt="" />'
       : '<div class="profile-avatar-fallback">🩸</div>';
+
     root.innerHTML =
       '<div class="profile-card' + specialClass + '">' +
       '<div class="profile-avatar-wrap"><div class="ring" style="' + ringStyle + '"></div>' + avatarHtml + '</div>' +
@@ -275,6 +411,7 @@
     }).join('');
   }
 
+  /* ===================== Navigation ===================== */
   var stack = ['home'];
 
   function showScreen(id, push) {
@@ -286,7 +423,7 @@
 
     var tabId = id;
     if (id === 'chronicles' || id === 'characters' || id === 'rules') tabId = 'archives';
-    if (id === 'quest' || id === 'pyramid' || id === 'reel' || id === 'profile' || id === 'snake') tabId = 'hall';
+    if (id === 'quest' || id === 'pyramid' || id === 'reel' || id === 'profile' || id === 'snake' || id === 'skills') tabId = 'hall';
 
     document.querySelectorAll('.tab').forEach(function (t) {
       var ds = t.getAttribute('data-screen');
@@ -312,9 +449,10 @@
     }
     if (id === 'quest') renderQuest();
     if (id === 'obana') renderObana('week');
-    if (id === 'site') updateRankCalc();
+    if (id === 'site') runRankCalc();
     if (id === 'pyramid') renderPyramid();
     if (id === 'reel') ensureReelBuilt();
+    if (id === 'skills') renderSkillTree();
     if (id === 'snake' && window.BloodSnake && window.BloodSnake.onShow) window.BloodSnake.onShow();
     if (id !== 'snake' && window.BloodSnake && window.BloodSnake.onHide) window.BloodSnake.onHide();
     if (id === 'profile') {
@@ -341,13 +479,43 @@
         tg.MainButton.setText(id === 'reel' ? '🎰 Крутить' : (id === 'obana' ? '😱 Обана' : '🩸 К вкладам'));
         tg.MainButton.show();
         tg.MainButton.onClick(function () {
-          if (id === 'reel') spinReel();
-          else { haptic('medium'); toast('Скоро через бота · пока — чат Blood Moon'); }
+          if (id === 'reel') {
+            var btn = document.getElementById('btn-spin');
+            if (btn) btn.click();
+          } else toast('Вклады — через бота / админку. Скоро API.');
         });
-      } else tg.MainButton.hide();
+      } else {
+        tg.MainButton.hide();
+      }
     } catch (e) {}
   }
 
+  /* ===================== Home / stats ===================== */
+  function paintHome(state) {
+    var user = getTgUser();
+    var welcome = document.getElementById('welcome');
+    if (welcome) welcome.innerHTML = 'Добро пожаловать в ночь, <b>' + escapeHtml(user.name) + '</b>';
+    var av = document.getElementById('avatar');
+    var af = document.getElementById('avatar-fallback');
+    if (user.photo && av && af) {
+      av.src = user.photo;
+      av.classList.remove('hidden');
+      af.classList.add('hidden');
+    }
+    var total = getTotalCards();
+    var rank = getUserRank(total);
+    var elV = document.getElementById('stat-visits');
+    var elS = document.getElementById('stat-streak');
+    var elR = document.getElementById('stat-rank');
+    var elMini = document.getElementById('home-rank-mini');
+    if (elV) elV.textContent = state.visits || 1;
+    if (elS) elS.textContent = state.streak || 1;
+    if (elR) elR.textContent = 'L' + rank.level;
+    if (elMini) elMini.textContent = rank.name;
+    var tip = document.getElementById('tip-text');
+    if (tip) tip.textContent = CONFIG.TIPS[(state.tipIdx || 0) % CONFIG.TIPS.length];
+                     }
+   /* ===================== Quest / Obana / Pyramid / Reel / Skills ===================== */
   function renderQuest() {
     var empty = document.getElementById('quest-empty');
     var active = document.getElementById('quest-active');
@@ -373,7 +541,7 @@
           '</div><div class="ach-prog"><b>' + a.cur + '</b> / ' + a.max + '</div></div>';
       }).join('');
     }
-     var tlist = document.getElementById('task-list');
+    var tlist = document.getElementById('task-list');
     if (tlist) {
       tlist.innerHTML = TASKS.map(function (t) {
         return '<div class="task-card"><div class="task-ico">' + t.ico + '</div><div class="task-body"><div class="task-name">' + t.name +
@@ -383,12 +551,28 @@
     }
   }
 
+  /* Обана: папирус — свернуть/развернуть при смене периода */
+  var obanaPeriod = 'week';
   function renderObana(period) {
+    if (period) obanaPeriod = period;
     var box = document.getElementById('obana-result');
+    var panel = document.getElementById('obana-panel');
     if (!box) return;
+
+    document.querySelectorAll('.top-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-period') === obanaPeriod);
+    });
+
+    /* анимация свитка */
+    if (panel) {
+      panel.classList.add('papyrus-roll');
+      setTimeout(function () { panel.classList.remove('papyrus-roll'); panel.classList.add('papyrus-open'); }, 180);
+      setTimeout(function () { panel.classList.remove('papyrus-open'); }, 700);
+    }
+
     var names = { week: 'неделю', month: 'месяц', all: 'всё время' };
-    var list = (CONFIG.DEMO_TOP && CONFIG.DEMO_TOP[period]) || [];
-    var html = '<div class="char-name">😱 Топ за ' + (names[period] || period) + '</div>';
+    var list = (CONFIG.DEMO_TOP && CONFIG.DEMO_TOP[obanaPeriod]) || [];
+    var html = '<div class="char-name">😱 Топ за ' + (names[obanaPeriod] || obanaPeriod) + '</div>';
     if (!list.length) {
       html += '<p class="muted" style="margin-top:8px">Пока пусто — стань <b style="color:var(--neon)">первой кровью</b>.</p>' +
         '<div class="lb">' +
@@ -398,19 +582,11 @@
     } else {
       html += '<div class="lb">' + list.map(function (row, i) {
         return '<div class="lb-row' + (i === 0 ? ' top1' : '') + '"><div class="pos">' + (i + 1) +
-          '</div><div><div class="who">' + row.name + '</div><div class="meta">' + (row.meta || '') +
-          '</div></div><div class="val">' + row.val + '</div></div>';
+          '</div><div><div class="who">' + escapeHtml(row.name) + '</div><div class="meta">' + escapeHtml(row.meta || '') +
+          '</div></div><div class="val">' + escapeHtml(String(row.val)) + '</div></div>';
       }).join('') + '</div>';
     }
     box.innerHTML = html;
-  }
-
-  function updateRankCalc() {
-    var amountEl = document.getElementById('rank-amount');
-    var fromEl = document.getElementById('rank-from');
-    var out = document.getElementById('rank-out');
-    if (!amountEl || !fromEl || !out) return;
-    out.innerHTML = formatRankBreakdown(amountEl.value, parseInt(fromEl.value, 10) || 0);
   }
 
   function renderPyramid() {
@@ -438,6 +614,7 @@
     if (leg) leg.innerHTML = 'Твой путь: <b style="color:var(--neon)">' + rank.name + '</b> (Lv.' + rank.level + ')';
   }
 
+  /* ===================== Prize Roulette ===================== */
   var reelBuilt = false;
   var reelBusy = false;
   var reelCards = [];
@@ -553,6 +730,59 @@
     });
   }
 
+  /* ===================== Skill tree (компактное демо 280+ узлов — категории) ===================== */
+  var SKILL_BRANCHES = [
+    { id: 'blood', name: '🩸 Кровь', nodes: ['Капля', 'Сгусток', 'Жила', 'Артерия', 'Сердце тьмы', 'Кровь Императора', 'Вечная жажда', 'Кровавый щит', 'Ритуал печати', 'Клятвенный долг'] },
+    { id: 'shadow', name: '🌑 Тень', nodes: ['Шёпот', 'Плащ', 'Шаг в тени', 'Невидимость', 'Теневой удар', 'Поглощение', 'Теневой трон', 'Абсолютная тьма'] },
+    { id: 'hunt', name: '⚔️ Охота', nodes: ['След', 'Клык', 'Засада', 'Погоня', 'Казнь', 'Охотник богов', 'Кровавая жатва'] },
+    { id: 'seal', name: '🔮 Печать', nodes: ['Руна', 'Печать крови', 'Кодекс', 'Запрет', 'Печать Императора', 'Вечный закон'] },
+    { id: 'relic', name: '🏺 Реликвии', nodes: ['Осколок', 'Клинок суда', 'Чаша', 'Корона', 'Сердце луны', 'Артефакт Бездны'] },
+    { id: 'qi', name: '✨ Ци / Культ', nodes: ['Закалка', 'Конденсация', 'Основание', 'Золотое ядро', 'Душа', 'Вознесение', 'Дао-лорд'] },
+    { id: 'demon', name: '😈 Демоны', nodes: ['Гниль', 'Зверь', 'Высший демон', 'Архидемон', 'Бедствие', 'Бог тьмы'] },
+    { id: 'title', name: '👑 Титулы', nodes: ['Смертный', 'Упырь', 'Вампир', 'Офицер', 'Генерал', 'Прародитель', 'Король', 'Император'] }
+  ];
+
+  function expandSkillNodes() {
+    /* Генерируем ~280 позиций: ветка × уровни 1–5 × подранги */
+    var out = [];
+    SKILL_BRANCHES.forEach(function (br) {
+      br.nodes.forEach(function (n, i) {
+        for (var lv = 1; lv <= 5; lv++) {
+          out.push({
+            id: br.id + '_' + i + '_l' + lv,
+            branch: br.id,
+            name: n + (lv > 1 ? ' · ' + lv : ''),
+            cost: 10 + i * 15 + lv * 20,
+            reqCards: (i + 1) * 50 * lv,
+            desc: br.name + ' — ур. ' + lv
+          });
+        }
+      });
+    });
+    return out;
+  }
+
+  var ALL_SKILLS = expandSkillNodes(); /* ~280 */
+
+  function renderSkillTree() {
+    var root = document.getElementById('skill-tree-root');
+    if (!root) return;
+    var state = loadState();
+    var unlocked = state.skills || {};
+    var total = getTotalCards();
+    var html = '<p class="muted">Узлов: <b>' + ALL_SKILLS.length + '</b> · открытие от вкладов карт</p>';
+    SKILL_BRANCHES.forEach(function (br) {
+      html += '<div class="skill-branch"><div class="skill-br-title">' + br.name + '</div><div class="skill-nodes">';
+      ALL_SKILLS.filter(function (s) { return s.branch === br.id; }).slice(0, 20).forEach(function (s) {
+        var on = unlocked[s.id] || total >= s.reqCards;
+        html += '<button type="button" class="skill-node' + (on ? ' on' : '') + '" data-skill="' + s.id + '" title="' + escapeHtml(s.desc) + ' · нужно ' + s.reqCards + ' карт">' +
+          escapeHtml(s.name) + '<small>' + s.cost + ' крови</small></button>';
+      });
+      html += '</div></div>';
+    });
+    root.innerHTML = html;
+}
+   /* ===================== Home UI ===================== */
   function applyUserHome() {
     var u = getTgUser();
     var w = document.getElementById('welcome');
@@ -566,7 +796,8 @@
       img.onerror = function () { img.classList.add('hidden'); if (fb) fb.classList.remove('hidden'); };
     }
   }
-   function applyRetentionUI(s) {
+
+  function applyRetentionUI(s) {
     var rank = getUserRank(s.totalCards != null ? s.totalCards : getTotalCards());
     var v = document.getElementById('stat-visits');
     var st = document.getElementById('stat-streak');
@@ -575,7 +806,7 @@
     if (st) st.textContent = String(s.streak || 1);
     if (r) r.textContent = 'L' + rank.level;
     var tip = document.getElementById('tip-text');
-    if (tip) tip.textContent = CONFIG.TIPS[s.tipIdx % CONFIG.TIPS.length];
+    if (tip) tip.textContent = CONFIG.TIPS[(s.tipIdx || 0) % CONFIG.TIPS.length];
     var badge = document.getElementById('hall-badge');
     if (badge) {
       if (CONFIG.HAS_ACTIVE_QUEST) badge.classList.remove('hidden');
@@ -610,18 +841,22 @@
       sp = String(sp).toLowerCase();
       var allowed = {
         home: 1, site: 1, archives: 1, hall: 1, quest: 1, obana: 1,
-        chronicles: 1, characters: 1, rules: 1, pyramid: 1, reel: 1, profile: 1, snake: 1
+        chronicles: 1, characters: 1, rules: 1, pyramid: 1, reel: 1,
+        profile: 1, snake: 1, skills: 1
       };
       if (allowed[sp]) return sp;
     } catch (e) {}
     return 'home';
   }
 
+  /* ===================== Bind ===================== */
   function bind() {
     initTelegram();
     var state = bumpRetention();
     applyUserHome();
     applyRetentionUI(state);
+    bindCalcModes();
+    startQuotes();
 
     setTimeout(function () {
       var sp = document.getElementById('splash');
@@ -651,24 +886,23 @@
     if (btnBack) btnBack.addEventListener('click', function (e) { e.preventDefault(); goBack(); });
     try { if (tg && tg.BackButton) tg.BackButton.onClick(goBack); } catch (e) {}
 
-    document.querySelectorAll('.char-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var key = btn.getAttribute('data-char');
-        var detail = document.getElementById('char-detail');
-        var list = document.getElementById('char-list');
-        if (!detail || !list) return;
-        list.classList.add('hidden');
-        detail.classList.remove('hidden');
-        detail.innerHTML = (CHAR_TEXTS[key] || '<p class="muted">Нет описания</p>') +
-          '<button class="btn-secondary" id="char-back" type="button" style="margin-top:12px">← Назад к двору</button>';
-        var backChar = document.getElementById('char-back');
-        if (backChar) backChar.onclick = function () {
-          list.classList.remove('hidden');
-          detail.classList.add('hidden');
-          haptic('light');
-        };
-        haptic('medium');
-      });
+    /* двор: клик по .court-node */
+    document.addEventListener('click', function (e) {
+      var node = e.target.closest && e.target.closest('.court-node[data-char]');
+      if (!node) return;
+      var key = node.getAttribute('data-char');
+      var detail = document.getElementById('char-detail');
+      if (!detail) return;
+      detail.classList.remove('hidden');
+      detail.innerHTML = (CHAR_TEXTS[key] || '<p class="muted">Нет описания</p>') +
+        '<button class="btn-secondary" id="char-back" type="button" style="margin-top:12px">← Закрыть</button>';
+      var backChar = document.getElementById('char-back');
+      if (backChar) backChar.onclick = function () {
+        detail.classList.add('hidden');
+        haptic('light');
+      };
+      if (window.BloodCourt && window.BloodCourt.setFocus) window.BloodCourt.setFocus(key);
+      haptic('medium');
     });
 
     var laws = document.getElementById('btn-laws');
@@ -706,7 +940,8 @@
 
     var sim = document.getElementById('sim-cards');
     if (sim) {
-      sim.addEventListener('change', function () {
+      sim.value = String(getTotalCards());
+      sim.addEventListener('input', function () {
         var s = loadState();
         s.totalCards = parseInt(sim.value, 10) || 0;
         saveState(s);
@@ -714,13 +949,12 @@
         renderUserProfileCard('profile-root');
         renderRankLadder();
         renderPyramid();
-        toast('Карт (демо): ' + s.totalCards);
       });
     }
 
     var help = document.getElementById('btn-help');
     if (help) help.addEventListener('click', function () {
-      var msg = CONFIG.CLUB_NAME + '\nПирамида Нечисти · Обана · Лента призов\nНавигация — снизу.';
+      var msg = CONFIG.CLUB_NAME + '\nПирамида Нечисти · Обана · Лента · Змейка · Дерево навыков\nНавигация — только снизу.';
       try {
         if (tg && tg.showPopup) tg.showPopup({ title: 'Blood Moon', message: msg, buttons: [{ type: 'close' }] });
         else if (tg && tg.showAlert) tg.showAlert(msg);
@@ -737,13 +971,6 @@
       });
     });
 
-    var btnRank = document.getElementById('btn-rank-calc');
-    if (btnRank) btnRank.addEventListener('click', function () { updateRankCalc(); haptic('light'); });
-    var amount = document.getElementById('rank-amount');
-    var from = document.getElementById('rank-from');
-    if (amount) amount.addEventListener('input', updateRankCalc);
-    if (from) from.addEventListener('change', updateRankCalc);
-
     var start = resolveStartScreen();
     stack = ['home'];
     if (start !== 'home') {
@@ -752,15 +979,18 @@
     } else showScreen('home', false);
   }
 
+  /* export */
   window.BloodMoon = {
     getUserRank: getUserRank,
     spinReel: spinReel,
+    runRankCalc: runRankCalc,
+    showQuote: showQuote,
     CONFIG: CONFIG,
-    NECRO_RANKS: NECRO_RANKS
+    NECRO_RANKS: NECRO_RANKS,
+    ALL_SKILLS: ALL_SKILLS,
+    showScreen: showScreen
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
 })();
-     
-     
