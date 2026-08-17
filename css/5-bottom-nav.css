@@ -1,4 +1,7 @@
-/* 5 — BOTTOM NAV */
+/* 5 — BOTTOM NAV glass + PNG icons
+   assets/nav/home.svg | archives.svg | hall.svg | obana.svg | site.svg
+*/
+
 .bottom-nav {
   flex-shrink: 0;
   position: fixed;
@@ -6,29 +9,31 @@
   max-width: 480px;
   margin: 0 auto;
   height: calc(var(--nav-h) + var(--safe-b));
-  padding: 0 4px var(--safe-b);
+  padding: 0 6px var(--safe-b);
   display: flex;
   align-items: stretch;
   justify-content: space-around;
   z-index: 1000;
-  background: linear-gradient(180deg, rgba(28, 4, 12, 0.75) 0%, rgba(8, 0, 4, 0.98) 45%);
-  backdrop-filter: blur(22px) saturate(1.4);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4);
-  border-top: 1px solid rgba(255, 45, 85, 0.45);
-  box-shadow: 0 -8px 32px rgba(255, 45, 85, 0.18);
+  background: linear-gradient(180deg, rgba(18, 2, 8, 0.42) 0%, rgba(6, 0, 3, 0.68) 55%);
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  border-top: 1px solid rgba(255, 45, 85, 0.35);
+  box-shadow: 0 -6px 28px rgba(255, 45, 85, 0.12);
 }
 .bottom-nav::before {
   content: "";
   position: absolute;
-  top: 0; left: 10%; right: 10%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 45, 85, 0.9) 30%, rgba(255, 120, 150, 0.95) 50%, rgba(255, 45, 85, 0.9) 70%, transparent);
-  box-shadow: 0 0 12px var(--glow);
+  top: 0; left: 12%; right: 12%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 45, 85, 0.85) 30%, rgba(255, 120, 150, 0.9) 50%, rgba(255, 45, 85, 0.85) 70%, transparent);
+  box-shadow: 0 0 10px var(--glow);
   pointer-events: none;
 }
+
 .tab {
   position: relative;
   flex: 1; max-width: 88px;
-  border: none; background: transparent;
+  border: none;
+  background: transparent;
   color: #8a5a62;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -36,11 +41,24 @@
   font-family: inherit; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+
 .tab-ico {
   display: flex; align-items: center; justify-content: center;
   width: 36px; height: 28px; font-size: 20px; line-height: 1;
   border-radius: 12px; transition: 0.2s ease; position: relative;
 }
+.tab-ico .tab-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: none;
+  filter: brightness(0.75) saturate(0.85);
+  transition: 0.2s ease;
+}
+.tab-ico.has-img .tab-img { display: block; }
+.tab-ico.has-img .tab-emoji { display: none; }
+.tab-ico .tab-emoji { display: inline-block; }
+
 .tab-label {
   font-size: 10px; font-weight: 600;
   letter-spacing: 0.02em; line-height: 1; opacity: 0.85;
@@ -53,19 +71,29 @@
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 0 8px var(--neon);
 }
+
 .tab-center .tab-ico-center {
   width: 44px; height: 44px; margin-top: -16px;
   font-size: 22px; border-radius: 50%;
-  background: linear-gradient(145deg, #ff2d55, #8b0018);
-  border: 2px solid rgba(255, 120, 150, 0.55);
-  box-shadow: 0 0 16px var(--glow), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,200,210,0.35);
+  background: linear-gradient(145deg, rgba(255, 45, 85, 0.92), rgba(120, 0, 25, 0.95));
+  border: 2px solid rgba(255, 120, 150, 0.5);
+  box-shadow: 0 0 16px var(--glow), 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,200,210,0.3);
+}
+.tab-center .tab-ico-center .tab-img {
+  width: 24px; height: 24px;
+  filter: brightness(1.1) drop-shadow(0 0 4px rgba(255,255,255,0.3));
 }
 .tab-center .tab-label { margin-top: 2px; }
+
 .tab.active { color: var(--neon); }
 .tab.active .tab-label { opacity: 1; text-shadow: 0 0 10px var(--glow); }
 .tab.active .tab-ico { filter: drop-shadow(0 0 8px var(--neon)); transform: translateY(-1px); }
+.tab.active .tab-ico .tab-img {
+  filter: brightness(1.15) drop-shadow(0 0 6px var(--neon));
+}
 .tab.active:not(.tab-center) .tab-ico {
-  background: rgba(255, 45, 85, 0.18); box-shadow: 0 0 14px var(--glow-soft);
+  background: rgba(255, 45, 85, 0.16);
+  box-shadow: 0 0 14px var(--glow-soft);
 }
 .tab-center.active .tab-ico-center {
   box-shadow: 0 0 20px var(--neon), 0 0 40px var(--glow), inset 0 1px 0 rgba(255,200,210,0.4);
@@ -80,3 +108,7 @@
   box-shadow: 0 0 8px var(--neon);
 }
 .tab:active { transform: scale(0.94); }
+.tab:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 2px;
+}
