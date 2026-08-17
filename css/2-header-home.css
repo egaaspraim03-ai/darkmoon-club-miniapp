@@ -1,4 +1,5 @@
-/* 2 — HEADER + HOME */
+/* 2 — HEADER + HOME (максимально близко к твоим фото) */
+
 .header {
   flex-shrink: 0;
   display: flex;
