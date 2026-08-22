@@ -1,4 +1,8 @@
-/* 9 — Blood Snake fullscreen + virtual joystick */
+/* ============================================================
+   9 — BLOOD SNAKE  |  The Blood Moon v1.7
+   fullscreen · joystick · levels · pad · legend · scoreboard
+   body.snake-fs · #snake-canvas · #snake-stick · #snake-overlay
+   ============================================================ */
 
 body.snake-fs {
   overflow: hidden !important;
@@ -306,4 +310,24 @@ body.snake-fs .snake-pad { display: none !important; }
   background: rgba(255, 45, 85, 0.2);
   border: 1px solid var(--line);
   color: var(--neon);
-  }
+}
+
+.snake-scores .ss-row,
+.snake-scores .lb-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  margin-bottom: 4px;
+}
+.snake-scores .ss-row.top1,
+.snake-scores .lb-row.top1 {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(201, 162, 39, 0.25);
+}
+.snake-scores .who { color: var(--text); }
+.snake-scores .pts { color: var(--neon); font-weight: 700; }
