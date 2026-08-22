@@ -6,7 +6,6 @@
 (function () {
   'use strict';
 
-  /* hierarchy lines (mockup tree) */
   var LINKS = [
     ['inquisitor', 'emperor'],
     ['emperor', 'eye'],
@@ -18,12 +17,9 @@
     ['inquisitor', 'eye']
   ];
 
-  /* full cards — title, role, lore, optional art path */
   var CHAR_DATA = {
     inquisitor: {
-      ico: '⚔️',
-      name: 'Инквизитор',
-      role: 'Клинок Правосудия',
+      ico: '⚔️', name: 'Инквизитор', role: 'Клинок Правосудия',
       art: 'assets/chars/inquisitor.png',
       html:
         '<div class="char-name">⚔️ Инквизитор</div>' +
@@ -32,9 +28,7 @@
         '<p class="muted">Его клинок не прощает. Мыло — священный артефакт расследования.</p>'
     },
     emperor: {
-      ico: '🩸',
-      name: 'Император',
-      role: 'Бессмертный',
+      ico: '🩸', name: 'Император', role: 'Бессмертный',
       art: 'assets/chars/emperor.png',
       html:
         '<div class="char-name">🩸 Император</div>' +
@@ -43,9 +37,7 @@
         '<p class="muted">Дань принимается. Слабость — нет. Под луной все равны… кроме Него.</p>'
     },
     eye: {
-      ico: '👁️',
-      name: 'Всевидящее Око',
-      role: 'Видит всё',
+      ico: '👁️', name: 'Всевидящее Око', role: 'Видит всё',
       art: 'assets/chars/eye.png',
       html:
         '<div class="char-name">👁️ Всевидящее Око</div>' +
@@ -54,9 +46,7 @@
         '<p class="muted">Взгляд Ока — приговор. Ускользнуть нельзя.</p>'
     },
     punisher: {
-      ico: '🔥',
-      name: 'Каратель',
-      role: 'Наказание',
+      ico: '🔥', name: 'Каратель', role: 'Наказание',
       art: 'assets/chars/punisher.png',
       html:
         '<div class="char-name">🔥 Каратель</div>' +
@@ -65,9 +55,7 @@
         '<p class="muted">Список штрафников ведёт именно она. Оплати — или удвой норму.</p>'
     },
     galya: {
-      ico: '📜',
-      name: 'Галя',
-      role: 'Помощница Главы',
+      ico: '📜', name: 'Галя', role: 'Помощница Главы',
       art: 'assets/chars/galya.png',
       html:
         '<div class="char-name">🧼 Галя</div>' +
@@ -76,9 +64,7 @@
         '<p class="muted">Без Гали двор тонет в хаосе. С ней — в крови, но по регламенту.</p>'
     },
     cheshire: {
-      ico: '😺',
-      name: 'Чеширский Кот',
-      role: 'Начальник Стражи',
+      ico: '😺', name: 'Чеширский Кот', role: 'Начальник Стражи',
       art: 'assets/chars/cheshire.png',
       html:
         '<div class="char-name">😺 Чеширский Кот</div>' +
@@ -219,8 +205,7 @@
     if (!stage || reducedMotion) return;
     stage.querySelectorAll('.court-spark').forEach(function (el) { el.remove(); });
     if (!stage.querySelector('.court-moon')) return;
-    var count = 10;
-    for (var i = 0; i < count; i++) {
+    for (var i = 0; i < 10; i++) {
       var s = document.createElement('span');
       s.className = 'court-spark';
       var ang = Math.random() * Math.PI * 2;
@@ -375,15 +360,11 @@
     var detail = document.getElementById('char-detail');
     if (!detail) return;
     var data = CHAR_DATA[key];
-    var body = data
-      ? data.html
-      : '<p class="muted">Нет описания</p>';
-
+    var body = data ? data.html : '<p class="muted">Нет описания</p>';
     detail.classList.remove('hidden');
     detail.innerHTML =
       body +
       '<button class="btn-secondary" type="button" id="char-back" style="margin-top:12px">← Закрыть</button>';
-
     var back = document.getElementById('char-back');
     if (back) {
       back.onclick = function () {
@@ -395,7 +376,6 @@
         haptic('light');
       };
     }
-
     setPortrait(key);
     burstShards(10);
     haptic('medium');
@@ -414,7 +394,6 @@
     var stage = document.getElementById('court-stage');
     if (!stage || stage._courtBound) return;
     stage._courtBound = true;
-
     stage.querySelectorAll('.court-node').forEach(function (btn) {
       btn.setAttribute('type', 'button');
       if (!btn.getAttribute('aria-label')) {
@@ -425,11 +404,9 @@
       btn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var key = btn.getAttribute('data-char');
-        setFocus(key);
+        setFocus(btn.getAttribute('data-char'));
       });
     });
-
     bindMoon();
   }
 
@@ -503,3 +480,4 @@
     patchNav();
   }
 })();
+   
