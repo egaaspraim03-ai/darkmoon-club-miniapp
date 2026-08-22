@@ -158,7 +158,7 @@
         x: x * state.cell + state.cell / 2,
         y: y * state.cell + state.cell / 2,
         vx: (Math.random() - 0.5) * 3.5,
-         vy: (Math.random() - 0.5) * 3.5,
+        vy: (Math.random() - 0.5) * 3.5,
         life: 400 + Math.random() * 300,
         age: 0,
         color: color || '#ff2d55'
@@ -236,8 +236,7 @@
 
   function step() {
     if (!state.running || state.paused || state.over) return;
-
-    state.dir = { x: state.nextDir.x, y: state.nextDir.y };
+     state.dir = { x: state.nextDir.x, y: state.nextDir.y };
     var head = state.snake[0];
     if (!head) { gameOver('Пусто'); return; }
 
@@ -318,7 +317,7 @@
           state.shield += 1;
           toast('🧼 Святое мыло! Щит +1 (всего ' + state.shield + ')');
           haptic('success');
-           }
+        }
         if (kind.frenzy) {
           state.frenzy = true;
           state.tempSpeedMul = 1.55;
@@ -484,7 +483,7 @@
       ctx.moveTo(0, gy * cell + 0.5);
       ctx.lineTo(w, gy * cell + 0.5);
       ctx.stroke();
-         }
+             }
      function drawCell(x, y, fill, glow, r) {
       var px = x * cell + pad;
       var py = y * cell + pad;
@@ -687,8 +686,9 @@
     canvas.style.width = '100%';
     canvas.style.height = document.body.classList.contains('snake-fs') ? '100%' : 'auto';
     draw();
-         }
-   function startGame() {
+  }
+
+  function startGame() {
     if (!state.canvas) initCanvas();
     fitCanvas();
     resetSnake();
@@ -719,9 +719,8 @@
       state.acc = 0;
       if (!state.loopId) state.loopId = requestAnimationFrame(loop);
     }
-  }
-
-  function selectLevel(id) {
+          }
+   function selectLevel(id) {
     var i, lv = LEVELS[0];
     for (i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) lv = LEVELS[i];
     state.level = lv;
@@ -945,3 +944,4 @@
     bindUI();
   }
 })();
+     
