@@ -1,6 +1,7 @@
-/* 10 — Двор Императора: позиции как на макете, луна, лучи, стекло
-   The Blood Moon v1.4
-*/
+/* ============================================================
+   10 — COURT / ПАНТЕОН  |  The Blood Moon v1.7
+   court-stage · moon · beams · rays · 6 nodes · shatter · char-detail
+   ============================================================ */
 
 #screen-characters {
   padding: 0 !important;
@@ -8,7 +9,13 @@
   position: relative;
   min-height: calc(100dvh - 56px - 64px);
 }
-#screen-characters > h2 { display: none; }
+#screen-characters > h2:not(.court-h2) { display: none; }
+#screen-characters .court-h2 {
+  position: absolute; top: 8px; left: 0; right: 0; z-index: 8;
+  text-align: center; font-size: 13px; letter-spacing: 0.1em;
+  color: var(--neon-soft); text-shadow: 0 0 12px var(--glow);
+  pointer-events: none; margin: 0; padding: 0 8px;
+}
 
 .court-stage {
   position: relative;
@@ -22,7 +29,6 @@
     #050001;
 }
 
-/* —— Кровавая луна —— */
 .court-moon {
   position: absolute;
   left: 50%;
@@ -32,8 +38,7 @@
   transform: translate(-50%, -50%);
   border-radius: 50%;
   z-index: 1;
-  /* Своя картинка: assets/moon.png
-     --court-moon-img: url('../assets/moon.png'); */
+  /* --court-moon-img: url('../assets/moon/fullmoon.jpg'); */
   background-image:
     var(--court-moon-img, none),
     radial-gradient(circle at 34% 28%, #ff8a96 0%, #ff2d4a 18%, #c01028 36%, #7a0014 55%, #3a000c 72%, #0a0002 100%);
@@ -87,7 +92,6 @@
   animation: courtMoonPulse 5.5s ease-in-out infinite reverse;
 }
 
-/* Амбиентные лучи-спаны от луны */
 .court-beams {
   position: absolute;
   left: 50%;
@@ -128,6 +132,10 @@
   0%, 100% { opacity: 0.35; }
   50% { opacity: 0.85; }
 }
+@keyframes beamPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.85; }
+}
 
 /* SVG лучи между узлами */
 .court-rays {
@@ -159,6 +167,7 @@
   0% { opacity: 1; }
   100% { opacity: 0; }
 }
+
 /* —— Узлы: размер и позиции как на макете —— */
 .court-node {
   position: absolute;
@@ -266,7 +275,6 @@
   width: 100%;
   height: 100%;
 }
-
 #screen-characters #char-detail {
   position: absolute;
   left: 12px; right: 12px; bottom: 12px;
@@ -283,7 +291,7 @@
 }
 #screen-characters #char-detail.hidden { display: none !important; }
 
-/* —— extras v1.4 —— */
+/* —— extras v1.7 —— */
 .court-rays .ray-ambient {
   fill: none;
   stroke: rgba(255, 45, 85, 0.35);
@@ -298,7 +306,8 @@
 }
 .court-spark {
   position: absolute;
-  width: 4px; height: 4px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: #ff2d55;
   box-shadow: 0 0 8px #ff2d55;
@@ -316,28 +325,16 @@
   animation: moonHit 0.55s ease-out;
 }
 @keyframes moonHit {
-  0% { filter: brightness(1); transform: translate(-50%, -50%) scale(1); }
-  40% { filter: brightness(1.35); transform: translate(-50%, -50%) scale(1.06); }
-  100% { filter: brightness(1); transform: translate(-50%, -50%) scale(1); }
+  0% { filter: brightness(1); transform: scale(1); }
+  40% { filter: brightness(1.35); transform: scale(1.06); }
+  100% { filter: brightness(1); transform: scale(1); }
 }
 .court-moon.moon-breathe {
   animation: moonBreathe 0.9s ease-in-out;
 }
 @keyframes moonBreathe {
-  0%, 100% {
-    box-shadow:
-      0 0 50px rgba(255, 30, 60, 0.7),
-      0 0 110px rgba(180, 0, 40, 0.45),
-      0 0 180px rgba(100, 0, 25, 0.3),
-      inset -18px -14px 40px rgba(0, 0, 0, 0.55);
-  }
-  50% {
-    box-shadow:
-      0 0 70px rgba(255, 45, 85, 0.85),
-      0 0 130px rgba(255, 20, 50, 0.5),
-      0 0 200px rgba(180, 0, 40, 0.35),
-      inset -18px -14px 40px rgba(0, 0, 0, 0.55);
-  }
+  0%, 100% { box-shadow: 0 0 40px rgba(255, 45, 85, 0.35); }
+  50% { box-shadow: 0 0 70px rgba(255, 45, 85, 0.7), 0 0 120px rgba(255, 20, 50, 0.35); }
 }
 .char-role {
   font-size: 12px;
@@ -350,12 +347,52 @@
   box-shadow: 0 0 28px rgba(255, 45, 85, 0.55) !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .court-moon,
-  .court-glow,
-  .court-beams span,
-  .court-rays .ray-ambient,
-  .court-spark {
-    animation: none !important;
-  }
+/* —— hall pantheon —— */
+#screen-hall .court-h2,
+.court-h2 {
+  text-align: center;
+  font-family: var(--font-display), Cinzel, serif;
+  color: var(--neon-soft);
+  margin: 8px 0 4px;
+  text-shadow: 0 0 14px var(--glow);
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
 }
+#screen-hall .pantheon-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 4px 0 8px;
+}
+#screen-hall .stele {
+  min-height: 108px;
+  border-radius: 14px 14px 8px 8px;
+  background:
+    linear-gradient(165deg, #2a1810 0%, #120a08 55%, #0a0404 100%);
+  border: 1px solid rgba(255, 45, 85, 0.4);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.5),
+    0 0 18px rgba(255, 45, 85, 0.12),
+    inset 0 1px 0 rgba(255, 120, 100, 0.12);
+  position: relative;
+}
+#screen-hall .stele::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 12%; right: 12%;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
+  opacity: 0.7;
+}
+#screen-hall .stele:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 24px var(--glow);
+}
+#screen-characters .btn-secondary {
+  margin: 8px 14px 16px;
+  width: calc(100% - 28px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .court-moon, .court-glow, .court-beams span { animation: none !important; }
+   }
