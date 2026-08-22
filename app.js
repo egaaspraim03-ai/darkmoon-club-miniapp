@@ -1,5 +1,5 @@
 /* ============================================================
-   The Blood Moon Mini App — v1.4
+   The Blood Moon Mini App — v1.7
    Ranks · Calc (merge/split/market) · Quotes · Skill tree
    Stack: HTML + Vanilla JS + modular CSS
    ============================================================ */
@@ -11,7 +11,14 @@
     HAS_ACTIVE_QUEST: false,
     CLUB_NAME: 'The Blood Moon',
     INVITE_TEXT: '🌑 Вступай в The Blood Moon — клуб Императоров и Вампирских Графов.',
-    STORAGE_KEY: 'bloodmoon_v14',
+    LINKS: {
+      site: 'https://mangabuff.ru',
+      news: 'https://t.me/mangabuff',
+      mods: 'https://t.me/modermangabuff',
+      pod: 'https://t.me/podmbff',
+      club_chat: ''  /* private — bot only checks, never send to users */
+    },
+    STORAGE_KEY: 'bloodmoon_v17',
     DEMO_TOTAL_CARDS: 120,
     REEL_API_URL: '',
     REEL_COOLDOWN_MS: 5000,
@@ -47,7 +54,7 @@
       { id: 'c1', name: '1 C', ico: '💜', rarity: 'rare', weight: 8 },
       { id: 'soap', name: 'Святое мыло', ico: '🧼', rarity: 'epic', weight: 4 },
       { id: 'title', name: 'Титул ночи', ico: '🌙', rarity: 'epic', weight: 3 },
-      { id: 'obana', name: 'Шанс Обаны', ico: '😱', rarity: 'legend', weight: 1 },
+      { id: 'obana', name: 'Шанс Обаны', ico: '😱', rarity: 'legend', weight: 2 },
       { id: 'blood', name: 'Кровь ×3', ico: '🩸', rarity: 'legend', weight: 1 }
     ],
     QUOTES: [
@@ -114,54 +121,60 @@
 
   function calcMerge(amount, rankIdx) {
     var names = CONFIG.RANK_NAMES;
-    if (rankIdx >= names.length - 1) {
-      return amount + ' ' + names[rankIdx] + ' — выше некуда (X максимум)';
-    }
-    var up = Math.floor(amount / CONFIG.MERGE_RATIO);
-    var rem = amount % CONFIG.MERGE_RATIO;
+    var r = CONFIG.MERGE_RATIO;
     var lines = [];
-    if (up > 0) lines.push(formatNum(up) + ' ' + names[rankIdx + 1]);
-    if (rem > 0) lines.push(formatNum(rem) + ' ' + names[rankIdx]);
-    if (!lines.length) return '0';
-    return formatNum(amount) + ' ' + names[rankIdx] + ' → ' + lines.join(' + ') + ' (правка)';
+    var cur = amount;
+    var idx = rankIdx;
+    lines.push('Правка (×' + r + ' → ранг вверх):');
+    lines.push(formatNum(cur) + ' ' + names[idx]);
+    while (idx < names.length - 1 && cur >= r) {
+      var up = Math.floor(cur / r);
+      var rem = cur % r;
+      idx++;
+      lines.push('→ ' + formatNum(up) + ' ' + names[idx] + (rem ? ' + ' + rem + ' ' + names[idx - 1] : ''));
+      cur = up;
+    }
+    return lines.join('\n');
   }
 
   function calcSplit(amount, rankIdx) {
     var names = CONFIG.RANK_NAMES;
-    if (rankIdx <= 0) return formatNum(amount) + ' E — ниже некуда';
+    if (rankIdx <= 0) return 'E — самый низкий. Раскол невозможен.';
     var out = amount * CONFIG.SPLIT_RATIO;
-    return formatNum(amount) + ' ' + names[rankIdx] + ' → ' + formatNum(out) + ' ' + names[rankIdx - 1] + ' (раскол)';
+    return 'Раскол:\n' + formatNum(amount) + ' ' + names[rankIdx] +
+      ' → ' + formatNum(out) + ' ' + names[rankIdx - 1];
   }
 
   function calcSplitToE(amount, rankIdx) {
     var names = CONFIG.RANK_NAMES;
-    var n = amount;
-    for (var i = rankIdx; i > 0; i--) n = n * CONFIG.SPLIT_RATIO;
-    return formatNum(amount) + ' ' + names[rankIdx] + ' ≈ ' + formatNum(n) + ' E (полный раскол)';
+    var cur = amount;
+    for (var i = rankIdx; i > 0; i--) cur = cur * CONFIG.SPLIT_RATIO;
+    return 'До E: ' + formatNum(amount) + ' ' + names[rankIdx] + ' ≈ ' + formatNum(cur) + ' E';
   }
 
   function calcMarket(amount, rankIdx) {
     var names = CONFIG.RANK_NAMES;
-    var name = names[rankIdx];
-    var table = CONFIG.MARKET_NN[name];
-    if (!table) return name + ': для рынка НН смотри X / S / A (или правку/раскол)';
-    var parts = [];
+    var rank = names[rankIdx];
+    var table = CONFIG.MARKET_NN[rank];
+    if (!table) return 'Для ' + rank + ' нет таблицы НН (задай от A/S/X).';
+    var lines = ['Средний рынок НН · 1 ' + rank + ' ≈'];
     Object.keys(table).forEach(function (k) {
-      var r = table[k];
-      parts.push(formatNum(r[0] * amount) + '–' + formatNum(r[1] * amount) + ' ' + k);
+      var pair = table[k];
+      lines.push('  ' + pair[0] + '–' + pair[1] + ' ' + k +
+        (amount > 1 ? '  |  ×' + amount + ' → ' + (pair[0] * amount) + '–' + (pair[1] * amount) : ''));
     });
-    return formatNum(amount) + ' ' + name + ' (НН) ≈ ' + parts.slice(0, 4).join(' · ') + (parts.length > 4 ? '…' : '');
+    return lines.join('\n');
   }
 
   function runRankCalc() {
     var amountEl = document.getElementById('rank-amount');
     var fromEl = document.getElementById('rank-from');
     var outEl = document.getElementById('rank-out');
-    if (!amountEl || !fromEl || !outEl) return;
-    var amount = Math.max(1, parseInt(amountEl.value, 10) || 1);
-    if (amount > 99999999) amount = 99999999;
-    amountEl.value = amount;
-    var rankIdx = parseInt(fromEl.value, 10) || 0;
+    if (!outEl) return;
+    var amount = Math.max(1, parseInt(amountEl && amountEl.value, 10) || 1);
+    var rankIdx = fromEl ? parseInt(fromEl.value, 10) || 0 : 0;
+    if (rankIdx < 0) rankIdx = 0;
+    if (rankIdx > CONFIG.RANK_NAMES.length - 1) rankIdx = CONFIG.RANK_NAMES.length - 1;
     var text;
     if (calcMode === 'split') {
       text = calcSplit(amount, rankIdx);
@@ -206,7 +219,8 @@
       else tg.HapticFeedback.impactOccurred(kind || 'light');
     } catch (e) {}
   }
-   function toast(msg, ms) {
+
+  function toast(msg, ms) {
     var el = document.getElementById('toast');
     if (!el) return;
     el.textContent = msg;
@@ -238,9 +252,8 @@
       tg.setBackgroundColor('#050001');
       if (tg.setBottomBarColor) tg.setBottomBarColor('#050001');
     } catch (e) {}
-  }
-
-  function loadState() {
+}
+   function loadState() {
     try {
       var raw = localStorage.getItem(CONFIG.STORAGE_KEY);
       if (raw) return JSON.parse(raw);
@@ -254,6 +267,17 @@
     var d = new Date();
     return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
   }
+
+  function welcomeOnce(s) {
+    if (!s || s.welcomed) return;
+    s.welcomed = true;
+    saveState(s);
+    setTimeout(function () {
+      toast('Добро пожаловать в ночь · ' + CONFIG.CLUB_NAME, 3200);
+      showQuote();
+    }, 1100);
+  }
+
   function bumpRetention() {
     var s = loadState();
     var today = todayKey();
@@ -308,7 +332,8 @@
     var el = document.getElementById('quote-pop');
     if (!el || !CONFIG.QUOTES || !CONFIG.QUOTES.length) return;
     var q = CONFIG.QUOTES[Math.floor(Math.random() * CONFIG.QUOTES.length)];
-    el.innerHTML = '<div class="qp-text">«' + escapeHtml(q.t) + '»</div><div class="qp-author">— ' + escapeHtml(q.a) + '</div>';
+    el.innerHTML = '«' + escapeHtml(q.t) + '»' +
+      '<span class="q-src">— ' + escapeHtml(q.a || q.s || '') + '</span>';
     el.classList.add('show');
     clearTimeout(showQuote._t);
     showQuote._t = setTimeout(function () { el.classList.remove('show'); }, 7000);
@@ -437,8 +462,9 @@
     var main = document.getElementById('main-content');
     if (main) main.scrollTop = 0;
     updateMainButton(id);
-       }
-   function goBack() {
+  }
+
+  function goBack() {
     if (stack.length > 1) stack.pop();
     showScreen(stack[stack.length - 1] || 'home', false);
     haptic('light');
@@ -460,9 +486,8 @@
         tg.MainButton.hide();
       }
     } catch (e) {}
-  }
-
-  function renderQuest() {
+     }
+   function renderQuest() {
     var empty = document.getElementById('quest-empty');
     var active = document.getElementById('quest-active');
     if (!empty || !active) return;
@@ -503,7 +528,7 @@
     var box = document.getElementById('obana-result');
     var panel = document.getElementById('obana-panel');
     if (!box) return;
-    document.querySelectorAll('.top-btn').forEach(function (b) {
+    document.querySelectorAll('.top-btn, .period-chip').forEach(function (b) {
       b.classList.toggle('active', b.getAttribute('data-period') === obanaPeriod);
     });
     if (panel) {
@@ -672,7 +697,8 @@
     { id: 'demon', name: '😈 Демоны', nodes: ['Гниль', 'Зверь', 'Высший демон', 'Архидемон', 'Бедствие', 'Бог тьмы'] },
     { id: 'title', name: '👑 Титулы', nodes: ['Смертный', 'Упырь', 'Вампир', 'Офицер', 'Генерал', 'Прародитель', 'Король', 'Император'] }
   ];
-   function expandSkillNodes() {
+
+  function expandSkillNodes() {
     var out = [];
     SKILL_BRANCHES.forEach(function (br) {
       br.nodes.forEach(function (n, i) {
@@ -709,9 +735,8 @@
       html += '</div></div>';
     });
     root.innerHTML = html;
-  }
-
-  function applyUserHome() {
+       }
+   function applyUserHome() {
     var u = getTgUser();
     var w = document.getElementById('welcome');
     if (w) w.innerHTML = 'Добро пожаловать в ночь, <b>' + escapeHtml(u.name) + '</b>';
@@ -780,6 +805,7 @@
   function bind() {
     initTelegram();
     var state = bumpRetention();
+    welcomeOnce(state);
     applyUserHome();
     applyRetentionUI(state);
     bindCalcModes();
@@ -858,7 +884,7 @@
       haptic('light');
     });
 
-    document.querySelectorAll('.top-btn').forEach(function (btn) {
+    document.querySelectorAll('.top-btn, .period-chip').forEach(function (btn) {
       btn.addEventListener('click', function () {
         renderObana(btn.getAttribute('data-period') || 'week');
         haptic('medium');
@@ -910,6 +936,8 @@
       });
     });
 
+    welcomeOnce(loadState());
+
     var start = resolveStartScreen();
     stack = ['home'];
     if (start !== 'home') {
@@ -932,3 +960,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
 })();
+   
+   
