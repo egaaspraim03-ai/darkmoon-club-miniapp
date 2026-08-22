@@ -293,7 +293,7 @@ h2 {
   border: 1px solid var(--stone-edge);
   font-size: 11px;
   max-width: 100%;
-}
+   }
 .row,
 .stone-row {
   display: flex;
@@ -599,4 +599,4 @@ h2 {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-   }
+                     }
