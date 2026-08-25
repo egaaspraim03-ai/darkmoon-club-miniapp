@@ -22,19 +22,23 @@
   <link rel="stylesheet" href="css/8-profile-ranks.css" />
   <link rel="stylesheet" href="css/9-blood-snake.css" />
   <link rel="stylesheet" href="css/10-court.css" />
+  <link rel="stylesheet" href="css/11-pantheon-detail.css" />
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <!-- SPLASH -->
   <div class="splash" id="splash">
     <div class="splash-moon"></div>
     <div class="splash-title">THE BLOOD MOON</div>
     <div class="splash-sub">Кровавая ночь пробуждается…</div>
   </div>
+
   <div class="vignette" aria-hidden="true"></div>
   <div class="toast" id="toast" role="status"></div>
   <div class="quote-pop" id="quote-pop" aria-live="polite"></div>
 
+  <!-- ЛОР: «Это всё началось с…» -->
   <div class="lore-modal hidden" id="lore-modal" role="dialog" aria-modal="true">
     <div class="papyrus-content">
       <button type="button" class="btn-close-lore" id="btn-close-lore" aria-label="Закрыть">✕</button>
@@ -42,9 +46,9 @@
       <p class="lore-sub">Хроники Проклятого Двора · Six Pillars</p>
       <div class="lore-text scrollable">
         <p><strong>Первая Рана.</strong> Когда Луна ещё сияла невинным серебром, из первозданного хаоса поднялась Печать. Её падение раскололо миры — и родилась Кровавая Луна.</p>
-        <p>Шесть Столпов: <b>Инквизитор</b>, <b>Император</b>, <b>Всевидящее Око</b>, <b>Каратель</b>, <b>Галя</b> (Призрачная Леди), <b>Хранитель Троп</b> — Улыбка Бездны, Чеширский Кот, глава штаба.</p>
-        <p>Пока Кот скалит зубы — Тропы открыты. Если улыбка померкнет, миры отрежут друг от друга.</p>
-        <p class="muted">Карта — кровь. Вклад — клятва. Обана — легенда.</p>
+        <p>Шесть Столпов удержали ночь: <b>Инквизитор</b> (Клинок Правосудия), <b>Император</b> (Бессмертный Архитектор), <b>Всевидящее Око</b>, <b>Каратель</b>, <b>Галя</b> (Призрачная Леди) и <b>Хранитель Троп</b> — Улыбка Бездны, Чеширский Кот, глава штаба охотников.</p>
+        <p>Пока Кот скалит зубы — Тропы открыты. Если улыбка померкнет, миры отрежут друг от друга, и Кровавая Луна останется во тьме одна.</p>
+        <p class="muted">Карта — это кровь. Вклад — клятва. Обана — легенда. Дерево навыков открывается данью клубу.</p>
       </div>
     </div>
   </div>
@@ -55,7 +59,10 @@
       <div class="header-user">
         <div class="avatar-fallback" id="avatar-fallback">🩸</div>
         <img class="avatar hidden" id="avatar" alt="" width="28" height="28" />
-        <div class="logo"><span class="logo-dot"></span><span class="logo-text">THE BLOOD MOON</span></div>
+        <div class="logo">
+          <span class="logo-dot"></span>
+          <span class="logo-text">THE BLOOD MOON</span>
+        </div>
       </div>
       <div class="header-actions">
         <button class="icon-btn lore-open-btn" id="btn-lore" type="button" title="Лор">📜</button>
@@ -65,14 +72,21 @@
 
     <main class="content" id="main-content">
 
+      <!-- ========== МИРОЗДАНИЕ (HOME) ========== -->
       <section class="screen active" id="screen-home">
         <div class="moon cracked-moon" aria-hidden="true">
           <div class="moon-core"></div>
-          <div class="moon-beams" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="moon-beams" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
           <div class="moon-shards" aria-hidden="true"></div>
         </div>
         <p class="welcome" id="welcome">Добро пожаловать в ночь, <b>гость</b></p>
-        <div class="night-line"><span class="dot"></span> Ночь активна · <span id="home-rank-mini">Смертный</span><span class="six-pillars-tag"> · SIX PILLARS</span></div>
+        <div class="night-line">
+          <span class="dot"></span>
+          Ночь активна · <span id="home-rank-mini">Смертный</span>
+          <span class="six-pillars-tag"> · SIX PILLARS</span>
+        </div>
         <p class="eyebrow">Клуб Императоров и Вампирских Графов</p>
         <h1>The Blood Moon</h1>
         <div class="stats-bar" id="stats-bar">
@@ -102,9 +116,10 @@
           <button class="btn-secondary" type="button" data-go="rules">📖 Законы клуба</button>
           <button class="btn-secondary" type="button" id="btn-lore-home">📜 Это всё началось с…</button>
         </div>
-        <p class="footer-ver">v1.7 · The Blood Moon · Six Pillars · *ранг — локально / с бота</p>
+        <p class="footer-ver">v2.1 · The Blood Moon · Six Pillars · *ранг — локально / с бота</p>
       </section>
 
+      <!-- ========== ПОРТАЛ (SITE) ========== -->
       <section class="screen" id="screen-site">
         <h2>Всё о сайте · Портал</h2>
         <div class="panel parchment-panel">
@@ -116,13 +131,19 @@
           <p><b>Telegram клуба</b></p>
           <div class="links-grid">
             <a class="row stone-row" data-ext href="https://t.me/mangabuff" target="_blank" rel="noopener">
-              <span>📰</span><div><b>Новости MangaBuff</b><small>официальный канал</small></div><i>›</i>
+              <span>📰</span>
+              <div><b>Новости MangaBuff</b><small>официальный канал</small></div>
+              <i>›</i>
             </a>
             <a class="row stone-row" data-ext href="https://t.me/modermangabuff" target="_blank" rel="noopener">
-              <span>🛡</span><div><b>Чатик модераторов</b><small>@modermangabuff</small></div><i>›</i>
+              <span>🛡</span>
+              <div><b>Чатик модераторов</b><small>@modermangabuff</small></div>
+              <i>›</i>
             </a>
             <a class="row stone-row" data-ext href="https://t.me/podmbff" target="_blank" rel="noopener">
-              <span>👂</span><div><b>Подслушано на MangaBuff</b><small>@podmbff</small></div><i>›</i>
+              <span>👂</span>
+              <div><b>Подслушано на MangaBuff</b><small>@podmbff</small></div>
+              <i>›</i>
             </a>
           </div>
         </div>
@@ -143,9 +164,15 @@
             <div>
               <label>Ранг</label>
               <select id="rank-from">
-                <option value="0">E</option><option value="1">D</option><option value="2">C</option>
-                <option value="3">B</option><option value="4">A</option><option value="5">S</option>
-                <option value="6">G</option><option value="7">P</option><option value="8">X</option>
+                <option value="0">E</option>
+                <option value="1">D</option>
+                <option value="2">C</option>
+                <option value="3">B</option>
+                <option value="4">A</option>
+                <option value="5">S</option>
+                <option value="6">G</option>
+                <option value="7">P</option>
+                <option value="8">X</option>
               </select>
             </div>
           </div>
@@ -154,6 +181,7 @@
         </div>
       </section>
 
+      <!-- ========== RULES ========== -->
       <section class="screen" id="screen-rules">
         <h2>Законы клуба · Кодекс</h2>
         <div class="panel">
@@ -168,23 +196,39 @@
         <button class="btn-primary" type="button" data-go="home">← В Мироздание</button>
       </section>
 
+      <!-- ========== БИБЛИОТЕКА ТЕНЕЙ (ARCHIVES) ========== -->
       <section class="screen" id="screen-archives">
         <h2>Библиотека Теней</h2>
         <p class="eyebrow" style="margin-bottom:10px">Архивы Тьмы · фолианты Печати</p>
         <div class="panel list">
           <button class="row stone-row" data-go="chronicles" type="button">
-            <span>📜</span><div><b>Хроники Тёмных Времён</b><small>История Первой Раны и войны</small></div><i>›</i>
+            <span>📜</span>
+            <div><b>Хроники Тёмных Времён</b><small>История Первой Раны и войны</small></div>
+            <i>›</i>
           </button>
           <button class="row stone-row" data-go="characters" type="button">
-            <span>👑</span><div><b>Пантеон Столпов</b><small>Шесть Столпов · двор Императора</small></div><i>›</i>
+            <span>👑</span>
+            <div><b>Пантеон Столпов</b><small>Шесть Столпов · двор Императора</small></div>
+            <i>›</i>
           </button>
           <button class="row stone-row" data-go="rules" type="button">
-            <span>⚖️</span><div><b>Кодекс Кровавой Луны</b><small>Пять правил Печати</small></div><i>›</i>
+            <span>⚖️</span>
+            <div><b>Кодекс Кровавой Луны</b><small>Пять правил Печати</small></div>
+            <i>›</i>
           </button>
           <button class="row stone-row" data-go="skills" type="button">
-            <span>🌳</span><div><b>Древо древних искусств</b><small>Навыки · замки · красный неон</small></div><i>›</i>
+            <span>🌳</span>
+            <div><b>Древо древних искусств</b><small>Навыки · замки · красный неон</small></div>
+            <i>›</i>
           </button>
         </div>
+
+        <div id="world-lore-line" aria-live="polite"></div>
+
+        <h3 class="eyebrow" style="margin:16px 0 8px">Портал MangaBuff</h3>
+        <div id="library-extras"></div>
+
+        <div id="donate-ask"></div>
       </section>
 
       <section class="screen" id="screen-chronicles">
@@ -192,14 +236,44 @@
         <div class="panel parchment-panel">
           <p>Под кровавой луной родился клуб, где карта — это кровь, а вклад — клятва.</p>
           <p>Императоры и графы ведут счёт ночам. Те, кто достиг Обаны, навсегда вписаны в Зал Славы.</p>
-          <p>Луна — не спутник, а сердце Первой Раны. Её удерживают Шесть Столпов.</p>
-          <p class="muted">Полный лор — «Это всё началось с…» в шапке.</p>
+          <p>Луна — не спутник, а сердце Первой Раны. Её удерживают Шесть Столпов. Если Печать падёт — хлынет то, что старше Света и Тьмы.</p>
+          <p class="muted">Полный лор — кнопка «Это всё началось с…» в шапке.</p>
         </div>
         <button class="btn-secondary" type="button" data-go="archives">← В Библиотеку</button>
       </section>
 
+      <!-- ========== ДВОР / ПЕРСОНАЖИ (court) ========== -->
+      <!-- ===== index.html v2.1 — PART 2/3  (склей после части 1) ===== -->
       <section class="screen" id="screen-characters">
         <h2 class="court-h2">Пантеон · Двор Императора</h2>
+        <p class="eyebrow" style="margin-bottom:8px">Свайп по стелам · нажми — полная История</p>
+        <div class="stele-row" id="pillar-steles">
+          <button type="button" class="stele" data-pantheon="inquisitor">
+            <img src="assets/pantheon/inquisitor.png" alt="" onerror="this.style.display='none'"/>
+            <span class="stele-label"><b>Инквизитор</b><small>Живая Печать</small></span>
+          </button>
+          <button type="button" class="stele" data-pantheon="emperor">
+            <img src="assets/pantheon/emperor.png" alt="" onerror="this.style.display='none'"/>
+            <span class="stele-label"><b>Император</b><small>Архитектор</small></span>
+          </button>
+          <button type="button" class="stele" data-pantheon="eye">
+            <img src="assets/pantheon/eye.png" alt="" onerror="this.style.display='none'"/>
+            <span class="stele-label"><b>Око</b><small>Нити Судьбы</small></span>
+          </button>
+          <button type="button" class="stele" data-pantheon="punisher">
+            <img src="assets/pantheon/punisher.png" alt="" onerror="this.style.display='none'"/>
+            <span class="stele-label"><b>Каратель</b><small>Весы</small></span>
+          </button>
+          <button type="button" class="stele" data-pantheon="lady">
+            <img src="assets/pantheon/lady.png" alt="" onerror="this.style.display='none'"/>
+            <span class="stele-label"><b>Призрачная Леди</b><small>Междумирье</small></span>
+          </button>
+          <button type="button" class="stele" data-pantheon="cheshire">
+            <img src="assets/pantheon/cheshire.png" alt="" onerror="this.style.display='none'"/>
+            <span class="stele-label"><b>Чеширский Кот</b><small>Хранитель Троп</small></span>
+          </button>
+        </div>
+
         <div class="court-stage" id="court-stage">
           <div class="court-moon" aria-hidden="true"></div>
           <div class="court-glow" aria-hidden="true"></div>
@@ -221,24 +295,50 @@
             </defs>
             <g id="ray-group" filter="url(#rayGlow)"></g>
           </svg>
-          <button type="button" class="court-node" data-char="inquisitor" style="--nx:22%;--ny:14%;--nw:120px">
-            <span class="cn-glass"><span class="cn-ico">⚔️</span><b>Инквизитор</b><small>Клинок Правосудия · Глава</small></span>
+
+          <button type="button" class="court-node" data-char="inquisitor" data-pantheon="inquisitor" style="--nx:22%;--ny:14%;--nw:120px">
+            <span class="cn-glass">
+              <span class="cn-ico">⚔️</span>
+              <b>Инквизитор</b>
+              <small>Клинок Правосудия · Глава</small>
+            </span>
           </button>
-          <button type="button" class="court-node court-node--hero" data-char="emperor" style="--nx:50%;--ny:40%;--nw:136px">
-            <span class="cn-glass cn-glass--portrait"><span class="cn-face">🧛</span><b>Император</b><small>Бессмертный · Архитектор</small></span>
+          <button type="button" class="court-node court-node--hero" data-char="emperor" data-pantheon="emperor" style="--nx:50%;--ny:40%;--nw:136px">
+            <span class="cn-glass cn-glass--portrait">
+              <span class="cn-face">🧛</span>
+              <b>Император</b>
+              <small>Бессмертный · Архитектор</small>
+            </span>
           </button>
-          <button type="button" class="court-node" data-char="eye" style="--nx:50%;--ny:58%;--nw:128px">
-            <span class="cn-glass"><span class="cn-ico">👁️</span><b>Всевидящее Око</b><small>Нити Судьбы · учёт</small></span>
+          <button type="button" class="court-node" data-char="eye" data-pantheon="eye" style="--nx:50%;--ny:58%;--nw:128px">
+            <span class="cn-glass">
+              <span class="cn-ico">👁️</span>
+              <b>Всевидящее Око</b>
+              <small>Нити Судьбы · учёт</small>
+            </span>
           </button>
-          <button type="button" class="court-node" data-char="punisher" style="--nx:20%;--ny:74%;--nw:112px">
-            <span class="cn-glass"><span class="cn-ico">🔥</span><b>Каратель</b><small>Весы Мироздания</small></span>
+          <button type="button" class="court-node" data-char="punisher" data-pantheon="punisher" style="--nx:20%;--ny:74%;--nw:112px">
+            <span class="cn-glass">
+              <span class="cn-ico">🔥</span>
+              <b>Каратель</b>
+              <small>Весы Мироздания</small>
+            </span>
           </button>
-          <button type="button" class="court-node" data-char="galya" style="--nx:80%;--ny:74%;--nw:112px">
-            <span class="cn-glass"><span class="cn-ico">📜</span><b>Галя</b><small>Призрачная Леди · приём</small></span>
+          <button type="button" class="court-node" data-char="galya" data-pantheon="lady" style="--nx:80%;--ny:74%;--nw:112px">
+            <span class="cn-glass">
+              <span class="cn-ico">📜</span>
+              <b>Галя</b>
+              <small>Призрачная Леди · приём</small>
+            </span>
           </button>
-          <button type="button" class="court-node" data-char="cheshire" style="--nx:50%;--ny:90%;--nw:140px">
-            <span class="cn-glass"><span class="cn-ico">😺</span><b>Чеширский Кот</b><small>Улыбка Бездны · штаб</small></span>
+          <button type="button" class="court-node" data-char="cheshire" data-pantheon="cheshire" style="--nx:50%;--ny:90%;--nw:140px">
+            <span class="cn-glass">
+              <span class="cn-ico">😺</span>
+              <b>Чеширский Кот</b>
+              <small>Улыбка Бездны · штаб</small>
+            </span>
           </button>
+
           <div class="court-shatter" id="court-shatter" aria-hidden="true">
             <div class="cs-solid">
               <img id="cs-img" src="assets/chars/inquisitor.png" alt="" onerror="this.style.display='none'"/>
@@ -250,31 +350,59 @@
         <button class="btn-secondary" type="button" data-go="archives" style="margin-top:10px">← В Библиотеку</button>
       </section>
 
+      <!-- ========== ПАНТЕОН / ЗАЛ СЛАВЫ (HALL) — 6 стелл ========== -->
       <section class="screen" id="screen-hall">
         <h2>Пантеон Столпов</h2>
         <p class="eyebrow" style="margin-bottom:12px">Зал Славы · шесть путей крови</p>
         <div class="pantheon-grid" id="pantheon-grid">
-          <button class="stele" type="button" data-go="quest"><span class="stele-ico">🕳</span><b>Испытание</b><small>Хроники Невыполнимого</small></button>
-          <button class="stele" type="button" data-go="obana"><span class="stele-ico">👁️</span><b>Пророчество</b><small>Око Зримое · Обана</small></button>
-          <button class="stele" type="button" data-go="profile"><span class="stele-ico">🩸</span><b>Кровь</b><small>Наследие Вампира</small></button>
-          <button class="stele" type="button" data-go="pyramid"><span class="stele-ico">🔺</span><b>Судьба</b><small>Иерархия Теней</small></button>
-          <button class="stele" type="button" data-go="reel"><span class="stele-ico">🔑</span><b>Фортуна</b><small>Колесо призов</small></button>
-          <button class="stele" type="button" data-go="snake"><span class="stele-ico">🐍</span><b>Честь</b><small>Путь Предков · Змейка</small></button>
+          <button class="stele" type="button" data-go="quest">
+            <span class="stele-ico">🕳</span>
+            <b>Испытание</b>
+            <small>Хроники Невыполнимого</small>
+          </button>
+          <button class="stele" type="button" data-go="obana">
+            <span class="stele-ico">👁️</span>
+            <b>Пророчество</b>
+            <small>Око Зримое · Обана</small>
+          </button>
+          <button class="stele" type="button" data-go="profile">
+            <span class="stele-ico">🩸</span>
+            <b>Кровь</b>
+            <small>Наследие Вампира</small>
+          </button>
+          <button class="stele" type="button" data-go="pyramid">
+            <span class="stele-ico">🔺</span>
+            <b>Судьба</b>
+            <small>Иерархия Теней</small>
+          </button>
+          <button class="stele" type="button" data-go="reel">
+            <span class="stele-ico">🔑</span>
+            <b>Фортуна</b>
+            <small>Колесо призов</small>
+          </button>
+          <button class="stele" type="button" data-go="snake">
+            <span class="stele-ico">🐍</span>
+            <b>Честь</b>
+            <small>Путь Предков · Змейка</small>
+          </button>
         </div>
         <div class="tip-card pantheon-motivation">
           <div class="tip-h">🔥 Мотивация</div>
-          Основа — Пантеон Столпов. Это не только иерархия, но и основа мира. Вы — один из них. Стойте твёрдо.
+          Основа — Пантеон Столпов. Это не только иерархия, но и основа, на которой держится мир. Вы — один из них. Стойте твёрдо и помните цену.
         </div>
         <button class="btn-primary big-stone" type="button" id="btn-offer-pantheon">Вознести дар Пантеону</button>
+        <!-- fallback list (если stele CSS ещё нет — те же data-go) -->
         <div class="panel list hall-fallback hidden">
           <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>События и задания</small></div><i>›</i></button>
           <button class="row" data-go="obana" type="button"><span>😱</span><div><b>Обана — Рекорды</b><small>Безумные вклады</small></div><i>›</i></button>
-          <button class="row" data-go="profile" type="button"><span>🧛</span><div><b>Профиль крови</b><small>Аура ранга 0–9</small></div><i>›</i></button>
-          <button class="row" data-go="pyramid" type="button"><span>🔺</span><div><b>Пирамида крови</b><small>Квоты</small></div><i>›</i></button>
-          <button class="row" data-go="reel" type="button"><span>🎰</span><div><b>Кровавая лента</b><small>Рулетка</small></div><i>›</i></button>
-          <button class="row" data-go="snake" type="button"><span>🐍</span><div><b>Змейка крови</b><small>Рейтинг чести</small></div><i>›</i></button>
+          <button class="row" data-go="profile" type="button"><span>🧛</span><div><b>Профиль крови</b><small>Аура ранга 0–9 · прогресс</small></div><i>›</i></button>
+          <button class="row" data-go="pyramid" type="button"><span>🔺</span><div><b>Пирамида крови</b><small>Квоты: массы внизу · единицы наверху</small></div><i>›</i></button>
+          <button class="row" data-go="reel" type="button"><span>🎰</span><div><b>Кровавая лента</b><small>Рулетка призов (CS-style)</small></div><i>›</i></button>
+          <button class="row" data-go="snake" type="button"><span>🐍</span><div><b>Змейка крови</b><small>Капли · камни · рейтинг чести</small></div><i>›</i></button>
         </div>
       </section>
+
+      <!-- ========== QUEST / ПРЕДСКАЗАНИЯ ========== -->
       <section class="screen" id="screen-quest">
         <div class="quest-head">
           <h2>Предсказания Ока · События</h2>
@@ -304,6 +432,7 @@
         </div>
       </section>
 
+      <!-- ========== OBANA (папирус) ========== -->
       <section class="screen" id="screen-obana">
         <h2>Обана — Рекорды</h2>
         <div class="panel papyrus" id="obana-panel">
@@ -323,6 +452,7 @@
         <button class="btn-primary big-stone" type="button" id="btn-offer-eye">Вознести дар Оку</button>
       </section>
 
+      <!-- ========== PROFILE ========== -->
       <section class="screen" id="screen-profile">
         <h2>Профиль крови</h2>
         <div id="profile-root"></div>
@@ -340,6 +470,7 @@
         </div>
       </section>
 
+      <!-- ========== PYRAMID ========== -->
       <section class="screen" id="screen-pyramid">
         <h2>Пирамида крови</h2>
         <div class="panel">
@@ -356,6 +487,7 @@
         </div>
       </section>
 
+      <!-- ========== SKILLS ========== -->
       <section class="screen" id="screen-skills">
         <h2>Дерево навыков · Библиотека</h2>
         <div class="panel">
@@ -376,6 +508,8 @@
         <button class="btn-secondary" type="button" data-go="profile">← К профилю</button>
       </section>
 
+      <!-- ========== BLOOD SNAKE ========== -->
+      <!-- ===== index.html v2.1 — PART 3/3  (склей после части 2) ===== -->
       <section class="screen" id="screen-snake">
         <h2>Змейка крови</h2>
         <div class="panel snake-meta-panel">
@@ -468,6 +602,7 @@
         </div>
       </section>
 
+      <!-- ========== REEL ========== -->
       <section class="screen" id="screen-reel">
         <h2>Кровавая лента</h2>
         <div class="panel">
@@ -488,6 +623,9 @@
 
     </main>
 
+    <div id="site-tip-bar" aria-live="polite"></div>
+
+    <!-- ========== НИЗ: 5 вкладок ========== -->
     <nav class="bottom-nav" role="tablist" id="bottom-nav">
       <button class="tab active" data-screen="home" type="button" role="tab" aria-label="Мироздание">
         <span class="tab-ico" aria-hidden="true">
@@ -532,6 +670,7 @@
   <script src="js/court.js"></script>
   <script src="js/snake.js"></script>
   <script>
+    /* Минимальная обвязка лора — не ломает app.js */
     (function () {
       function openLore() {
         var m = document.getElementById('lore-modal');
