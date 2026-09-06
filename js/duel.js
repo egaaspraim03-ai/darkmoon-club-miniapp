@@ -530,4 +530,442 @@
   } else {
     boot();
   }
+   /* ============================================================
+   js/duel.js — PART 2/2
+   attack · face · phases · enemy AI · BloodDuel API
+   ============================================================ */
+
+  function findCardByIid(iid) {
+    var sides = [state.player, state.enemy];
+    for (var s = 0; s < sides.length; s++) {
+      var m = sides[s].monsters;
+      for (var i = 0; i < m.length; i++) {
+        if (m[i] && m[i].instanceId === iid) {
+          return { card: m[i], side: s === 0 ? 'player' : 'enemy', idx: i, zone: 'monsters' };
+        }
+      }
+    }
+    return null;
+  }
+
+  function destroyMonster(side, idx) {
+    var arr = side === 'player' ? state.player.monsters : state.enemy.monsters;
+    var dead = arr[idx];
+    arr[idx] = null;
+    if (dead && global.BloodPassives && global.BloodPassives.onDeath) {
+      global.BloodPassives.onDeath(dead, state, side);
+    } else if (dead && dead.passiveId === 'heal' && side === 'player') {
+      /* bridge on death handled in passives; fallback */
+      state.mana = Math.min(state.manaMax, state.mana + 1);
+      log(dead.name + ' · Мост: +1 мана');
+    }
+    return dead;
+  }
+
+  function tryAttackMonster(targetIdx) {
+    if (state.busy || !state.isPlayerTurn || state.phase !== 'BATTLE') return;
+    if (!state.selectedAttacker) return;
+
+    var aIdx = state.selectedAttacker.idx;
+    var attacker = state.player.monsters[aIdx];
+    var defender = state.enemy.monsters[targetIdx];
+    if (!attacker || !defender) return;
+    if (attacker.isRest || state.attackedThisTurn[attacker.instanceId]) {
+      toast('Нельзя атаковать');
+      return;
+    }
+
+    /* Taunt rule */
+    if (hasTaunt(state.enemy) && !(defender.taunt || defender.passiveId === 'taunt')) {
+      toast('Провокация! Бей Taunt-цель');
+      return;
+    }
+
+    resolveCombat(attacker, aIdx, 'player', defender, targetIdx, 'enemy');
+  }
+
+  function tryAttackFace() {
+    if (state.busy || !state.isPlayerTurn || state.phase !== 'BATTLE') return;
+    if (!state.selectedAttacker) return;
+    if (hasTaunt(state.enemy)) {
+      toast('Провокация! Бей Taunt-цель');
+      return;
+    }
+    var aIdx = state.selectedAttacker.idx;
+    var attacker = state.player.monsters[aIdx];
+    if (!attacker || attacker.isRest || state.attackedThisTurn[attacker.instanceId]) return;
+
+    var dmg = attacker.atk | 0;
+    state.enemyLp = Math.max(0, state.enemyLp - dmg);
+    state.attackedThisTurn[attacker.instanceId] = true;
+    attacker.isRest = true;
+    state.selectedAttacker = null;
+
+    playSfx('attack');
+    shake();
+    log(attacker.name + ' бьёт в лицо! −' + dmg + ' LP');
+    toast('−' + dmg + ' LP врагу');
+    renderAll();
+    checkWin();
+  }
+
+  function resolveCombat(attacker, aIdx, aSide, defender, dIdx, dSide) {
+    state.busy = true;
+    var atk = attacker.atk | 0;
+    var defHp = defender.hp != null ? defender.hp : defender.def;
+
+    /* Scales shield: first lethal leaves 100 HP once */
+    var lethal = atk >= defHp;
+    if (lethal && defender.passiveId === 'shield' && !defender.shieldUsed) {
+      defender.shieldUsed = true;
+      defender.hp = 100;
+      log(defender.name + ' · Весы! Остаётся 100 HP');
+      playSfx('hurt');
+      shake();
+      state.attackedThisTurn[attacker.instanceId] = true;
+      attacker.isRest = true;
+      state.selectedAttacker = null;
+      state.busy = false;
+      renderAll();
+      return;
+    }
+
+    defender.hp = defHp - atk;
+    log(attacker.name + ' → ' + defender.name + ' (−' + atk + ')');
+    playSfx('attack');
+    shake();
+
+    state.attackedThisTurn[attacker.instanceId] = true;
+    attacker.isRest = true;
+    state.selectedAttacker = null;
+
+    if (defender.hp <= 0) {
+      destroyMonster(dSide, dIdx);
+      log(defender.name + ' уничтожен');
+      toast(defender.name + ' пал');
+      /* excess damage does NOT go to face (classic YGO monster battle) */
+    } else {
+      /* counter if defender survives — optional light chip: none for simplicity */
+    }
+
+    state.busy = false;
+    renderAll();
+    checkWin();
+  }
+
+  /* Enemy attacks player monster / face */
+  function enemyResolveAttack(attacker, aIdx, defender, dIdx) {
+    if (!attacker) return;
+    if (defender) {
+      resolveCombatEnemy(attacker, aIdx, defender, dIdx);
+    } else {
+      var dmg = attacker.atk | 0;
+      state.playerLp = Math.max(0, state.playerLp - dmg);
+      log('Враг: ' + attacker.name + ' в лицо! −' + dmg);
+      playSfx('hurt');
+      shake();
+      renderAll();
+      checkWin();
+    }
+  }
+
+  function resolveCombatEnemy(attacker, aIdx, defender, dIdx) {
+    var atk = attacker.atk | 0;
+    var defHp = defender.hp != null ? defender.hp : defender.def;
+    var lethal = atk >= defHp;
+    if (lethal && defender.passiveId === 'shield' && !defender.shieldUsed) {
+      defender.shieldUsed = true;
+      defender.hp = 100;
+      log(defender.name + ' · Весы! 100 HP');
+      renderAll();
+      return;
+    }
+    defender.hp = defHp - atk;
+    log('Враг: ' + attacker.name + ' → ' + defender.name + ' (−' + atk + ')');
+    playSfx('attack');
+    shake();
+    if (defender.hp <= 0) {
+      destroyMonster('player', dIdx);
+      log(defender.name + ' уничтожен');
+    }
+    renderAll();
+    checkWin();
+  }
+
+  function setPhase(phase) {
+    if (!state.active || state.busy) return;
+    if (!state.isPlayerTurn) {
+      toast('Ход врага');
+      return;
+    }
+    if (phase === 'MAIN') {
+      state.phase = 'MAIN';
+      state.selectedAttacker = null;
+      log('Phase: MAIN');
+      renderAll();
+      return;
+    }
+    if (phase === 'BATTLE') {
+      state.phase = 'BATTLE';
+      state.selectedHand = null;
+      log('Phase: BATTLE — выбери атакующего');
+      toast('⚔️ BATTLE');
+      renderAll();
+      return;
+    }
+  }
+
+  function endTurn() {
+    if (!state.active || state.busy) return;
+    if (!state.isPlayerTurn) return;
+
+    state.phase = 'END';
+    state.selectedHand = null;
+    state.selectedAttacker = null;
+    log('END → ход врага…');
+    renderAll();
+
+    state.busy = true;
+    setTimeout(function () {
+      runEnemyTurn();
+    }, 700);
+  }
+
+  function wakeMonsters(sideObj) {
+    sideObj.monsters.forEach(function (c) {
+      if (c) c.isRest = false;
+    });
+  }
+
+  function runEnemyTurn() {
+    if (checkWin()) {
+      state.busy = false;
+      return;
+    }
+
+    state.isPlayerTurn = false;
+    state.phase = 'MAIN';
+    log('Ход врага');
+
+    /* 1) summon if empty slot */
+    setTimeout(function () {
+      enemyTrySummon();
+      renderAll();
+
+      setTimeout(function () {
+        /* 2) battle */
+        state.phase = 'BATTLE';
+        enemyDoBattles();
+
+        setTimeout(function () {
+          /* 3) back to player */
+          finishEnemyTurn();
+        }, 900);
+      }, 600);
+    }, 400);
+  }
+
+  function enemyTrySummon() {
+    var slot = firstEmpty(state.enemy.monsters);
+    if (slot < 0) return;
+    var pool = ['punisher', 'eye', 'cheshire', 'lady', 'inquisitor', 'emperor'];
+    /* prefer not filling all; 50% skip if already 2+ */
+    var count = allMonsters(state.enemy).length;
+    if (count >= 2 && Math.random() < 0.4) return;
+
+    var id = pool[Math.floor(Math.random() * pool.length)];
+    if (global.BloodAI && global.BloodAI.pickSummon) {
+      id = global.BloodAI.pickSummon(state, pool) || id;
+    }
+    var c = cloneFromData(id);
+    if (!c) return;
+    c.hp = c.def;
+    state.enemy.monsters[slot] = c;
+    log('Враг призывает: ' + c.name);
+    playSfx('summon');
+    if (c.passiveId === 'battlecry') {
+      var dmg = 500;
+      state.playerLp = Math.max(0, state.playerLp - dmg);
+      log(c.name + ' · Боевой клич! −' + dmg + ' тебе');
+      shake();
+    }
+  }
+
+  function enemyDoBattles() {
+    var attackers = [];
+    state.enemy.monsters.forEach(function (c, i) {
+      if (c && !c.isRest) attackers.push({ card: c, idx: i });
+    });
+
+    if (global.BloodAI && global.BloodAI.planAttacks) {
+      var plan = global.BloodAI.planAttacks(state);
+      if (plan && plan.length) {
+        plan.forEach(function (p) {
+          if (p.face) enemyResolveAttack(p.attacker, p.aIdx, null, -1);
+          else enemyResolveAttack(p.attacker, p.aIdx, p.defender, p.dIdx);
+        });
+        return;
+      }
+    }
+
+    /* default AI */
+    attackers.forEach(function (a) {
+      if (checkWin()) return;
+      var targets;
+      if (hasTaunt(state.player)) {
+        targets = tauntTargets(state.player);
+      } else {
+        targets = state.player.monsters
+          .map(function (c, i) { return c ? i : -1; })
+          .filter(function (i) { return i >= 0; });
+      }
+
+      if (targets.length) {
+        /* hit lowest HP */
+        var best = targets[0];
+        var bestHp = 99999;
+        targets.forEach(function (i) {
+          var c = state.player.monsters[i];
+          var hp = c.hp != null ? c.hp : c.def;
+          if (hp < bestHp) { bestHp = hp; best = i; }
+        });
+        enemyResolveAttack(a.card, a.idx, state.player.monsters[best], best);
+      } else {
+        /* face */
+        enemyResolveAttack(a.card, a.idx, null, -1);
+      }
+    });
+  }
+
+  function finishEnemyTurn() {
+    if (checkWin()) {
+      state.busy = false;
+      renderAll();
+      return;
+    }
+
+    state.turn += 1;
+    state.isPlayerTurn = true;
+    state.phase = 'MAIN';
+    state.attackedThisTurn = {};
+    wakeMonsters(state.player);
+    wakeMonsters(state.enemy);
+
+    /* mana ramp */
+    state.manaMax = Math.min(10, state.manaMax + 1);
+    state.mana = state.manaMax;
+
+    /* draw 1 if hand < 6 */
+    if (state.hand.length < 6) {
+      var ids = (D && D.PILLAR_ORDER) || ['inquisitor', 'emperor', 'eye', 'punisher', 'lady', 'cheshire'];
+      var draw = cloneFromData(ids[Math.floor(Math.random() * ids.length)]);
+      if (draw) {
+        state.hand.push(draw);
+        log('Добор: ' + draw.name);
+      }
+    }
+
+    /* vision passive */
+    state.player.monsters.forEach(function (c) {
+      if (c && c.passiveId === 'vision') {
+        state.mana = Math.min(state.manaMax, state.mana + 1);
+        log(c.name + ' · Узор: +1 мана');
+      }
+      if (c && c.passiveId === 'heal') {
+        state.playerLp = Math.min(4000, state.playerLp + 400);
+        log(c.name + ' · Мост: +400 LP');
+      }
+    });
+
+    state.busy = false;
+    log('Твой ход ' + state.turn + ' · MAIN · мана ' + state.mana + '/' + state.manaMax);
+    toast('Твой ход');
+    renderAll();
+  }
+
+  function checkWin() {
+    if (state.enemyLp <= 0) {
+      state.enemyLp = 0;
+      log('🏆 ПОБЕДА! Пантеон склоняется перед тобой.');
+      toast('🏆 ПОБЕДА');
+      state.busy = true;
+      playSfx('summon');
+      return true;
+    }
+    if (state.playerLp <= 0) {
+      state.playerLp = 0;
+      log('💀 ПОРАЖЕНИЕ… Кровавая Луна гаснет.');
+      toast('💀 ПОРАЖЕНИЕ');
+      state.busy = true;
+      playSfx('hurt');
+      return true;
+    }
+    return false;
+  }
+
+  /* ---------- API ---------- */
+  global.BloodDuel = {
+    state: state,
+    start: startDuel,
+    end: endDuel,
+    onShow: onShow,
+    onHide: onHide,
+    renderAll: renderAll,
+    log: log,
+    toast: toast,
+    shake: shake,
+    playSfx: playSfx,
+    hasTaunt: hasTaunt,
+    tauntTargets: tauntTargets,
+    allMonsters: allMonsters,
+    cloneFromData: cloneFromData,
+    checkWin: checkWin,
+    applySummonPassive: applySummonPassive,
+    tryAttackMonster: tryAttackMonster,
+    tryAttackFace: tryAttackFace,
+    setPhase: setPhase,
+    endTurn: endTurn,
+    runEnemyTurn: runEnemyTurn
+  };
+
+  function bindFaceAttack() {
+    var top = document.querySelector('.duel-topbar');
+    if (!top || top._bmFace) return;
+    top._bmFace = true;
+    top.style.cursor = 'pointer';
+    top.title = 'Клик = атака в лицо (BATTLE, без Taunt)';
+    top.addEventListener('click', function () {
+      tryAttackFace();
+    });
+  }
+
+  function bindPhaseButtons() {
+    var main = document.getElementById('btn-duel-main');
+    var battle = document.getElementById('btn-duel-battle');
+    var end = document.getElementById('btn-duel-end');
+    if (main && !main._bm) {
+      main._bm = true;
+      main.addEventListener('click', function () { setPhase('MAIN'); });
+    }
+    if (battle && !battle._bm) {
+      battle._bm = true;
+      battle.addEventListener('click', function () { setPhase('BATTLE'); });
+    }
+    if (end && !end._bm) {
+      end._bm = true;
+      end.addEventListener('click', function () { endTurn(); });
+    }
+  }
+
+  function boot() {
+    bindPhaseButtons();
+    bindFaceAttack();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})(typeof window !== 'undefined' ? window : this);
 })(typeof window !== 'undefined' ? window : this);
