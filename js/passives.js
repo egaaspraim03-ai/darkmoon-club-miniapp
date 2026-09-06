@@ -29,7 +29,6 @@
 
     if (pid === 'chaos' && isPlayer) {
       state.manaMax = Math.min(10, state.manaMax + 1);
-      /* random buff */
       var allies = (state.player.monsters || []).filter(Boolean);
       var foes = (state.enemy.monsters || []).filter(Boolean);
       if (Math.random() < 0.5 && allies.length) {
@@ -84,7 +83,6 @@
     });
   }
 
-  /** Before damage: returns { hp, blocked } */
   function onLethal(defender, incomingAtk) {
     if (!defender) return { hp: 0, blocked: false };
     var hp = defender.hp != null ? defender.hp : defender.def;
@@ -113,12 +111,20 @@
     var monsters = foe.monsters || [];
     if (hasTaunt(foe)) {
       return monsters
-        .map(function (c, i) { return (c && (c.taunt || c.passiveId === 'taunt')) ? i : -1; })
-        .filter(function (i) { return i >= 0; })
-        .map(function (i) { return { type: 'monster', idx: i, card: monsters[i] }; });
+        .map(function (c, i) {
+          return c && (c.taunt || c.passiveId === 'taunt') ? i : -1;
+        })
+        .filter(function (i) {
+          return i >= 0;
+        })
+        .map(function (i) {
+          return { type: 'monster', idx: i, card: monsters[i] };
+        });
     }
     var list = monsters
-      .map(function (c, i) { return c ? { type: 'monster', idx: i, card: c } : null; })
+      .map(function (c, i) {
+        return c ? { type: 'monster', idx: i, card: c } : null;
+      })
       .filter(Boolean);
     list.push({ type: 'face' });
     return list;
@@ -127,9 +133,11 @@
   function msg(state, text) {
     if (global.BloodDuel && global.BloodDuel.log) global.BloodDuel.log(text);
   }
+
   function sfx(t) {
     if (global.BloodDuel && global.BloodDuel.playSfx) global.BloodDuel.playSfx(t);
   }
+
   function shake() {
     if (global.BloodDuel && global.BloodDuel.shake) global.BloodDuel.shake();
   }
