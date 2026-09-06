@@ -1,0 +1,386 @@
+/* =========================================================
+   css/12-duel.css — Blood Moon Pantheon TCG · 12 zones
+   Yu-Gi-Oh / Duel Links · LP 4000 · phases
+   PART 1/2
+   ========================================================= */
+
+:root {
+  --duel-red: #ff2d55;
+  --duel-red-dim: #8b0a1e;
+  --duel-slot: rgba(20, 0, 4, 0.85);
+  --duel-border: rgba(255, 45, 85, 0.55);
+  --duel-glow: 0 0 18px rgba(255, 45, 85, 0.45);
+}
+
+#screen-duel {
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 56px - env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(80, 0, 12, 0.55) 0%, transparent 55%),
+    linear-gradient(180deg, #120005 0%, #050001 100%);
+}
+
+/* --- top bar --- */
+.duel-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--duel-border);
+  background: rgba(0, 0, 0, 0.55);
+  flex-shrink: 0;
+}
+.duel-enemy-avatar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.dea-ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #1a0006;
+  border: 1px solid var(--duel-border);
+  box-shadow: var(--duel-glow);
+  font-size: 18px;
+}
+.duel-enemy-avatar b {
+  display: block;
+  font-family: Cinzel, serif;
+  font-size: 12px;
+  color: #ffd0d0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 42vw;
+}
+.duel-enemy-avatar small {
+  color: #9a6068;
+  font-size: 10px;
+}
+.duel-lp {
+  font-family: Cinzel, serif;
+  font-size: 13px;
+  color: #ffb0b8;
+  letter-spacing: 0.04em;
+}
+.duel-lp b {
+  color: var(--duel-red);
+  font-size: 16px;
+  text-shadow: 0 0 10px rgba(255, 45, 85, 0.7);
+}
+.duel-turn {
+  font-size: 11px;
+  color: #c98a90;
+}
+
+/* --- board --- */
+.duel-board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px 8px;
+  gap: 4px;
+}
+
+.zone-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  justify-items: center;
+}
+
+.card-slot {
+  width: min(28vw, 92px);
+  aspect-ratio: 5 / 7;
+  border-radius: 8px;
+  background: var(--duel-slot);
+  border: 1.5px solid var(--duel-border);
+  box-shadow: inset 0 0 12px rgba(255, 45, 85, 0.12);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+}
+.card-slot:empty::after {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  border: 1px dashed rgba(255, 45, 85, 0.25);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.card-slot.filled {
+  border-color: #ff4d6d;
+  box-shadow: var(--duel-glow);
+}
+.card-slot.selectable {
+  cursor: pointer;
+  animation: slotPulse 1.2s ease-in-out infinite;
+}
+.card-slot.targetable {
+  border-color: #ffd700;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.5);
+}
+@keyframes slotPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 45, 85, 0.3); }
+  50% { box-shadow: 0 0 18px rgba(255, 45, 85, 0.7); }
+}
+
+/* mini card inside slot */
+.slot-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #0d0004;
+  border-radius: 7px;
+  overflow: hidden;
+  position: relative;
+}
+.slot-card .sc-art {
+  flex: 1;
+  background-size: cover;
+  background-position: center top;
+  min-height: 55%;
+}
+.slot-card .sc-name {
+  font-size: 8px;
+  text-align: center;
+  padding: 2px 3px;
+  color: #ffd0d0;
+  font-family: Cinzel, serif;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.slot-card .sc-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  padding: 1px 4px 3px;
+  color: #ff8a9a;
+  font-weight: 700;
+}
+.slot-card .sc-badge {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  font-size: 9px;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.slot-card.has-taunt {
+  box-shadow: inset 0 0 0 2px #ffd700;
+}
+.slot-card.resting {
+  filter: grayscale(0.3) brightness(0.85);
+  transform: rotate(90deg) scale(0.92);
+}
+
+/* center rune */
+.duel-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.duel-rune {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Cinzel, serif;
+  font-size: 8px;
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  color: #ffd0d0;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, #ff1f45 0%, #4a000c 55%, #0a0002 100%);
+  border: 2px solid rgba(255, 45, 85, 0.7);
+  box-shadow:
+    0 0 24px rgba(255, 45, 85, 0.55),
+    inset 0 0 16px rgba(255, 80, 100, 0.35);
+  animation: runePulse 3s ease-in-out infinite;
+}
+@keyframes runePulse {
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(255, 45, 85, 0.4), inset 0 0 12px rgba(255, 80, 100, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(255, 45, 85, 0.75), inset 0 0 20px rgba(255, 80, 100, 0.45);
+  }
+}
+.duel-mana {
+  font-size: 11px;
+  color: #c98a90;
+}
+.duel-mana b {
+  color: var(--duel-red);
+}
+/* ===== PART 2/2 · hand · phases · shake · duel-mode ===== */
+
+/* hand */
+.duel-hand-wrap {
+  flex-shrink: 0;
+  padding: 4px 6px 2px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.duel-hand {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  min-height: 88px;
+  padding: 4px 2px 8px;
+}
+.hand-card {
+  width: 64px;
+  aspect-ratio: 5 / 7;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 2px solid var(--duel-border);
+  background: #110005;
+  box-shadow: var(--duel-glow);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+.hand-card:active,
+.hand-card.selected {
+  transform: translateY(-10px) scale(1.06);
+  border-color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.55);
+}
+.hand-card .hc-art {
+  height: 62%;
+  background-size: cover;
+  background-position: center top;
+}
+.hand-card .hc-name {
+  font-size: 7px;
+  text-align: center;
+  padding: 2px;
+  color: #ffd0d0;
+  font-family: Cinzel, serif;
+  line-height: 1.1;
+}
+.hand-card .hc-cost {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--duel-red);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+}
+
+/* bottom bar · phases */
+.duel-bottombar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--duel-border);
+  background: rgba(0, 0, 0, 0.7);
+  flex-shrink: 0;
+}
+.duel-actions {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+.btn-duel {
+  font-family: Cinzel, serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--duel-border);
+  background: linear-gradient(145deg, #2a0008, #0a0002);
+  color: #ffb0b8;
+  cursor: pointer;
+  box-shadow: inset 0 0 10px rgba(255, 45, 85, 0.15);
+}
+.btn-duel:active {
+  transform: scale(0.96);
+}
+.btn-duel-battle {
+  border-color: #ff4d6d;
+  color: #fff;
+  box-shadow: 0 0 14px rgba(255, 45, 85, 0.4);
+}
+.btn-duel.active {
+  background: var(--duel-red);
+  color: #fff;
+  border-color: #ff6b85;
+}
+
+.duel-log {
+  max-height: 36px;
+  overflow: hidden;
+  font-size: 10px;
+  color: #9a6068;
+  text-align: center;
+  padding: 0 10px 4px;
+  flex-shrink: 0;
+}
+
+/* screen shake on crit / battlecry */
+.duel-shake {
+  animation: duelShake 0.35s linear 2;
+}
+@keyframes duelShake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-4px, 1px); }
+  75% { transform: translate(4px, -1px); }
+}
+
+/* full-screen duel: hide bottom nav */
+body.duel-mode .bottom-nav {
+  display: none !important;
+}
+body.duel-mode #site-tip-bar {
+  display: none !important;
+}
+body.duel-mode .app .content {
+  padding-bottom: 0 !important;
+}
+
+@media (min-width: 420px) {
+  .card-slot {
+    width: 100px;
+  }
+  .hand-card {
+    width: 72px;
+  }
+  .duel-rune {
+    width: 84px;
+    height: 84px;
+    font-size: 9px;
+  }
+}
