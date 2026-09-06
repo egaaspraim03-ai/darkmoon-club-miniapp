@@ -1,3 +1,4 @@
+<!-- ===== index.html PART 1/4 · paste IN ORDER into ONE file ===== -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -23,6 +24,9 @@
   <link rel="stylesheet" href="css/9-blood-snake.css" />
   <link rel="stylesheet" href="css/10-court.css" />
   <link rel="stylesheet" href="css/11-pantheon-detail.css" />
+  <link rel="stylesheet" href="css/12-duel.css" />
+  <link rel="stylesheet" href="css/13-tower.css" />
+  <link rel="stylesheet" href="css/14-relics-roulette.css" />
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
@@ -116,7 +120,7 @@
           <button class="btn-secondary" type="button" data-go="rules">📖 Законы клуба</button>
           <button class="btn-secondary" type="button" id="btn-lore-home">📜 Это всё началось с…</button>
         </div>
-        <p class="footer-ver">v2.1 · The Blood Moon · Six Pillars · *ранг — локально / с бота</p>
+        <p class="footer-ver">v3.0 · The Blood Moon · Six Pillars · *ранг — локально / с бота</p>
       </section>
 
       <!-- ========== ПОРТАЛ (SITE) ========== -->
@@ -221,6 +225,18 @@
             <div><b>Древо древних искусств</b><small>Навыки · замки · красный неон</small></div>
             <i>›</i>
           </button>
+          <!-- ===== index.html PART 2/4 · paste IN ORDER into ONE file ===== -->
+
+          <button class="row stone-row" data-go="duel" type="button">
+            <span>⚔️</span>
+            <div><b>Дуэль Пантеона</b><small>TCG · 3+3 зоны · LP 4000</small></div>
+            <i>›</i>
+          </button>
+          <button class="row stone-row" data-go="tower" type="button">
+            <span>🏰</span>
+            <div><b>Башня Разлома</b><small>Этажи · боссы · награды</small></div>
+            <i>›</i>
+          </button>
         </div>
 
         <div id="world-lore-line" aria-live="polite"></div>
@@ -243,7 +259,6 @@
       </section>
 
       <!-- ========== ДВОР / ПЕРСОНАЖИ (court) ========== -->
-      <!-- ===== index.html v2.1 — PART 2/3  (склей после части 1) ===== -->
       <section class="screen" id="screen-characters">
         <h2 class="court-h2">Пантеон · Двор Императора</h2>
         <p class="eyebrow" style="margin-bottom:8px">Свайп по стелам · нажми — полная История</p>
@@ -350,7 +365,7 @@
         <button class="btn-secondary" type="button" data-go="archives" style="margin-top:10px">← В Библиотеку</button>
       </section>
 
-      <!-- ========== ПАНТЕОН / ЗАЛ СЛАВЫ (HALL) — 6 стелл ========== -->
+      <!-- ========== ПАНТЕОН / ЗАЛ СЛАВЫ (HALL) ========== -->
       <section class="screen" id="screen-hall">
         <h2>Пантеон Столпов</h2>
         <p class="eyebrow" style="margin-bottom:12px">Зал Славы · шесть путей крови</p>
@@ -385,13 +400,27 @@
             <b>Честь</b>
             <small>Путь Предков · Змейка</small>
           </button>
+          <button class="stele" type="button" data-go="duel">
+            <span class="stele-ico">⚔️</span>
+            <b>Дуэль</b>
+            <small>Пантеон TCG · 12 зон</small>
+          </button>
+          <button class="stele" type="button" data-go="tower">
+            <span class="stele-ico">🏰</span>
+            <b>Башня</b>
+            <small>Разлом · этажи</small>
+          </button>
+          <button class="stele" type="button" data-go="relics">
+            <span class="stele-ico">💎</span>
+            <b>Реликвии</b>
+            <small>Артефакты + рулетка</small>
+          </button>
         </div>
         <div class="tip-card pantheon-motivation">
           <div class="tip-h">🔥 Мотивация</div>
           Основа — Пантеон Столпов. Это не только иерархия, но и основа, на которой держится мир. Вы — один из них. Стойте твёрдо и помните цену.
         </div>
         <button class="btn-primary big-stone" type="button" id="btn-offer-pantheon">Вознести дар Пантеону</button>
-        <!-- fallback list (если stele CSS ещё нет — те же data-go) -->
         <div class="panel list hall-fallback hidden">
           <button class="row" data-go="quest" type="button"><span>🎯</span><div><b>Квест Невыполнимый</b><small>События и задания</small></div><i>›</i></button>
           <button class="row" data-go="obana" type="button"><span>😱</span><div><b>Обана — Рекорды</b><small>Безумные вклады</small></div><i>›</i></button>
@@ -400,8 +429,8 @@
           <button class="row" data-go="reel" type="button"><span>🎰</span><div><b>Кровавая лента</b><small>Рулетка призов (CS-style)</small></div><i>›</i></button>
           <button class="row" data-go="snake" type="button"><span>🐍</span><div><b>Змейка крови</b><small>Капли · камни · рейтинг чести</small></div><i>›</i></button>
         </div>
-      </section>
-
+  </section>
+  <!-- ===== index.html PART 3/4 · paste IN ORDER into ONE file ===== -->
       <!-- ========== QUEST / ПРЕДСКАЗАНИЯ ========== -->
       <section class="screen" id="screen-quest">
         <div class="quest-head">
@@ -509,7 +538,6 @@
       </section>
 
       <!-- ========== BLOOD SNAKE ========== -->
-      <!-- ===== index.html v2.1 — PART 3/3  (склей после части 2) ===== -->
       <section class="screen" id="screen-snake">
         <h2>Змейка крови</h2>
         <div class="panel snake-meta-panel">
@@ -602,6 +630,150 @@
         </div>
       </section>
 
+      <!-- ========== DUEL (Yu-Gi-Oh / Duel Links · 12 zones) ========== -->
+      <section class="screen" id="screen-duel">
+        <div class="duel-topbar">
+          <div class="duel-enemy-avatar">
+            <span class="dea-ico">💀</span>
+            <div>
+              <b id="enemy-name">Lord of the Pantheon</b>
+              <small>Phase: <span id="duel-phase">MAIN</span></small>
+            </div>
+          </div>
+          <div class="duel-lp enemy-lp">LP <b id="enemy-lp">4000</b></div>
+          <div class="duel-turn">Ход <b id="duel-turn">1</b></div>
+        </div>
+
+        <div class="duel-board" id="duel-board">
+          <!-- ENEMY: Monster 3 + Spell/Trap 3 -->
+          <div class="zone-row enemy-monsters" id="enemy-monsters">
+            <div class="card-slot" data-side="enemy" data-type="monster" data-idx="0"></div>
+            <div class="card-slot" data-side="enemy" data-type="monster" data-idx="1"></div>
+            <div class="card-slot" data-side="enemy" data-type="monster" data-idx="2"></div>
+          </div>
+          <div class="zone-row enemy-spells" id="enemy-spells">
+            <div class="card-slot" data-side="enemy" data-type="spell" data-idx="0"></div>
+            <div class="card-slot" data-side="enemy" data-type="spell" data-idx="1"></div>
+            <div class="card-slot" data-side="enemy" data-type="spell" data-idx="2"></div>
+          </div>
+
+          <div class="duel-center">
+            <div class="duel-rune" id="duel-rune" aria-hidden="true">
+              <span>ОКО</span>
+              <span>ПАНТЕОНА</span>
+              <span>СЛЕДИТ</span>
+            </div>
+            <div class="duel-mana">
+              <span>🩸 Мана <b id="player-mana">3</b>/<b id="player-mana-max">5</b></span>
+            </div>
+          </div>
+          <!-- ===== index.html PART 4/4 · paste IN ORDER into ONE file ===== -->
+
+          <!-- PLAYER: Spell/Trap 3 + Monster 3 (= 12 зон всего) -->
+          <div class="zone-row player-spells" id="player-spells">
+            <div class="card-slot" data-side="player" data-type="spell" data-idx="0"></div>
+            <div class="card-slot" data-side="player" data-type="spell" data-idx="1"></div>
+            <div class="card-slot" data-side="player" data-type="spell" data-idx="2"></div>
+          </div>
+          <div class="zone-row player-monsters" id="player-monsters">
+            <div class="card-slot" data-side="player" data-type="monster" data-idx="0"></div>
+            <div class="card-slot" data-side="player" data-type="monster" data-idx="1"></div>
+            <div class="card-slot" data-side="player" data-type="monster" data-idx="2"></div>
+          </div>
+        </div>
+
+        <div class="duel-hand-wrap">
+          <div class="duel-hand" id="duel-hand" aria-label="Рука"></div>
+        </div>
+
+        <div class="duel-bottombar">
+          <div class="duel-lp player-lp">LP <b id="player-lp">4000</b></div>
+          <div class="duel-actions">
+            <button type="button" class="btn-duel" id="btn-duel-main">MAIN</button>
+            <button type="button" class="btn-duel btn-duel-battle" id="btn-duel-battle">⚔️ BATTLE</button>
+            <button type="button" class="btn-duel" id="btn-duel-end">END</button>
+          </div>
+          <button type="button" class="btn-secondary" data-go="hall" id="btn-duel-exit">✕</button>
+        </div>
+        <div class="duel-log" id="duel-log" aria-live="polite"></div>
+      </section>
+
+      <!-- ========== TOWER ========== -->
+      <section class="screen" id="screen-tower">
+        <h2>Башня Разлома</h2>
+        <div class="tower-stage">
+          <div class="tower-arch">
+            <div class="tower-core" aria-hidden="true"></div>
+            <div class="tower-flame" aria-hidden="true"></div>
+          </div>
+          <div class="tower-stairs" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </div>
+        </div>
+        <div class="panel parchment-panel">
+          <p class="eyebrow">Миссия Stage</p>
+          <div class="tower-path" id="tower-path">15 → 5 → 2 → 3 → 5</div>
+          <p>Уровень <b id="tower-level">10</b> · LP <b id="tower-lp">40000</b></p>
+          <p class="muted">Собери 4 пробуждённые карты, выбери сложность и маршрут. Боссы — каждые 5 этажей.</p>
+        </div>
+        <div class="panel">
+          <p><b>Сложность</b></p>
+          <div class="home-actions" id="tower-diff">
+            <button class="chip active" type="button" data-diff="1">Обычная ×1</button>
+            <button class="chip" type="button" data-diff="1.5">Опасная ×1.5</button>
+            <button class="chip" type="button" data-diff="2.2">Кошмар ×2.2</button>
+          </div>
+          <button class="btn-primary" type="button" id="btn-tower-start" style="margin-top:12px">🩸 Отправить отряд</button>
+          <button class="btn-secondary" type="button" data-go="hall">← В Пантеон</button>
+        </div>
+      </section>
+
+      <!-- ========== RELICS ========== -->
+      <section class="screen" id="screen-relics">
+        <h2>Реликвии Пантеона</h2>
+        <div class="relics-grid" id="relics-grid">
+          <button class="relic-card" type="button" data-relic="cube">
+            <span class="relic-ico">👁️</span>
+            <b>Куб Ока</b>
+            <small>+10% к вкладам</small>
+            <span class="relic-state">НЕАКТИВНО</span>
+          </button>
+          <button class="relic-card" type="button" data-relic="seal">
+            <span class="relic-ico">🩸</span>
+            <b>Печать Жизни</b>
+            <small>+5% LP в дуэли</small>
+            <span class="relic-state">НЕАКТИВНО</span>
+          </button>
+          <button class="relic-card" type="button" data-relic="scales">
+            <span class="relic-ico">⚖️</span>
+            <b>Весы Кары</b>
+            <small>+250 ATK/DEF</small>
+            <span class="relic-state">НЕАКТИВНО</span>
+          </button>
+          <button class="relic-card" type="button" data-relic="ring">
+            <span class="relic-ico">🌀</span>
+            <b>Кольцо Троп</b>
+            <small>+1 к призыву</small>
+            <span class="relic-state">НЕАКТИВНО</span>
+          </button>
+          <button class="relic-card" type="button" data-relic="scepter">
+            <span class="relic-ico">👑</span>
+            <b>Скипетр Императора</b>
+            <small>+15% XP</small>
+            <span class="relic-state">НЕАКТИВНО</span>
+          </button>
+          <button class="relic-card" type="button" data-relic="eye-cube">
+            <span class="relic-ico">🔮</span>
+            <b>Глаз Куба</b>
+            <small>+10% легендарный</small>
+            <span class="relic-state">НЕАКТИВНО</span>
+          </button>
+        </div>
+        <p class="muted" style="text-align:center;margin:10px 0">Активных: <b id="relics-active">0</b>/6</p>
+        <button class="btn-primary" type="button" data-go="reel">🎰 Кровавая лента</button>
+        <button class="btn-secondary" type="button" data-go="hall">← В Пантеон</button>
+      </section>
+
       <!-- ========== REEL ========== -->
       <section class="screen" id="screen-reel">
         <h2>Кровавая лента</h2>
@@ -666,11 +838,31 @@
     </nav>
   </div>
 
+  <!-- MODAL: лор Столпа (слева арт, справа текст) -->
+  <div class="pillar-modal hidden" id="pillar-modal" role="dialog" aria-modal="true">
+    <div class="pillar-modal-inner">
+      <button type="button" class="btn-close-lore" id="btn-close-pillar" aria-label="Закрыть">✕</button>
+      <div class="pillar-modal-grid">
+        <div class="pillar-art" id="pillar-art"></div>
+        <div class="pillar-body">
+          <h3 id="pillar-name">—</h3>
+          <div class="pillar-passive" id="pillar-passive"></div>
+          <div class="pillar-lore scrollable" id="pillar-lore"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/2-data.js"></script>
   <script src="app.js"></script>
   <script src="js/court.js"></script>
   <script src="js/snake.js"></script>
+  <script src="js/duel.js"></script>
+  <script src="js/passives.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/tower.js"></script>
+  <script src="js/relics.js"></script>
   <script>
-    /* Минимальная обвязка лора — не ломает app.js */
     (function () {
       function openLore() {
         var m = document.getElementById('lore-modal');
