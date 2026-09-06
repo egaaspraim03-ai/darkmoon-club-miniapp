@@ -1,0 +1,111 @@
+/* =========================================================
+   css/13-tower.css — Башня Разлома
+   ========================================================= */
+
+#screen-tower .tower-stage {
+  position: relative;
+  height: 200px;
+  margin: 8px 0 14px;
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 90%, #5a0010 0%, #0a0002 65%),
+    linear-gradient(180deg, #1a0508 0%, #050001 100%);
+  border: 1px solid rgba(255, 45, 85, 0.45);
+  box-shadow: inset 0 0 40px rgba(255, 45, 85, 0.12);
+}
+
+.tower-arch {
+  position: absolute;
+  inset: 8% 16% 18%;
+  border: 3px solid #3a1518;
+  border-bottom: none;
+  border-radius: 50% 50% 0 0 / 42% 42% 0 0;
+  background: radial-gradient(circle at 50% 75%, #ff1f45 0%, #2a0008 50%, transparent 72%);
+  box-shadow:
+    0 0 50px rgba(255, 45, 85, 0.5),
+    inset 0 0 35px rgba(255, 45, 85, 0.4);
+}
+
+.tower-core {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff6b85 0%, #ff1f45 35%, #8b0a1e 80%);
+  box-shadow: 0 0 36px #ff2d55, 0 0 60px rgba(255, 45, 85, 0.45);
+  animation: towerPulse 2.4s ease-in-out infinite;
+  z-index: 2;
+}
+
+.tower-flame {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  width: 120px;
+  height: 40px;
+  margin-left: -60px;
+  background: radial-gradient(ellipse, rgba(255, 80, 40, 0.55) 0%, transparent 70%);
+  filter: blur(4px);
+  animation: flameFlicker 1.1s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.tower-stairs {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  z-index: 1;
+  pointer-events: none;
+}
+.tower-stairs i {
+  display: block;
+  height: 6px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #5a1520 20%, #8b2030 50%, #5a1520 80%, transparent);
+  border: 1px solid rgba(255, 45, 85, 0.25);
+  box-shadow: 0 0 8px rgba(255, 45, 85, 0.2);
+}
+.tower-stairs i:nth-child(1) { width: 48px; }
+.tower-stairs i:nth-child(2) { width: 72px; }
+.tower-stairs i:nth-child(3) { width: 96px; }
+
+.tower-path {
+  font-family: Cinzel, serif;
+  font-size: 18px;
+  color: #ff2d55;
+  text-align: center;
+  letter-spacing: 0.08em;
+  margin: 6px 0 10px;
+  text-shadow: 0 0 12px rgba(255, 45, 85, 0.6);
+}
+
+#tower-diff .chip.active {
+  border-color: #ff2d55;
+  box-shadow: 0 0 12px rgba(255, 45, 85, 0.35);
+  color: #fff;
+}
+
+@keyframes towerPulse {
+  0%, 100% {
+    box-shadow: 0 0 22px #ff2d55, 0 0 40px rgba(255, 45, 85, 0.35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 40px #ff4d6d, 0 0 70px rgba(255, 45, 85, 0.55);
+    transform: scale(1.06);
+  }
+}
+
+@keyframes flameFlicker {
+  from { opacity: 0.55; transform: scaleX(0.95); }
+  to { opacity: 0.95; transform: scaleX(1.08); }
+}
