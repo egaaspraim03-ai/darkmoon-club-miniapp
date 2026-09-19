@@ -4,33 +4,53 @@
 (function (global) {
   'use strict';
 
-  var active = {}; /* relicId -> true */
+  var active = {};
 
-  function $(id) { return document.getElementById(id); }
+  function $(id) {
+    return document.getElementById(id);
+  }
 
   function toast(msg) {
-    if (global.BloodDuel && global.BloodDuel.toast) return global.BloodDuel.toast(msg);
+    if (typeof global.showToast === 'function') {
+      try {
+        global.showToast(msg);
+        return;
+      } catch (e) {}
+    }
+    if (global.BloodDuel && global.BloodDuel.toast) {
+      return global.BloodDuel.toast(msg);
+    }
     var t = $('toast');
     if (!t) return;
     t.textContent = msg;
     t.classList.add('show');
+    t.style.opacity = '1';
     clearTimeout(toast._t);
-    toast._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    toast._t = setTimeout(function () {
+      t.classList.remove('show');
+      t.style.opacity = '0';
+    }, 2200);
   }
 
   function load() {
     try {
       var raw = localStorage.getItem('bm_relics');
       if (raw) active = JSON.parse(raw) || {};
-    } catch (e) { active = {}; }
+    } catch (e) {
+      active = {};
+    }
   }
 
   function save() {
-    try { localStorage.setItem('bm_relics', JSON.stringify(active)); } catch (e) {}
+    try {
+      localStorage.setItem('bm_relics', JSON.stringify(active));
+    } catch (e) {}
   }
 
   function countActive() {
-    return Object.keys(active).filter(function (k) { return active[k]; }).length;
+    return Object.keys(active).filter(function (k) {
+      return active[k];
+    }).length;
   }
 
   function render() {
@@ -51,15 +71,20 @@
     save();
     render();
     var names = {
-      cube: 'Куб Ока', seal: 'Печать Жизни', scales: 'Весы Кары',
-      ring: 'Кольцо Троп', scepter: 'Скипетр Императора', 'eye-cube': 'Глаз Куба'
+      cube: 'Куб Ока',
+      seal: 'Печать Жизни',
+      scales: 'Весы Кары',
+      ring: 'Кольцо Троп',
+      scepter: 'Скипетр Императора',
+      'eye-cube': 'Глаз Куба'
     };
     toast((active[id] ? 'Активировано: ' : 'Снято: ') + (names[id] || id));
   }
 
-  function isActive(id) { return !!active[id]; }
+  function isActive(id) {
+    return !!active[id];
+  }
 
-  /** Бонусы для дуэли / башни */
   function getBonuses() {
     return {
       lpMult: active.seal ? 1.05 : 1,
@@ -82,11 +107,11 @@
     });
   }
 
-  /* ---------- модалка лора Столпа ---------- */
   function openPillar(id) {
-    var data = global.BloodData && global.BloodData.getPillar
-      ? global.BloodData.getPillar(id)
-      : (global.BloodData && global.BloodData.PILLARS && global.BloodData.PILLARS[id]);
+    var data =
+      global.BloodData && global.BloodData.getPillar
+        ? global.BloodData.getPillar(id)
+        : global.BloodData && global.BloodData.PILLARS && global.BloodData.PILLARS[id];
     if (!data) {
       toast('Столп не найден');
       return;
@@ -102,7 +127,10 @@
     var lore = $('pillar-lore');
     if (art) art.style.backgroundImage = 'url("' + (data.art || '') + '")';
     if (name) name.textContent = data.name + (data.title ? ' · ' + data.title : '');
-    if (pas) pas.textContent = (data.passiveName || '') + ' — ' + (data.passiveText || data.short || '');
+    if (pas) {
+      pas.textContent =
+        (data.passiveName || '') + ' — ' + (data.passiveText || data.short || '');
+    }
     if (lore) lore.textContent = data.lore || data.short || '';
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
@@ -149,10 +177,11 @@
     getBonuses: getBonuses,
     openPillar: openPillar,
     closePillar: closePillar,
-    render: render
+    render: render,
+    load: load,
+    save: save
   };
 
-  /* back-compat */
   global.openPantheonDetail = openPillar;
   global.closePantheonDetail = closePillar;
 
