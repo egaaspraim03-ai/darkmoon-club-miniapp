@@ -1,6 +1,6 @@
 /* ============================================================
    app.js — The Blood Moon Mini App v3.0
-   Навигация · showScreen · хуки duel/tower/relics
+   Навигация · showScreen · hooks · калькулятор · рулетка
    PART 1/2
    ============================================================ */
 (function () {
@@ -94,7 +94,6 @@
       t.classList.toggle('active', t.getAttribute('data-screen') === tabId);
     });
 
-    /* hooks v3 */
     if (id === 'duel') {
       document.body.classList.add('duel-mode');
       if (window.BloodDuel && typeof window.BloodDuel.onShow === 'function') {
@@ -229,15 +228,35 @@
           out.textContent = 'E нельзя расколоть';
           return;
         }
-        out.textContent = n + ' ' + names[r] + ' → ' + n * 2 + ' ' + names[r - 1] + ' (раскол)';
+        out.textContent =
+          n + ' ' + names[r] + ' → ' + n * 2 + ' ' + names[r - 1] + ' (раскол)';
       } else {
-        out.textContent = n + ' ' + names[r] + ' на рынке НН ≈ ' + n * 3 + ' E-экв. (демо)';
+        out.textContent =
+          n + ' ' + names[r] + ' на рынке НН ≈ ' + n * 3 + ' E-экв. (демо)';
       }
     }
 
     if (btn) btn.addEventListener('click', runCalc);
     if (amount) amount.addEventListener('input', runCalc);
     if (from) from.addEventListener('change', runCalc);
+  }
+
+  function bindContrib() {
+    var contribBtn = $('btn-contrib');
+    if (!contribBtn || contribBtn._bm) return;
+    contribBtn._bm = true;
+    contribBtn.addEventListener('click', function () {
+      var raw = window.prompt('Сумма вклада (демо):', '100');
+      if (raw == null) return;
+      var n = parseInt(raw, 10) || 0;
+      if (window.BloodBot && window.BloodBot.postContrib) {
+        window.BloodBot.postContrib(n).catch(function () {
+          showToast('Вклад: ошибка сети');
+        });
+      } else {
+        showToast('BloodBot не подключён');
+      }
+    });
   }
 
   function bindReel() {
@@ -298,8 +317,7 @@
       }, 3300);
     });
   }
-
-  function bindProfileDemo() {
+   function bindProfileDemo() {
     var sim = $('sim-cards');
     if (!sim) return;
     sim.addEventListener('input', function () {
@@ -335,7 +353,9 @@
       if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-        var u = window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+        var u =
+          window.Telegram.WebApp.initDataUnsafe &&
+          window.Telegram.WebApp.initDataUnsafe.user;
         if (u) {
           var w = $('welcome');
           if (w) {
@@ -359,6 +379,7 @@
   function boot() {
     bindNav();
     bindRankCalc();
+    bindContrib();
     bindReel();
     bindProfileDemo();
     bindLaws();
@@ -381,6 +402,12 @@
         }
       });
     }
+
+    if (window.BloodBot && typeof window.BloodBot.handleStartParam === 'function') {
+      try {
+        window.BloodBot.handleStartParam();
+      } catch (e) {}
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -389,3 +416,4 @@
     boot();
   }
 })();
+   
