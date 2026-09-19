@@ -1,8 +1,7 @@
 /* ============================================================
-   js/duel.js — Blood Moon Pantheon TCG v3.0
-   12 zones · LP 4000 · MAIN / BATTLE / END
-   PART 1/2 — state · render · hand · summon
-   Depends: js/2-data.js (BloodData)
+   js/duel.js — Blood Moon Pantheon TCG v3.0 (полный)
+   Depends: 2-data.js, passives.js, ai.js, bot.js (optional)
+   PART 1/3
    ============================================================ */
 (function (global) {
   'use strict';
@@ -11,14 +10,17 @@
 
   function defaults() {
     return (D && D.DUEL_DEFAULTS) || {
-      playerLp: 4000, enemyLp: 4000,
-      manaStart: 3, manaMaxStart: 5, manaMaxCap: 10
+      playerLp: 4000,
+      enemyLp: 4000,
+      manaStart: 3,
+      manaMaxStart: 5,
+      manaMaxCap: 10
     };
   }
 
   var state = {
     active: false,
-    phase: 'MAIN',       // MAIN | BATTLE | END
+    phase: 'MAIN',
     turn: 1,
     isPlayerTurn: true,
     playerLp: 4000,
@@ -26,12 +28,11 @@
     mana: 3,
     manaMax: 5,
     hand: [],
-    /* monster[3], spell[3] — null or card instance */
     player: { monsters: [null, null, null], spells: [null, null, null] },
-    enemy:  { monsters: [null, null, null], spells: [null, null, null] },
-    selectedHand: null,  // instanceId
-    selectedAttacker: null, // { side, idx }
-    attackedThisTurn: {},   // instanceId -> true
+    enemy: { monsters: [null, null, null], spells: [null, null, null] },
+    selectedHand: null,
+    selectedAttacker: null,
+    attackedThisTurn: {},
     log: [],
     busy: false
   };
@@ -44,23 +45,31 @@
   }
 
   function toast(msg) {
-    if (global.BloodMoon && typeof global.showToast === 'function') {
-      try { global.showToast(msg); return; } catch (e) {}
+    if (typeof global.showToast === 'function') {
+      try {
+        global.showToast(msg);
+        return;
+      } catch (e) {}
     }
     var t = document.getElementById('toast');
     if (!t) return;
     t.textContent = msg;
     t.classList.add('show');
+    t.style.opacity = '1';
     clearTimeout(toast._t);
-    toast._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    toast._t = setTimeout(function () {
+      t.classList.remove('show');
+      t.style.opacity = '0';
+    }, 2200);
   }
 
   function shake() {
     var board = document.getElementById('duel-board');
-    var app = document.getElementById('app-container') || document.body;
-    var target = board || app;
+    var target = board || document.body;
     target.classList.add('duel-shake');
-    setTimeout(function () { target.classList.remove('duel-shake'); }, 400);
+    setTimeout(function () {
+      target.classList.remove('duel-shake');
+    }, 400);
   }
 
   function playSfx(type) {
@@ -77,18 +86,31 @@
       if (ctx.state === 'suspended') ctx.resume();
       var o = ctx.createOscillator();
       var g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      if (type === 'summon') { o.frequency.value = 880; g.gain.value = 0.25; o.type = 'sine'; }
-      else if (type === 'attack') { o.frequency.value = 160; g.gain.value = 0.35; o.type = 'sawtooth'; }
-      else if (type === 'hurt') { o.frequency.value = 90; g.gain.value = 0.3; o.type = 'square'; }
-      else { o.frequency.value = 440; g.gain.value = 0.15; o.type = 'triangle'; }
+      o.connect(g);
+      g.connect(ctx.destination);
+      if (type === 'summon') {
+        o.frequency.value = 880;
+        g.gain.value = 0.25;
+        o.type = 'sine';
+      } else if (type === 'attack') {
+        o.frequency.value = 160;
+        g.gain.value = 0.35;
+        o.type = 'sawtooth';
+      } else if (type === 'hurt') {
+        o.frequency.value = 90;
+        g.gain.value = 0.3;
+        o.type = 'square';
+      } else {
+        o.frequency.value = 440;
+        g.gain.value = 0.15;
+        o.type = 'triangle';
+      }
       o.start();
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
       o.stop(ctx.currentTime + 0.26);
     } catch (e2) {}
   }
 
-  /* ---------- helpers ---------- */
   function emptySide() {
     return { monsters: [null, null, null], spells: [null, null, null] };
   }
@@ -103,13 +125,19 @@
   }
 
   function hasTaunt(sideObj) {
-    return allMonsters(sideObj).some(function (c) { return c.taunt || c.passiveId === 'taunt'; });
+    return allMonsters(sideObj).some(function (c) {
+      return c.taunt || c.passiveId === 'taunt';
+    });
   }
 
   function tauntTargets(sideObj) {
     return sideObj.monsters
-      .map(function (c, i) { return c && (c.taunt || c.passiveId === 'taunt') ? i : -1; })
-      .filter(function (i) { return i >= 0; });
+      .map(function (c, i) {
+        return c && (c.taunt || c.passiveId === 'taunt') ? i : -1;
+      })
+      .filter(function (i) {
+        return i >= 0;
+      });
   }
 
   function cloneFromData(id) {
@@ -135,34 +163,56 @@
     };
   }
 
-  /* ---------- render ---------- */
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
   function cardHtml(card, compact) {
     if (!card) return '';
-    var tauntCls = (card.taunt || card.passiveId === 'taunt') ? ' has-taunt' : '';
+    var tauntCls = card.taunt || card.passiveId === 'taunt' ? ' has-taunt' : '';
     var restCls = card.isRest ? ' resting' : '';
     if (compact) {
       return (
-        '<div class="slot-card' + tauntCls + restCls + '" data-iid="' + card.instanceId + '">' +
-        '<div class="sc-art" style="background-image:url(\'' + (card.art || '') + '\')"></div>' +
-        '<div class="sc-name">' + esc(card.name) + '</div>' +
-        '<div class="sc-stats"><span>⚔' + card.atk + '</span><span>♥' + (card.hp != null ? card.hp : card.def) + '</span></div>' +
-        (card.taunt || card.passiveId === 'taunt' ? '<span class="sc-badge">🛡</span>' : '') +
+        '<div class="slot-card' +
+        tauntCls +
+        restCls +
+        '" data-iid="' +
+        card.instanceId +
+        '">' +
+        '<div class="sc-art" style="background-image:url(\'' +
+        (card.art || '') +
+        '\')"></div>' +
+        '<div class="sc-name">' +
+        esc(card.name) +
+        '</div>' +
+        '<div class="sc-stats"><span>⚔' +
+        card.atk +
+        '</span><span>♥' +
+        (card.hp != null ? card.hp : card.def) +
+        '</span></div>' +
+        (card.taunt || card.passiveId === 'taunt'
+          ? '<span class="sc-badge">🛡</span>'
+          : '') +
         '</div>'
       );
     }
     return (
-      '<div class="hand-card" data-iid="' + card.instanceId + '">' +
-      '<span class="hc-cost">' + card.cost + '</span>' +
-      '<div class="hc-art" style="background-image:url(\'' + (card.art || '') + '\')"></div>' +
-      '<div class="hc-name">' + esc(card.name) + '</div>' +
+      '<div class="hand-card" data-iid="' +
+      card.instanceId +
+      '">' +
+      '<span class="hc-cost">' +
+      card.cost +
+      '</span>' +
+      '<div class="hc-art" style="background-image:url(\'' +
+      (card.art || '') +
+      '\')"></div>' +
+      '<div class="hc-name">' +
+      esc(card.name) +
+      '</div>' +
       '</div>'
     );
-  }
-
-  function esc(s) {
-    return String(s || '').replace(/[&<>"']/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-    });
   }
 
   function fillZoneRow(rowId, cards, side) {
@@ -183,16 +233,21 @@
   function renderHand() {
     var hand = document.getElementById('duel-hand');
     if (!hand) return;
-    hand.innerHTML = state.hand.map(function (c) {
-      var sel = state.selectedHand === c.instanceId ? ' selected' : '';
-      return cardHtml(c, false).replace('class="hand-card"', 'class="hand-card' + sel + '"');
-    }).join('');
+    hand.innerHTML = state.hand
+      .map(function (c) {
+        var sel = state.selectedHand === c.instanceId ? ' selected' : '';
+        return cardHtml(c, false).replace(
+          'class="hand-card"',
+          'class="hand-card' + sel + '"'
+        );
+      })
+      .join('');
 
     hand.querySelectorAll('.hand-card').forEach(function (el) {
       el.addEventListener('click', function () {
         if (!state.isPlayerTurn || state.phase !== 'MAIN' || state.busy) return;
         var iid = el.getAttribute('data-iid');
-        state.selectedHand = (state.selectedHand === iid) ? null : iid;
+        state.selectedHand = state.selectedHand === iid ? null : iid;
         state.selectedAttacker = null;
         renderAll();
       });
@@ -200,10 +255,10 @@
   }
 
   function renderUi() {
-    var set = function (id, v) {
+    function set(id, v) {
       var el = document.getElementById(id);
       if (el) el.textContent = String(v);
-    };
+    }
     set('player-lp', state.playerLp);
     set('enemy-lp', state.enemyLp);
     set('player-mana', state.mana);
@@ -220,20 +275,23 @@
   }
 
   function highlightSlots() {
-    /* summon targets */
     if (state.isPlayerTurn && state.phase === 'MAIN' && state.selectedHand) {
-      var card = state.hand.find(function (c) { return c.instanceId === state.selectedHand; });
+      var card = state.hand.find(function (c) {
+        return c.instanceId === state.selectedHand;
+      });
       if (card) {
-        var row = document.getElementById(card.type === 'spell' ? 'player-spells' : 'player-monsters');
+        var row = document.getElementById(
+          card.type === 'spell' ? 'player-spells' : 'player-monsters'
+        );
         if (row) {
           row.querySelectorAll('.card-slot').forEach(function (slot, i) {
-            var arr = card.type === 'spell' ? state.player.spells : state.player.monsters;
+            var arr =
+              card.type === 'spell' ? state.player.spells : state.player.monsters;
             if (!arr[i]) slot.classList.add('selectable');
           });
         }
       }
     }
-    /* attack targets */
     if (state.isPlayerTurn && state.phase === 'BATTLE' && state.selectedAttacker) {
       var must = hasTaunt(state.enemy);
       state.enemy.monsters.forEach(function (c, i) {
@@ -242,10 +300,10 @@
         var row = document.getElementById('enemy-monsters');
         if (row && row.children[i]) row.children[i].classList.add('targetable');
       });
-      /* face if no taunt */
-      if (!must) {
-        var top = document.querySelector('.duel-topbar');
-        if (top) top.classList.add('face-target');
+      var top = document.querySelector('.duel-topbar');
+      if (top) {
+        if (!must) top.classList.add('face-target');
+        else top.classList.remove('face-target');
       }
     } else {
       var top2 = document.querySelector('.duel-topbar');
@@ -278,13 +336,11 @@
     var type = slot.getAttribute('data-type');
     var idx = parseInt(slot.getAttribute('data-idx'), 10) || 0;
 
-    /* SUMMON */
     if (state.phase === 'MAIN' && state.selectedHand && side === 'player') {
       trySummon(type, idx);
       return;
     }
 
-    /* select attacker */
     if (state.phase === 'BATTLE' && side === 'player' && type === 'monster') {
       var atkCard = state.player.monsters[idx];
       if (!atkCard || atkCard.isRest) return;
@@ -299,41 +355,53 @@
       return;
     }
 
-    /* attack enemy monster */
-    if (state.phase === 'BATTLE' && state.selectedAttacker && side === 'enemy' && type === 'monster') {
+    if (
+      state.phase === 'BATTLE' &&
+      state.selectedAttacker &&
+      side === 'enemy' &&
+      type === 'monster'
+    ) {
       tryAttackMonster(idx);
     }
   }
-
-  function trySummon(type, idx) {
-    var card = state.hand.find(function (c) { return c.instanceId === state.selectedHand; });
+   function trySummon(type, idx) {
+    var card = state.hand.find(function (c) {
+      return c.instanceId === state.selectedHand;
+    });
     if (!card) return;
     if (card.cost > state.mana) {
       toast('Недостаточно маны (крови)');
       return;
     }
-    var arr = type === 'spell' ? state.player.spells : state.player.monsters;
-    if (type === 'spell' && card.type !== 'spell') {
-      /* all pillars are monsters for now — force monster row */
+
+    if (card.type !== 'spell') {
       type = 'monster';
+    }
+
+    var arr = type === 'spell' ? state.player.spells : state.player.monsters;
+    if (type !== 'spell') {
       arr = state.player.monsters;
-      idx = firstEmpty(arr);
+      if (arr[idx]) {
+        idx = firstEmpty(arr);
+      }
       if (idx < 0) {
         toast('Нет свободной Monster Zone');
         return;
       }
+    } else if (arr[idx]) {
+      toast('Зона занята');
+      return;
     }
+
     if (arr[idx]) {
       toast('Зона занята');
       return;
     }
-    if (type === 'monster' && firstEmpty(state.player.monsters) < 0 && arr[idx]) {
-      toast('Нет места');
-      return;
-    }
 
     state.mana -= card.cost;
-    state.hand = state.hand.filter(function (c) { return c.instanceId !== card.instanceId; });
+    state.hand = state.hand.filter(function (c) {
+      return c.instanceId !== card.instanceId;
+    });
     card.hp = card.def;
     card.isRest = false;
     arr[idx] = card;
@@ -344,7 +412,6 @@
     log('Призыв: ' + card.name + ' (' + card.cost + '🩸)');
     toast('Призван: ' + card.name);
 
-    /* battlecry / passives on summon */
     if (global.BloodPassives && global.BloodPassives.onSummon) {
       global.BloodPassives.onSummon(card, state, 'player');
     } else {
@@ -359,22 +426,36 @@
     if (!card) return;
     if (card.passiveId === 'battlecry') {
       var dmg = 500;
-      state.enemyLp = Math.max(0, state.enemyLp - dmg);
+      if (side === 'player') state.enemyLp = Math.max(0, state.enemyLp - dmg);
+      else state.playerLp = Math.max(0, state.playerLp - dmg);
       log(card.name + ' · Боевой клич! −' + dmg + ' LP');
       playSfx('hurt');
       shake();
     }
-    if (card.passiveId === 'heal') {
+    if (card.passiveId === 'heal' && side === 'player') {
       state.playerLp = Math.min(4000, state.playerLp + 400);
       log(card.name + ' · Мост: +400 LP');
     }
-    if (card.passiveId === 'chaos') {
+    if (card.passiveId === 'chaos' && side === 'player') {
       state.manaMax = Math.min(10, state.manaMax + 1);
       log(card.name + ' · Улыбка: макс. мана ' + state.manaMax);
     }
+    if (card.passiveId === 'taunt') card.taunt = true;
   }
 
-  /* ---------- start / enter ---------- */
+  function seedEnemy() {
+    var pool = ['punisher', 'emperor', 'cheshire', 'eye'];
+    var n = 1 + Math.floor(Math.random() * 2);
+    for (var i = 0; i < n; i++) {
+      var id = pool[Math.floor(Math.random() * pool.length)];
+      var c = cloneFromData(id);
+      if (c) {
+        c.hp = c.def;
+        state.enemy.monsters[i] = c;
+      }
+    }
+  }
+
   function startDuel(opts) {
     opts = opts || {};
     var def = defaults();
@@ -394,29 +475,17 @@
     state.log = [];
     state.busy = false;
 
-    var handIds = (opts.hand || (D && D.STARTER_HAND) || ['inquisitor', 'eye', 'lady', 'cheshire']);
+    var handIds =
+      opts.hand || (D && D.STARTER_HAND) || ['inquisitor', 'eye', 'lady', 'cheshire'];
     state.hand = handIds.map(cloneFromData).filter(Boolean);
 
-    /* enemy pre-summon 1–2 weak threats */
     seedEnemy();
 
     document.body.classList.add('duel-mode');
+    hideResult();
     log('Дуэль начата. LP 4000 · MAIN Phase');
     toast('⚔️ Дуэль Пантеона');
     renderAll();
-  }
-
-  function seedEnemy() {
-    var pool = ['punisher', 'emperor', 'cheshire', 'eye'];
-    var n = 1 + Math.floor(Math.random() * 2);
-    for (var i = 0; i < n; i++) {
-      var id = pool[Math.floor(Math.random() * pool.length)];
-      var c = cloneFromData(id);
-      if (c) {
-        c.hp = c.def;
-        state.enemy.monsters[i] = c;
-      }
-    }
   }
 
   function endDuel() {
@@ -427,125 +496,11 @@
   function onShow() {
     if (!state.active) startDuel();
     else renderAll();
+    document.body.classList.add('duel-mode');
   }
 
   function onHide() {
-    /* keep state for rematch; only leave duel-mode chrome */
     document.body.classList.remove('duel-mode');
-  }
-
-  /* export partial — PART 2 adds attack / phases / AI */
-  global.BloodDuel = {
-    state: state,
-    start: startDuel,
-    end: endDuel,
-    onShow: onShow,
-    onHide: onHide,
-    renderAll: renderAll,
-    log: log,
-    toast: toast,
-    shake: shake,
-    playSfx: playSfx,
-    hasTaunt: hasTaunt,
-    tauntTargets: tauntTargets,
-    allMonsters: allMonsters,
-    cloneFromData: cloneFromData,
-    checkWin: checkWin,
-    applySummonPassive: applySummonPassive,
-    /* filled in PART 2 */
-    tryAttackMonster: null,
-    tryAttackFace: null,
-    setPhase: null,
-    endTurn: null
-  };
-
-  function checkWin() {
-    if (state.enemyLp <= 0) {
-      state.enemyLp = 0;
-      log('🏆 ПОБЕДА! Враг пал.');
-      toast('ПОБЕДА');
-      state.busy = true;
-      playSfx('summon');
-      return true;
-    }
-    if (state.playerLp <= 0) {
-      state.playerLp = 0;
-      log('💀 ПОРАЖЕНИЕ…');
-      toast('ПОРАЖЕНИЕ');
-      state.busy = true;
-      playSfx('hurt');
-      return true;
-    }
-    return false;
-  }
-
-  /* face click on enemy LP bar */
-  function bindFaceAttack() {
-    var top = document.querySelector('.duel-topbar');
-    if (!top || top._bmFace) return;
-    top._bmFace = true;
-    top.addEventListener('click', function () {
-      if (!state.isPlayerTurn || state.phase !== 'BATTLE' || !state.selectedAttacker) return;
-      if (hasTaunt(state.enemy)) {
-        toast('Провокация! Бей Taunt-цель');
-        return;
-      }
-      if (typeof global.BloodDuel.tryAttackFace === 'function') {
-        global.BloodDuel.tryAttackFace();
-      }
-    });
-  }
-
-  function bindPhaseButtons() {
-    var main = document.getElementById('btn-duel-main');
-    var battle = document.getElementById('btn-duel-battle');
-    var end = document.getElementById('btn-duel-end');
-    if (main && !main._bm) {
-      main._bm = true;
-      main.addEventListener('click', function () {
-        if (global.BloodDuel.setPhase) global.BloodDuel.setPhase('MAIN');
-      });
-    }
-    if (battle && !battle._bm) {
-      battle._bm = true;
-      battle.addEventListener('click', function () {
-        if (global.BloodDuel.setPhase) global.BloodDuel.setPhase('BATTLE');
-      });
-    }
-    if (end && !end._bm) {
-      end._bm = true;
-      end.addEventListener('click', function () {
-        if (global.BloodDuel.endTurn) global.BloodDuel.endTurn();
-      });
-    }
-  }
-
-  function boot() {
-    bindPhaseButtons();
-    bindFaceAttack();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-   /* ============================================================
-   js/duel.js — PART 2/2
-   attack · face · phases · enemy AI · BloodDuel API
-   ============================================================ */
-
-  function findCardByIid(iid) {
-    var sides = [state.player, state.enemy];
-    for (var s = 0; s < sides.length; s++) {
-      var m = sides[s].monsters;
-      for (var i = 0; i < m.length; i++) {
-        if (m[i] && m[i].instanceId === iid) {
-          return { card: m[i], side: s === 0 ? 'player' : 'enemy', idx: i, zone: 'monsters' };
-        }
-      }
-    }
-    return null;
   }
 
   function destroyMonster(side, idx) {
@@ -555,7 +510,6 @@
     if (dead && global.BloodPassives && global.BloodPassives.onDeath) {
       global.BloodPassives.onDeath(dead, state, side);
     } else if (dead && dead.passiveId === 'heal' && side === 'player') {
-      /* bridge on death handled in passives; fallback */
       state.mana = Math.min(state.manaMax, state.mana + 1);
       log(dead.name + ' · Мост: +1 мана');
     }
@@ -575,7 +529,6 @@
       return;
     }
 
-    /* Taunt rule */
     if (hasTaunt(state.enemy) && !(defender.taunt || defender.passiveId === 'taunt')) {
       toast('Провокация! Бей Taunt-цель');
       return;
@@ -614,7 +567,6 @@
     var atk = attacker.atk | 0;
     var defHp = defender.hp != null ? defender.hp : defender.def;
 
-    /* Scales shield: first lethal leaves 100 HP once */
     var lethal = atk >= defHp;
     if (lethal && defender.passiveId === 'shield' && !defender.shieldUsed) {
       defender.shieldUsed = true;
@@ -643,9 +595,6 @@
       destroyMonster(dSide, dIdx);
       log(defender.name + ' уничтожен');
       toast(defender.name + ' пал');
-      /* excess damage does NOT go to face (classic YGO monster battle) */
-    } else {
-      /* counter if defender survives — optional light chip: none for simplicity */
     }
 
     state.busy = false;
@@ -653,7 +602,6 @@
     checkWin();
   }
 
-  /* Enemy attacks player monster / face */
   function enemyResolveAttack(attacker, aIdx, defender, dIdx) {
     if (!attacker) return;
     if (defender) {
@@ -729,9 +677,8 @@
     setTimeout(function () {
       runEnemyTurn();
     }, 700);
-  }
-
-  function wakeMonsters(sideObj) {
+         }
+   function wakeMonsters(sideObj) {
     sideObj.monsters.forEach(function (c) {
       if (c) c.isRest = false;
     });
@@ -747,18 +694,15 @@
     state.phase = 'MAIN';
     log('Ход врага');
 
-    /* 1) summon if empty slot */
     setTimeout(function () {
       enemyTrySummon();
       renderAll();
 
       setTimeout(function () {
-        /* 2) battle */
         state.phase = 'BATTLE';
         enemyDoBattles();
 
         setTimeout(function () {
-          /* 3) back to player */
           finishEnemyTurn();
         }, 900);
       }, 600);
@@ -769,7 +713,6 @@
     var slot = firstEmpty(state.enemy.monsters);
     if (slot < 0) return;
     var pool = ['punisher', 'eye', 'cheshire', 'lady', 'inquisitor', 'emperor'];
-    /* prefer not filling all; 50% skip if already 2+ */
     var count = allMonsters(state.enemy).length;
     if (count >= 2 && Math.random() < 0.4) return;
 
@@ -783,7 +726,9 @@
     state.enemy.monsters[slot] = c;
     log('Враг призывает: ' + c.name);
     playSfx('summon');
-    if (c.passiveId === 'battlecry') {
+    if (global.BloodPassives && global.BloodPassives.onSummon) {
+      global.BloodPassives.onSummon(c, state, 'enemy');
+    } else if (c.passiveId === 'battlecry') {
       var dmg = 500;
       state.playerLp = Math.max(0, state.playerLp - dmg);
       log(c.name + ' · Боевой клич! −' + dmg + ' тебе');
@@ -808,7 +753,6 @@
       }
     }
 
-    /* default AI */
     attackers.forEach(function (a) {
       if (checkWin()) return;
       var targets;
@@ -816,22 +760,27 @@
         targets = tauntTargets(state.player);
       } else {
         targets = state.player.monsters
-          .map(function (c, i) { return c ? i : -1; })
-          .filter(function (i) { return i >= 0; });
+          .map(function (c, i) {
+            return c ? i : -1;
+          })
+          .filter(function (i) {
+            return i >= 0;
+          });
       }
 
       if (targets.length) {
-        /* hit lowest HP */
         var best = targets[0];
         var bestHp = 99999;
         targets.forEach(function (i) {
           var c = state.player.monsters[i];
           var hp = c.hp != null ? c.hp : c.def;
-          if (hp < bestHp) { bestHp = hp; best = i; }
+          if (hp < bestHp) {
+            bestHp = hp;
+            best = i;
+          }
         });
         enemyResolveAttack(a.card, a.idx, state.player.monsters[best], best);
       } else {
-        /* face */
         enemyResolveAttack(a.card, a.idx, null, -1);
       }
     });
@@ -851,13 +800,13 @@
     wakeMonsters(state.player);
     wakeMonsters(state.enemy);
 
-    /* mana ramp */
     state.manaMax = Math.min(10, state.manaMax + 1);
     state.mana = state.manaMax;
 
-    /* draw 1 if hand < 6 */
     if (state.hand.length < 6) {
-      var ids = (D && D.PILLAR_ORDER) || ['inquisitor', 'emperor', 'eye', 'punisher', 'lady', 'cheshire'];
+      var ids =
+        (D && D.PILLAR_ORDER) ||
+        ['inquisitor', 'emperor', 'eye', 'punisher', 'lady', 'cheshire'];
       var draw = cloneFromData(ids[Math.floor(Math.random() * ids.length)]);
       if (draw) {
         state.hand.push(draw);
@@ -865,22 +814,69 @@
       }
     }
 
-    /* vision passive */
-    state.player.monsters.forEach(function (c) {
-      if (c && c.passiveId === 'vision') {
-        state.mana = Math.min(state.manaMax, state.mana + 1);
-        log(c.name + ' · Узор: +1 мана');
-      }
-      if (c && c.passiveId === 'heal') {
-        state.playerLp = Math.min(4000, state.playerLp + 400);
-        log(c.name + ' · Мост: +400 LP');
-      }
-    });
+    if (global.BloodPassives && global.BloodPassives.onTurnStart) {
+      global.BloodPassives.onTurnStart(state, 'player');
+    } else {
+      state.player.monsters.forEach(function (c) {
+        if (c && c.passiveId === 'vision') {
+          state.mana = Math.min(state.manaMax, state.mana + 1);
+          log(c.name + ' · Узор: +1 мана');
+        }
+        if (c && c.passiveId === 'heal') {
+          state.playerLp = Math.min(4000, state.playerLp + 400);
+          log(c.name + ' · Мост: +400 LP');
+        }
+      });
+    }
 
     state.busy = false;
-    log('Твой ход ' + state.turn + ' · MAIN · мана ' + state.mana + '/' + state.manaMax);
+    log(
+      'Твой ход ' + state.turn + ' · MAIN · мана ' + state.mana + '/' + state.manaMax
+    );
     toast('Твой ход');
     renderAll();
+  }
+
+  function showResult(win) {
+    var el = document.getElementById('duel-result');
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.innerHTML =
+      '<div class="duel-result-inner">' +
+      '<div class="duel-result-title">' +
+      (win ? '🏆 ПОБЕДА' : '💀 ПОРАЖЕНИЕ') +
+      '</div>' +
+      '<p>Ходов: ' +
+      state.turn +
+      ' · LP: ' +
+      state.playerLp +
+      '</p>' +
+      '<button type="button" class="btn-duel active" id="btn-duel-again">Ещё раз</button>' +
+      '<button type="button" class="btn-duel" id="btn-duel-hall" style="margin-top:8px;">В Пантеон</button>' +
+      '</div>';
+    var again = document.getElementById('btn-duel-again');
+    var hall = document.getElementById('btn-duel-hall');
+    if (again) {
+      again.onclick = function () {
+        hideResult();
+        startDuel();
+      };
+    }
+    if (hall) {
+      hall.onclick = function () {
+        hideResult();
+        endDuel();
+        if (typeof global.showScreen === 'function') global.showScreen('hall');
+      };
+    }
+  }
+
+  function hideResult() {
+    var el = document.getElementById('duel-result');
+    if (el) {
+      el.classList.add('hidden');
+      el.innerHTML = '';
+    }
   }
 
   function checkWin() {
@@ -890,6 +886,12 @@
       toast('🏆 ПОБЕДА');
       state.busy = true;
       playSfx('summon');
+      showResult(true);
+      if (global.BloodBot && global.BloodBot.onDuelEnd) {
+        try {
+          global.BloodBot.onDuelEnd(true);
+        } catch (e) {}
+      }
       return true;
     }
     if (state.playerLp <= 0) {
@@ -898,12 +900,17 @@
       toast('💀 ПОРАЖЕНИЕ');
       state.busy = true;
       playSfx('hurt');
+      showResult(false);
+      if (global.BloodBot && global.BloodBot.onDuelEnd) {
+        try {
+          global.BloodBot.onDuelEnd(false);
+        } catch (e) {}
+      }
       return true;
     }
     return false;
   }
 
-  /* ---------- API ---------- */
   global.BloodDuel = {
     state: state,
     start: startDuel,
@@ -945,15 +952,21 @@
     var end = document.getElementById('btn-duel-end');
     if (main && !main._bm) {
       main._bm = true;
-      main.addEventListener('click', function () { setPhase('MAIN'); });
+      main.addEventListener('click', function () {
+        setPhase('MAIN');
+      });
     }
     if (battle && !battle._bm) {
       battle._bm = true;
-      battle.addEventListener('click', function () { setPhase('BATTLE'); });
+      battle.addEventListener('click', function () {
+        setPhase('BATTLE');
+      });
     }
     if (end && !end._bm) {
       end._bm = true;
-      end.addEventListener('click', function () { endTurn(); });
+      end.addEventListener('click', function () {
+        endTurn();
+      });
     }
   }
 
@@ -968,4 +981,4 @@
     boot();
   }
 })(typeof window !== 'undefined' ? window : this);
-})(typeof window !== 'undefined' ? window : this);
+   
