@@ -245,3 +245,183 @@ body.duel-mode #main-content {
 .duel-mana b {
   color: #fff;
 }
+/* ---------- phases ---------- */
+.duel-phases {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 8px;
+}
+
+.btn-duel {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e8dce2;
+  border-radius: 10px;
+  padding: 10px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.btn-duel:active {
+  transform: scale(0.97);
+}
+
+.btn-duel.active {
+  border-color: #ff2d55;
+  background: linear-gradient(180deg, rgba(255, 45, 85, 0.35), rgba(120, 0, 40, 0.4));
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 45, 85, 0.3);
+}
+
+#btn-duel-end.active,
+#btn-duel-end:focus {
+  border-color: #ffd700;
+}
+
+/* ---------- hand ---------- */
+#duel-hand {
+  display: flex;
+  gap: 8px;
+  padding: 6px 10px 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  min-height: 118px;
+}
+
+#duel-hand::-webkit-scrollbar {
+  height: 4px;
+}
+
+#duel-hand::-webkit-scrollbar-thumb {
+  background: rgba(255, 45, 85, 0.4);
+  border-radius: 4px;
+}
+
+.hand-card {
+  flex: 0 0 78px;
+  width: 78px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: #140a10;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.hand-card:active {
+  transform: scale(0.96);
+}
+
+.hand-card.selected {
+  border-color: #ffd700;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.45);
+  transform: translateY(-6px);
+}
+
+.hand-card .hc-cost {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ff2d55;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.hand-card .hc-art {
+  height: 72px;
+  background-size: cover;
+  background-position: center top;
+  background-color: #1a0a10;
+}
+
+.hand-card .hc-name {
+  font-size: 9px;
+  padding: 4px 3px 5px;
+  text-align: center;
+  line-height: 1.15;
+  background: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- log ---------- */
+#duel-log {
+  margin: 0 10px 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(255, 230, 238, 0.85);
+  min-height: 36px;
+  max-height: 52px;
+  overflow: hidden;
+}
+
+/* ---------- shake ---------- */
+.duel-shake {
+  animation: duel-shake 0.35s ease-in-out;
+}
+
+@keyframes duel-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+/* ---------- empty state hint ---------- */
+#duel-board .zone-row .card-slot:not(.filled)::before {
+  content: '';
+  position: absolute;
+  inset: 18% 22%;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+}
+
+/* ---------- safe area ---------- */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  #screen-duel {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (min-width: 420px) {
+  .hand-card {
+    flex-basis: 88px;
+    width: 88px;
+  }
+  .hand-card .hc-art {
+    height: 84px;
+  }
+}
