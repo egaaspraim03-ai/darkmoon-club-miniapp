@@ -13,25 +13,44 @@
     running: false
   };
 
-  function $(id) { return document.getElementById(id); }
+  function $(id) {
+    return document.getElementById(id);
+  }
 
   function toast(msg) {
-    if (global.BloodDuel && global.BloodDuel.toast) return global.BloodDuel.toast(msg);
+    if (typeof global.showToast === 'function') {
+      try {
+        global.showToast(msg);
+        return;
+      } catch (e) {}
+    }
+    if (global.BloodDuel && global.BloodDuel.toast) {
+      return global.BloodDuel.toast(msg);
+    }
     var t = $('toast');
     if (!t) return;
     t.textContent = msg;
     t.classList.add('show');
+    t.style.opacity = '1';
     clearTimeout(toast._t);
-    toast._t = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    toast._t = setTimeout(function () {
+      t.classList.remove('show');
+      t.style.opacity = '0';
+    }, 2200);
   }
 
   function render() {
     var pathEl = $('tower-path');
     if (pathEl) {
-      pathEl.innerHTML = state.path.map(function (n, i) {
-        var cur = i === state.pathIndex ? ' style="color:#ffd700;text-shadow:0 0 10px #ffd700"' : '';
-        return '<span' + cur + '>' + n + '</span>';
-      }).join(' <span style="opacity:.5">→</span> ');
+      pathEl.innerHTML = state.path
+        .map(function (n, i) {
+          var cur =
+            i === state.pathIndex
+              ? ' style="color:#ffd700;text-shadow:0 0 10px #ffd700"'
+              : '';
+          return '<span' + cur + '>' + n + '</span>';
+        })
+        .join(' <span style="opacity:.5">→</span> ');
     }
     if ($('tower-level')) $('tower-level').textContent = String(state.level);
     if ($('tower-lp')) $('tower-lp').textContent = String(Math.floor(state.lp));
@@ -75,18 +94,15 @@
     if ($('btn-tower-start')) $('btn-tower-start').disabled = true;
 
     setTimeout(function () {
-      var win = Math.random() > (0.15 * state.diff - 0.05);
+      var win = Math.random() > 0.15 * state.diff - 0.05;
       if (win) {
         state.lp = Math.min(99999, state.lp + reward);
         state.level += 1;
         toast('Победа на этаже ' + stage + '! +' + reward + ' LP · Lv.' + state.level);
         state.pathIndex = Math.min(state.path.length - 1, state.pathIndex + 1);
-        if (state.pathIndex >= state.path.length - 1 && state.path[state.pathIndex] === stage) {
-          /* loop path demo */
-          if (state.pathIndex === state.path.length - 1) {
-            toast('Узел пути пройден. Новый виток Разлома.');
-            state.pathIndex = 0;
-          }
+        if (state.pathIndex === state.path.length - 1) {
+          toast('Узел пути пройден. Новый виток Разлома.');
+          state.pathIndex = 0;
         }
       } else {
         state.lp = Math.max(0, state.lp - risk);
@@ -106,12 +122,15 @@
 
   function save() {
     try {
-      localStorage.setItem('bm_tower', JSON.stringify({
-        level: state.level,
-        lp: state.lp,
-        pathIndex: state.pathIndex,
-        diff: state.diff
-      }));
+      localStorage.setItem(
+        'bm_tower',
+        JSON.stringify({
+          level: state.level,
+          lp: state.lp,
+          pathIndex: state.pathIndex,
+          diff: state.diff
+        })
+      );
     } catch (e) {}
   }
 
@@ -136,11 +155,16 @@
   global.BloodTower = {
     onShow: onShow,
     state: state,
-    render: render
+    render: render,
+    load: load,
+    save: save
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { bind(); load(); });
+    document.addEventListener('DOMContentLoaded', function () {
+      bind();
+      load();
+    });
   } else {
     bind();
     load();
