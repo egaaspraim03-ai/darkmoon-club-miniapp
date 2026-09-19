@@ -2,18 +2,18 @@
    js/bot.js — Blood Moon · мост Telegram WebApp ↔ бот
    - initData
    - профиль / ранг / вклад
-   - deep-link startapp
+   - deep-link startapp / hash
+   - без API работает офлайн (localStorage)
    ============================================================ */
 (function (global) {
   'use strict';
 
-  /** URL бэкенда бота (смени на свой) */
+  /** URL API бота: meta name="bm-api" в index.html */
   var API_BASE = (function () {
     try {
       var m = document.querySelector('meta[name="bm-api"]');
-      if (m && m.content) return m.content.replace(/\/$/, '');
+      if (m && m.content) return String(m.content).replace(/\/$/, '');
     } catch (e) {}
-    /* пример: https://your-domain.com */
     return '';
   })();
 
@@ -84,7 +84,7 @@
   function api(path, opts) {
     opts = opts || {};
     if (!API_BASE) {
-      return Promise.reject(new Error('API_BASE empty — set meta bm-api or BloodBot.setApiBase'));
+      return Promise.reject(new Error('API_BASE empty'));
     }
     var url = API_BASE + path;
     return fetch(url, {
@@ -116,8 +116,7 @@
     if (p.contrib != null) profile.contrib = p.contrib;
     if (p.lpBonus != null) profile.lpBonus = p.lpBonus;
 
-    var rankEls = ['stat-rank', 'home-rank-mini'];
-    rankEls.forEach(function (id) {
+    ['stat-rank', 'home-rank-mini'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.textContent = profile.rank;
     });
@@ -140,7 +139,6 @@
     }
   }
 
-  /** Офлайн-демо профиль из WebApp + localStorage */
   function hydrateOffline() {
     var u = userFromWebApp();
     var local = null;
@@ -190,7 +188,6 @@
       .catch(function (err) {
         console.warn('[BloodBot] profile fallback', err && err.message);
         hydrateOffline();
-        toast('Офлайн-профиль (бот недоступен)');
         return profile;
       });
   }
@@ -203,17 +200,18 @@
       toast('Вклад +' + amount + ' (локально)');
       return Promise.resolve({ ok: true, local: true, contrib: profile.contrib });
     }
-    return api('/api/contrib', { method: 'POST', body: { amount: amount } }).then(function (j) {
-      if (j.user) applyProfileLocal(j.user);
-      saveLocal();
-      toast('Вклад учтён');
-      return j;
-    });
+    return api('/api/contrib', { method: 'POST', body: { amount: amount } }).then(
+      function (j) {
+        if (j.user) applyProfileLocal(j.user);
+        saveLocal();
+        toast('Вклад учтён');
+        return j;
+      }
+    );
   }
 
   function postDuelResult(payload) {
     payload = payload || {};
-    /* { win: true, turns: n, enemyLpLeft: 0 } */
     if (!API_BASE) {
       if (payload.win) {
         profile.cards += 1;
@@ -229,14 +227,12 @@
     });
   }
 
-  /** start_param: duel | tower | relics | hall */
   function handleStartParam() {
     var w = tg();
     var sp =
       (w && w.initDataUnsafe && w.initDataUnsafe.start_param) ||
       (function () {
-        var h = (location.hash || '').replace(/^#/, '');
-        return h || '';
+        return (location.hash || '').replace(/^#/, '');
       })();
     if (!sp) return null;
     var map = {
@@ -251,7 +247,7 @@
     if (screen && typeof global.showScreen === 'function') {
       setTimeout(function () {
         global.showScreen(screen);
-      }, 50);
+      }, 80);
     }
     return screen;
   }
@@ -264,7 +260,6 @@
       w.expand();
       if (w.setHeaderColor) w.setHeaderColor('#0a0508');
       if (w.setBackgroundColor) w.setBackgroundColor('#0a0508');
-      if (w.enableClosingConfirmation) w.enableClosingConfirmation();
     } catch (e) {}
   }
 
@@ -280,7 +275,6 @@
     });
   }
 
-  /** Хук победы/поражения из duel.js */
   function onDuelEnd(win) {
     var st = global.BloodDuel && global.BloodDuel.state;
     postDuelResult({
