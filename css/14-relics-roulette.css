@@ -1,132 +1,337 @@
-/* =========================================================
-   css/14-relics-roulette.css — Реликвии + modal Столпа
-   ========================================================= */
+/* ============================================================
+   css/14-relics-roulette.css — Реликвии + рулетка + модалка
+   PART 1/2
+   ============================================================ */
 
-.relics-grid {
+/* ---------- relics screen ---------- */
+#screen-relics {
+  min-height: 100%;
+  padding: 12px 14px 28px;
+  background:
+    radial-gradient(ellipse at 70% 0%, rgba(201, 162, 39, 0.18), transparent 45%),
+    linear-gradient(180deg, #0c0a06 0%, #0a0808 100%);
+  color: #f0e8d8;
+}
+
+#screen-relics h2 {
+  margin: 4px 0 6px;
+  font-size: 20px;
+  color: #ffd700;
+  letter-spacing: 0.05em;
+}
+
+.relics-sub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.relics-count {
+  font-size: 12px;
+  margin-bottom: 14px;
+  opacity: 0.85;
+}
+
+.relics-count b {
+  color: #ffd700;
+}
+
+#relics-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-bottom: 12px;
 }
 
 .relic-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 14px 10px;
-  border-radius: 12px;
-  background: linear-gradient(145deg, #1a0006, #0a0002);
-  border: 1px solid rgba(255, 45, 85, 0.45);
-  color: #ffd0d0;
+  text-align: left;
+  border-radius: 14px;
+  padding: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
   cursor: pointer;
-  box-shadow: inset 0 0 14px rgba(255, 45, 85, 0.12);
-  text-align: center;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-}
-.relic-card:active {
-  transform: scale(0.97);
-}
-.relic-card.active {
-  border-color: #ffd700;
-  box-shadow: 0 0 18px rgba(255, 215, 0, 0.35), inset 0 0 12px rgba(255, 215, 0, 0.08);
-}
-.relic-ico {
-  font-size: 28px;
-  filter: drop-shadow(0 0 6px rgba(255, 45, 85, 0.45));
-}
-.relic-card b {
-  font-family: Cinzel, serif;
-  font-size: 13px;
-  line-height: 1.2;
-}
-.relic-card small {
-  font-size: 11px;
-  color: #9a6068;
-  line-height: 1.25;
-}
-.relic-state {
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  color: #6a3038;
-  margin-top: 4px;
-  text-transform: uppercase;
-}
-.relic-card.active .relic-state {
-  color: #ffd700;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s, background 0.15s;
 }
 
-/* modal лора Столпа */
-.pillar-modal {
+.relic-card:active {
+  transform: scale(0.98);
+}
+
+.relic-card.active {
+  border-color: #ffd700;
+  background: linear-gradient(160deg, rgba(255, 215, 0, 0.18), rgba(80, 40, 0, 0.25));
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.25);
+}
+
+.relic-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.relic-name {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: #ffe9a8;
+}
+
+.relic-desc {
+  font-size: 10px;
+  line-height: 1.35;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.relic-state {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.relic-card.active .relic-state {
+  color: #7dffb3;
+  opacity: 1;
+}
+
+/* ---------- reel / roulette ---------- */
+#screen-reel {
+  min-height: 100%;
+  padding: 12px 0 28px;
+  background: linear-gradient(180deg, #10060c 0%, #0a080a 100%);
+  color: #f2e8ec;
+}
+
+#screen-reel h2 {
+  padding: 0 14px;
+  margin: 4px 0 8px;
+  font-size: 20px;
+}
+
+.reel-frame {
+  position: relative;
+  margin: 12px 0 16px;
+  height: 96px;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 45, 85, 0.35);
+  border-bottom: 1px solid rgba(255, 45, 85, 0.35);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.reel-frame::before,
+.reel-frame::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.reel-frame::before {
+  left: 0;
+  background: linear-gradient(90deg, #0a080a, transparent);
+}
+
+.reel-frame::after {
+  right: 0;
+  background: linear-gradient(270deg, #0a080a, transparent);
+}
+
+.reel-pointer {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ff2d55;
+  transform: translateX(-50%);
+  z-index: 3;
+  box-shadow: 0 0 10px #ff2d55;
+}
+
+#reel-track {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  will-change: transform;
+}
+
+.reel-item {
+  flex: 0 0 96px;
+  width: 96px;
+  height: 72px;
+  margin: 0 4px;
+  border-radius: 10px;
+  border: 2px solid #555;
+  background: rgba(20, 10, 14, 0.9);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px;
+}
+
+#btn-spin {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 0 auto 12px;
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff2d55, #c9a227);
+  box-shadow: 0 6px 18px rgba(255, 45, 85, 0.35);
+}
+
+#btn-spin:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+#reel-result {
+  text-align: center;
+  font-size: 14px;
+  min-height: 24px;
+  padding: 0 14px;
+  color: #ffd7e0;
+}
+/* ---------- pillar modal ---------- */
+#pillar-modal {
   position: fixed;
   inset: 0;
-  z-index: 9990;
-  background: rgba(0, 0, 0, 0.92);
+  z-index: 2000;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
   padding: 16px;
-  backdrop-filter: blur(4px);
 }
-.pillar-modal.hidden {
+
+#pillar-modal.hidden {
   display: none !important;
 }
-.pillar-modal-inner {
-  position: relative;
-  width: min(100%, 520px);
-  max-height: 90vh;
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.pillar-sheet {
+  width: 100%;
+  max-width: 440px;
+  max-height: min(88vh, 640px);
   overflow: auto;
-  background: linear-gradient(160deg, #120005 0%, #0a0002 100%);
-  border: 2px solid rgba(255, 45, 85, 0.6);
-  border-radius: 14px;
-  box-shadow: 0 0 40px rgba(255, 45, 85, 0.35);
-  padding: 16px;
+  border-radius: 18px 18px 14px 14px;
+  background: linear-gradient(180deg, #1a0c12 0%, #0c080a 100%);
+  border: 1px solid rgba(255, 45, 85, 0.35);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.55);
+  padding: 14px 14px 20px;
+  color: #f2e8ec;
 }
-.pillar-modal-inner .btn-close-lore {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
+
+#pillar-art {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center top;
+  background-color: #140a10;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.pillar-modal-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+
+#pillar-name {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: #ffd7e0;
+  line-height: 1.25;
 }
-@media (min-width: 480px) {
-  .pillar-modal-grid {
-    grid-template-columns: 0.9fr 1.1fr;
-  }
-}
-.pillar-art {
-  min-height: 220px;
-  border-radius: 10px;
-  background: #1a0006 center / cover no-repeat;
-  border: 1px solid rgba(255, 45, 85, 0.4);
-  box-shadow: inset 0 0 30px rgba(255, 45, 85, 0.15);
-}
-.pillar-body h3 {
-  font-family: Cinzel, serif;
-  color: #ff2d55;
-  margin: 0 0 6px;
-  font-size: 22px;
-  text-shadow: 0 0 12px rgba(255, 45, 85, 0.5);
-}
-.pillar-passive {
+
+#pillar-passive {
   font-size: 12px;
+  line-height: 1.4;
   color: #ffd700;
-  font-weight: 700;
   margin-bottom: 10px;
-  letter-spacing: 0.02em;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.2);
 }
-.pillar-lore {
-  font-size: 14px;
+
+#pillar-lore {
+  font-size: 12px;
   line-height: 1.55;
-  color: #e8c8cc;
-  max-height: 240px;
-  overflow-y: auto;
-  font-family: "Cormorant Garamond", serif;
+  opacity: 0.88;
+  white-space: pre-wrap;
+  margin-bottom: 14px;
 }
-.pillar-lore p {
-  margin: 0 0 10px;
+
+#btn-close-pillar {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
+
+#btn-close-pillar:active {
+  background: rgba(255, 45, 85, 0.25);
+}
+
+/* ---------- toast (shared fallback) ---------- */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%) translateY(12px);
+  z-index: 3000;
+  max-width: min(90vw, 360px);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(20, 8, 12, 0.92);
+  border: 1px solid rgba(255, 45, 85, 0.4);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+body.duel-mode #toast {
+  bottom: 24px;
+}
+
+/* ---------- generic helpers used by new screens ---------- */
+.hidden {
+  display: none !important;
+}
+
+.chip {
+  appearance: none;
+  -webkit-appearance: none;
+                             }
