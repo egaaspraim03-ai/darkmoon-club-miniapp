@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0508" />
+  <!-- API бота: пусто = офлайн; локально http://localhost:3000; прод = https://api... -->
+  <meta name="bm-api" content="" />
   <title>The Blood Moon — Пантеон</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- base / legacy (если есть) -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="css/1-base.css" />
   <link rel="stylesheet" href="css/2-layout.css" />
@@ -20,18 +22,14 @@
   <link rel="stylesheet" href="css/9-pyramid.css" />
   <link rel="stylesheet" href="css/10-skills.css" />
   <link rel="stylesheet" href="css/11-snake.css" />
-
-  <!-- v3 -->
   <link rel="stylesheet" href="css/12-duel.css" />
   <link rel="stylesheet" href="css/13-tower.css" />
   <link rel="stylesheet" href="css/14-relics-roulette.css" />
 
   <style>
-    /* emergency base if legacy CSS missing */
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
-      margin: 0; padding: 0;
-      min-height: 100%;
+      margin: 0; padding: 0; min-height: 100%;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       background: #0a0508; color: #f2e8ec;
       -webkit-tap-highlight-color: transparent;
@@ -85,6 +83,17 @@
     }
     .stele-art { height: 100px; background-size: cover; background-position: center top; }
     .stele-cap { padding: 8px; font-size: 12px; font-weight: 700; }
+    #duel-result {
+      position: fixed; inset: 0; z-index: 1500;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.75); padding: 20px;
+    }
+    #duel-result.hidden { display: none !important; }
+    .duel-result-inner {
+      width: min(100%, 340px); border-radius: 16px; padding: 20px;
+      background: #140a10; border: 1px solid rgba(255,45,85,.4); text-align: center;
+    }
+    .duel-result-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; color: #ffd700; }
   </style>
 </head>
 <body>
@@ -98,7 +107,6 @@
     </header>
 
     <main id="main-content">
-      <!-- HOME -->
       <section id="screen-home" class="screen active">
         <div class="page">
           <p id="welcome" style="opacity:.8;font-size:13px;margin:0 0 12px;">
@@ -127,7 +135,6 @@
           </button>
         </div>
       </section>
-      <!-- HALL / PANTHEON HUB -->
       <section id="screen-hall" class="screen">
         <div class="page">
           <h2>Пантеон</h2>
@@ -172,7 +179,6 @@
         </div>
       </section>
 
-      <!-- DUEL -->
       <section id="screen-duel" class="screen">
         <div class="duel-topbar">
           <div class="duel-enemy">
@@ -230,7 +236,6 @@
         <div id="duel-log">Дуэль готова.</div>
       </section>
 
-      <!-- TOWER -->
       <section id="screen-tower" class="screen">
         <h2>Башня Разлома</h2>
         <p class="tower-sub">Отряд идёт по узлам пути. Сложность множит награду и риск.</p>
@@ -250,7 +255,6 @@
         <button type="button" id="btn-tower-start">Отправить отряд</button>
         <p class="tower-hint">Прогресс хранится в localStorage · демо-логика v3</p>
       </section>
-      <!-- RELICS -->
       <section id="screen-relics" class="screen">
         <h2>Реликвии</h2>
         <p class="relics-sub">Активируй артефакты Пантеона. Бонусы читает API BloodRelics.</p>
@@ -295,7 +299,6 @@
         </div>
       </section>
 
-      <!-- REEL -->
       <section id="screen-reel" class="screen">
         <h2>Кровавая рулетка</h2>
         <div class="reel-frame">
@@ -306,7 +309,6 @@
         <div id="reel-result"></div>
       </section>
 
-      <!-- ARCHIVES -->
       <section id="screen-archives" class="screen">
         <div class="page">
           <h2>Архивы</h2>
@@ -374,6 +376,9 @@
           <input id="rank-from" type="number" value="0" min="0" max="8" style="width:100%;margin:4px 0 10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#140a10;color:#fff;" />
           <button type="button" id="btn-rank-calc" class="menu-card" style="width:100%;"><b>Считать</b></button>
           <p id="rank-out" style="margin-top:12px;font-size:13px;color:#ffd700;"></p>
+          <button type="button" id="btn-contrib" class="menu-card" style="width:100%;margin-top:10px;">
+            <b>Отправить вклад</b><span>В бот / локально</span>
+          </button>
         </div>
       </section>
 
@@ -387,11 +392,11 @@
       </section>
 
       <section id="screen-quest" class="screen">
-        <div class="page"><h2>Квест</h2><p style="opacity:.7;font-size:13px;">Цепи судьбы — заглушка v3. Подключится к боту позже.</p></div>
+        <div class="page"><h2>Квест</h2><p style="opacity:.7;font-size:13px;">Цепи судьбы — заглушка v3.</p></div>
       </section>
 
       <section id="screen-pyramid" class="screen">
-        <div class="page"><h2>Пирамида</h2><p style="opacity:.7;font-size:13px;">Иерархия рангов E→X. Заглушка UI.</p></div>
+        <div class="page"><h2>Пирамида</h2><p style="opacity:.7;font-size:13px;">Иерархия рангов E→X.</p></div>
       </section>
 
       <section id="screen-skills" class="screen">
@@ -399,7 +404,7 @@
       </section>
 
       <section id="screen-snake" class="screen">
-        <div class="page"><h2>Змей</h2><p style="opacity:.7;font-size:13px;">Мини-игра: подключи js/snake.js если есть.</p><div id="snake-root"></div></div>
+        <div class="page"><h2>Змей</h2><div id="snake-root"></div></div>
       </section>
 
       <section id="screen-site" class="screen">
@@ -421,7 +426,8 @@
     </nav>
   </div>
 
-  <!-- pillar modal -->
+  <div id="duel-result" class="hidden" aria-live="polite"></div>
+
   <div id="pillar-modal" class="hidden" role="dialog" aria-modal="true">
     <div class="pillar-sheet">
       <div id="pillar-art"></div>
@@ -434,16 +440,15 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- scripts: data → systems → app → optional -->
   <script src="js/2-data.js"></script>
   <script src="js/passives.js"></script>
   <script src="js/ai.js"></script>
   <script src="js/duel.js"></script>
   <script src="js/tower.js"></script>
   <script src="js/relics.js"></script>
+  <script src="js/bot.js"></script>
   <script src="app.js"></script>
   <script src="js/court.js"></script>
   <script src="js/snake.js"></script>
 </body>
 </html>
-      
