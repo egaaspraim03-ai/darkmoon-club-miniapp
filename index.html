@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0508" />
-  <!-- API бота: пусто = офлайн; локально http://localhost:3000; прод = https://api... -->
   <meta name="bm-api" content="" />
   <title>The Blood Moon — Пантеон</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>" />
@@ -40,7 +39,7 @@
     .screen.active { display: block; }
     #bottom-nav {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 100;
-      display: flex; gap: 2px; padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+      display: flex; gap: 2px; padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
       background: rgba(10,5,8,.94); border-top: 1px solid rgba(255,45,85,.25);
       backdrop-filter: blur(10px);
     }
@@ -232,7 +231,7 @@
           <button type="button" class="btn-duel" id="btn-duel-end">END</button>
         </div>
 
-        <div id="duel-hand"></div>
+        <div id="duel-hand" aria-label="Рука"></div>
         <div id="duel-log">Дуэль готова.</div>
       </section>
 
@@ -253,11 +252,11 @@
           <button type="button" class="chip" data-diff="2.2">×2.2</button>
         </div>
         <button type="button" id="btn-tower-start">Отправить отряд</button>
-        <p class="tower-hint">Прогресс хранится в localStorage · демо-логика v3</p>
+        <p class="tower-hint">Прогресс · localStorage · v3</p>
       </section>
       <section id="screen-relics" class="screen">
         <h2>Реликвии</h2>
-        <p class="relics-sub">Активируй артефакты Пантеона. Бонусы читает API BloodRelics.</p>
+        <p class="relics-sub">Активируй артефакты Пантеона.</p>
         <p class="relics-count">Активно: <b id="relics-active">0</b></p>
         <div id="relics-grid">
           <button type="button" class="relic-card" data-relic="cube">
@@ -326,8 +325,6 @@
           <h2>Хроники</h2>
           <p style="font-size:13px;line-height:1.55;opacity:.85;">
             Когда Луна стала кровавой, шесть Столпов удержали грань миров.
-            Инквизитор — Печать. Император — Архитектор. Око — Узор.
-            Каратель — Весы. Леди — Мост. Кот — Тропы.
           </p>
         </div>
       </section>
@@ -335,7 +332,6 @@
       <section id="screen-characters" class="screen">
         <div class="page">
           <h2>Суд / Персонажи</h2>
-          <p style="font-size:12px;opacity:.7;">Стеллы Пантеона — открой лор из зала или ниже.</p>
           <div class="stele-grid">
             <button type="button" class="stele" data-pantheon="inquisitor"><div class="stele-art" style="background-image:url('https://i.ibb.co/9HWX7byK/8801.jpg')"></div><div class="stele-cap">Инквизитор</div></button>
             <button type="button" class="stele" data-pantheon="emperor"><div class="stele-art" style="background-image:url('https://i.ibb.co/MkZLDrzL/Airbrush-IMAGE-ENHANCER-1788666591134-1788666591135.jpg')"></div><div class="stele-cap">Император</div></button>
@@ -350,13 +346,13 @@
       <section id="screen-rules" class="screen">
         <div class="page">
           <h2>Правила</h2>
-          <p style="font-size:13px;line-height:1.5;">Дуэль: MAIN → призыв · BATTLE → атака · END → ход врага. Taunt блокирует лицо. Весы спасают от первого летала.</p>
+          <p style="font-size:13px;line-height:1.5;">MAIN → призыв · BATTLE → атака · END → ход врага. Taunt блокирует лицо.</p>
           <button type="button" class="menu-card" id="btn-laws" style="width:100%;margin-top:12px;"><b>Законы</b><span>Показать / скрыть</span></button>
           <div id="laws-box" class="hidden" style="margin-top:10px;font-size:12px;line-height:1.5;opacity:.85;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:10px;">
             1. Кровь — валюта маны.<br />
             2. Столп на поле — закон зоны.<br />
             3. Провокация выше жадности.<br />
-            4. Печать держит миры, пока бьётся сердце Инквизитора.
+            4. Печать держит миры.
           </div>
         </div>
       </section>
@@ -364,7 +360,6 @@
       <section id="screen-obana" class="screen">
         <div class="page">
           <h2>Обана</h2>
-          <p style="font-size:12px;opacity:.7;margin-bottom:12px;">Калькулятор рангов (демо).</p>
           <div id="calc-modes" style="display:flex;gap:6px;margin-bottom:10px;">
             <button type="button" class="calc-mode btn-duel active" data-mode="merge">Правка</button>
             <button type="button" class="calc-mode btn-duel" data-mode="split">Раскол</button>
@@ -377,7 +372,7 @@
           <button type="button" id="btn-rank-calc" class="menu-card" style="width:100%;"><b>Считать</b></button>
           <p id="rank-out" style="margin-top:12px;font-size:13px;color:#ffd700;"></p>
           <button type="button" id="btn-contrib" class="menu-card" style="width:100%;margin-top:10px;">
-            <b>Отправить вклад</b><span>В бот / локально</span>
+            <b>Отправить вклад</b><span>Локально / бот</span>
           </button>
         </div>
       </section>
@@ -392,27 +387,22 @@
       </section>
 
       <section id="screen-quest" class="screen">
-        <div class="page"><h2>Квест</h2><p style="opacity:.7;font-size:13px;">Цепи судьбы — заглушка v3.</p></div>
+        <div class="page"><h2>Квест</h2><p style="opacity:.7;font-size:13px;">Заглушка v3.</p></div>
       </section>
-
       <section id="screen-pyramid" class="screen">
-        <div class="page"><h2>Пирамида</h2><p style="opacity:.7;font-size:13px;">Иерархия рангов E→X.</p></div>
+        <div class="page"><h2>Пирамида</h2><p style="opacity:.7;font-size:13px;">E→X.</p></div>
       </section>
-
       <section id="screen-skills" class="screen">
-        <div class="page"><h2>Навыки</h2><p style="opacity:.7;font-size:13px;">Древо навыков — заглушка.</p></div>
+        <div class="page"><h2>Навыки</h2><p style="opacity:.7;font-size:13px;">Заглушка.</p></div>
       </section>
-
       <section id="screen-snake" class="screen">
         <div class="page"><h2>Змей</h2><div id="snake-root"></div></div>
       </section>
-
       <section id="screen-site" class="screen">
         <div class="page">
           <h2>Сайт</h2>
-          <p style="font-size:13px;line-height:1.5;">MangaBuff · Telegram · сообщество Blood Moon.</p>
           <a href="https://t.me/mangabuff" target="_blank" rel="noopener" class="menu-card" style="display:block;text-decoration:none;margin-top:12px;">
-            <b>Открыть t.me</b><span>Внешняя ссылка</span>
+            <b>Открыть t.me</b><span>MangaBuff</span>
           </a>
         </div>
       </section>
@@ -452,3 +442,4 @@
   <script src="js/snake.js"></script>
 </body>
 </html>
+      
