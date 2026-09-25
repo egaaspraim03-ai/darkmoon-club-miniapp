@@ -1,5 +1,5 @@
 /* ============================================================
-   js/duel.js — Blood Moon Pantheon TCG v3.0 (полный)
+   js/duel.js — Blood Moon Pantheon TCG v3.1 (full + hand fix)
    Depends: 2-data.js, passives.js, ai.js, bot.js (optional)
    PART 1/3
    ============================================================ */
@@ -74,12 +74,6 @@
 
   function playSfx(type) {
     try {
-      if (global.BloodDuelAudio && global.BloodDuelAudio.play) {
-        global.BloodDuelAudio.play(type);
-        return;
-      }
-    } catch (e) {}
-    try {
       var Ctx = window.AudioContext || window.webkitAudioContext;
       if (!playSfx.ctx) playSfx.ctx = new Ctx();
       var ctx = playSfx.ctx;
@@ -141,22 +135,39 @@
   }
 
   function cloneFromData(id) {
-    if (D && typeof D.cloneCard === 'function') return D.cloneCard(id);
+    if (D && typeof D.cloneCard === 'function') {
+      var c = D.cloneCard(id);
+      if (c) return c;
+    }
     var p = D && D.PILLARS && D.PILLARS[id];
-    if (!p) return null;
+    if (!p) {
+      /* fallback cards if 2-data missing */
+      var fb = {
+        inquisitor: { name: 'Инквизитор', atk: 1800, def: 2000, cost: 3, passiveId: 'taunt' },
+        emperor: { name: 'Император', atk: 2500, def: 2100, cost: 4, passiveId: 'battlecry' },
+        eye: { name: 'Всевидящее Око', atk: 1600, def: 1600, cost: 2, passiveId: 'vision' },
+        punisher: { name: 'Каратель', atk: 2200, def: 1800, cost: 3, passiveId: 'shield' },
+        lady: { name: 'Призрачная Леди', atk: 1400, def: 1700, cost: 2, passiveId: 'heal' },
+        cheshire: { name: 'Чеширский Кот', atk: 1500, def: 1200, cost: 2, passiveId: 'chaos' }
+      };
+      p = fb[id];
+      if (!p) return null;
+      p.id = id;
+      p.art = '';
+    }
     return {
       instanceId: id + '_' + Math.random().toString(36).slice(2, 9),
-      pillarId: p.id,
+      pillarId: p.id || id,
       name: p.name,
-      art: p.art,
-      atk: p.atk,
-      def: p.def,
-      hp: p.def,
-      cost: p.cost,
+      art: p.art || '',
+      atk: p.atk | 0,
+      def: p.def | 0,
+      hp: p.def | 0,
+      cost: p.cost | 0,
       type: 'monster',
-      passiveId: p.passiveId,
-      passiveName: p.passiveName,
-      passiveText: p.passiveText,
+      passiveId: p.passiveId || null,
+      passiveName: p.passiveName || '',
+      passiveText: p.passiveText || '',
       taunt: p.passiveId === 'taunt',
       shieldUsed: false,
       isRest: false
@@ -233,6 +244,10 @@
   function renderHand() {
     var hand = document.getElementById('duel-hand');
     if (!hand) return;
+    if (!state.hand || !state.hand.length) {
+      hand.innerHTML = '';
+      return;
+    }
     hand.innerHTML = state.hand
       .map(function (c) {
         var sel = state.selectedHand === c.instanceId ? ' selected' : '';
@@ -363,7 +378,7 @@
     ) {
       tryAttackMonster(idx);
     }
-  }
+         }
    function trySummon(type, idx) {
     var card = state.hand.find(function (c) {
       return c.instanceId === state.selectedHand;
@@ -374,16 +389,12 @@
       return;
     }
 
-    if (card.type !== 'spell') {
-      type = 'monster';
-    }
+    if (card.type !== 'spell') type = 'monster';
 
     var arr = type === 'spell' ? state.player.spells : state.player.monsters;
     if (type !== 'spell') {
       arr = state.player.monsters;
-      if (arr[idx]) {
-        idx = firstEmpty(arr);
-      }
+      if (arr[idx]) idx = firstEmpty(arr);
       if (idx < 0) {
         toast('Нет свободной Monster Zone');
         return;
@@ -456,6 +467,48 @@
     }
   }
 
+  function hideResult() {
+    var el = document.getElementById('duel-result');
+    if (el) {
+      el.classList.add('hidden');
+      el.innerHTML = '';
+    }
+  }
+
+  function showResult(win) {
+    var el = document.getElementById('duel-result');
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.innerHTML =
+      '<div class="duel-result-inner">' +
+      '<div class="duel-result-title">' +
+      (win ? '🏆 ПОБЕДА' : '💀 ПОРАЖЕНИЕ') +
+      '</div>' +
+      '<p>Ходов: ' +
+      state.turn +
+      ' · LP: ' +
+      state.playerLp +
+      '</p>' +
+      '<button type="button" class="btn-duel active" id="btn-duel-again">Ещё раз</button>' +
+      '<button type="button" class="btn-duel" id="btn-duel-hall" style="margin-top:8px;">В Пантеон</button>' +
+      '</div>';
+    var again = document.getElementById('btn-duel-again');
+    var hall = document.getElementById('btn-duel-hall');
+    if (again) {
+      again.onclick = function () {
+        hideResult();
+        startDuel();
+      };
+    }
+    if (hall) {
+      hall.onclick = function () {
+        hideResult();
+        endDuel();
+        if (typeof global.showScreen === 'function') global.showScreen('hall');
+      };
+    }
+  }
+
   function startDuel(opts) {
     opts = opts || {};
     var def = defaults();
@@ -476,14 +529,20 @@
     state.busy = false;
 
     var handIds =
-      opts.hand || (D && D.STARTER_HAND) || ['inquisitor', 'eye', 'lady', 'cheshire'];
+      (opts && opts.hand) ||
+      (D && D.STARTER_HAND) ||
+      ['inquisitor', 'eye', 'lady', 'cheshire'];
     state.hand = handIds.map(cloneFromData).filter(Boolean);
+    if (!state.hand.length) {
+      state.hand = ['inquisitor', 'eye', 'lady', 'cheshire']
+        .map(cloneFromData)
+        .filter(Boolean);
+    }
 
     seedEnemy();
-
     document.body.classList.add('duel-mode');
     hideResult();
-    log('Дуэль начата. LP 4000 · MAIN Phase');
+    log('Дуэль начата. LP 4000 · MAIN · карт: ' + state.hand.length);
     toast('⚔️ Дуэль Пантеона');
     renderAll();
   }
@@ -494,9 +553,15 @@
   }
 
   function onShow() {
-    if (!state.active) startDuel();
-    else renderAll();
     document.body.classList.add('duel-mode');
+    startDuel();
+    setTimeout(function () {
+      renderAll();
+      if (!state.hand || !state.hand.length) {
+        log('Ошибка руки — пересоздание');
+        startDuel();
+      }
+    }, 50);
   }
 
   function onHide() {
@@ -677,7 +742,7 @@
     setTimeout(function () {
       runEnemyTurn();
     }, 700);
-         }
+  }
    function wakeMonsters(sideObj) {
     sideObj.monsters.forEach(function (c) {
       if (c) c.isRest = false;
@@ -837,52 +902,10 @@
     renderAll();
   }
 
-  function showResult(win) {
-    var el = document.getElementById('duel-result');
-    if (!el) return;
-    el.classList.remove('hidden');
-    el.innerHTML =
-      '<div class="duel-result-inner">' +
-      '<div class="duel-result-title">' +
-      (win ? '🏆 ПОБЕДА' : '💀 ПОРАЖЕНИЕ') +
-      '</div>' +
-      '<p>Ходов: ' +
-      state.turn +
-      ' · LP: ' +
-      state.playerLp +
-      '</p>' +
-      '<button type="button" class="btn-duel active" id="btn-duel-again">Ещё раз</button>' +
-      '<button type="button" class="btn-duel" id="btn-duel-hall" style="margin-top:8px;">В Пантеон</button>' +
-      '</div>';
-    var again = document.getElementById('btn-duel-again');
-    var hall = document.getElementById('btn-duel-hall');
-    if (again) {
-      again.onclick = function () {
-        hideResult();
-        startDuel();
-      };
-    }
-    if (hall) {
-      hall.onclick = function () {
-        hideResult();
-        endDuel();
-        if (typeof global.showScreen === 'function') global.showScreen('hall');
-      };
-    }
-  }
-
-  function hideResult() {
-    var el = document.getElementById('duel-result');
-    if (el) {
-      el.classList.add('hidden');
-      el.innerHTML = '';
-    }
-  }
-
   function checkWin() {
     if (state.enemyLp <= 0) {
       state.enemyLp = 0;
-      log('🏆 ПОБЕДА! Пантеон склоняется перед тобой.');
+      log('🏆 ПОБЕДА!');
       toast('🏆 ПОБЕДА');
       state.busy = true;
       playSfx('summon');
@@ -896,7 +919,7 @@
     }
     if (state.playerLp <= 0) {
       state.playerLp = 0;
-      log('💀 ПОРАЖЕНИЕ… Кровавая Луна гаснет.');
+      log('💀 ПОРАЖЕНИЕ');
       toast('💀 ПОРАЖЕНИЕ');
       state.busy = true;
       playSfx('hurt');
@@ -981,4 +1004,3 @@
     boot();
   }
 })(typeof window !== 'undefined' ? window : this);
-   
