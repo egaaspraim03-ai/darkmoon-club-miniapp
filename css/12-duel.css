@@ -1,6 +1,5 @@
 /* ============================================================
-   css/12-duel.css — Blood Moon TCG board
-   12 zones · hand · phases · LP bars
+   css/12-duel.css — Blood Moon TCG board v3.1 + hand fix
    PART 1/2
    ============================================================ */
 
@@ -9,20 +8,23 @@ body.duel-mode #bottom-nav {
 }
 
 body.duel-mode #main-content {
-  padding-bottom: 0;
+  padding-bottom: 0 !important;
+  overflow-y: auto;
 }
 
 #screen-duel {
   min-height: 100%;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   background:
     radial-gradient(ellipse at 50% 0%, rgba(120, 0, 30, 0.35), transparent 55%),
     linear-gradient(180deg, #0a0508 0%, #120810 40%, #08040a 100%);
   color: #f2e8ec;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: 12px;
 }
 
-/* ---------- top bar (enemy LP = face target) ---------- */
 .duel-topbar {
   display: flex;
   align-items: center;
@@ -32,6 +34,7 @@ body.duel-mode #main-content {
   border-bottom: 1px solid rgba(255, 45, 85, 0.25);
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(8px);
+  flex-shrink: 0;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
@@ -83,9 +86,8 @@ body.duel-mode #main-content {
   color: #ffd700;
 }
 
-/* ---------- board ---------- */
 #duel-board {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -146,7 +148,6 @@ body.duel-mode #main-content {
   }
 }
 
-/* slot card content */
 .slot-card {
   position: absolute;
   inset: 0;
@@ -205,7 +206,6 @@ body.duel-mode #main-content {
   place-items: center;
 }
 
-/* ---------- player bar ---------- */
 .duel-playerbar {
   display: flex;
   align-items: center;
@@ -214,6 +214,7 @@ body.duel-mode #main-content {
   padding: 8px 14px;
   border-top: 1px solid rgba(255, 45, 85, 0.2);
   background: rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
 }
 
 .duel-player {
@@ -245,11 +246,12 @@ body.duel-mode #main-content {
 .duel-mana b {
   color: #fff;
 }
-/* ---------- phases ---------- */
+
 .duel-phases {
   display: flex;
   gap: 6px;
   padding: 0 10px 8px;
+  flex-shrink: 0;
 }
 
 .btn-duel {
@@ -277,21 +279,24 @@ body.duel-mode #main-content {
   color: #fff;
   box-shadow: 0 0 12px rgba(255, 45, 85, 0.3);
 }
-
-#btn-duel-end.active,
-#btn-duel-end:focus {
-  border-color: #ffd700;
-}
-
-/* ---------- hand ---------- */
+/* ---------- HAND (fix 4.1 — always visible) ---------- */
 #duel-hand {
-  display: flex;
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 8px;
-  padding: 6px 10px 12px;
+  padding: 10px 12px 14px;
+  min-height: 120px !important;
+  height: auto !important;
   overflow-x: auto;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  min-height: 118px;
+  background: rgba(0, 0, 0, 0.35);
+  border-top: 1px solid rgba(255, 45, 85, 0.25);
+  flex-shrink: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 #duel-hand::-webkit-scrollbar {
@@ -303,15 +308,28 @@ body.duel-mode #main-content {
   border-radius: 4px;
 }
 
+#duel-hand:empty::before {
+  content: 'Нет карт в руке — выйди и зайди в Дуэль снова';
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255, 200, 210, 0.55);
+  padding: 28px 8px;
+}
+
 .hand-card {
-  flex: 0 0 78px;
-  width: 78px;
+  flex: 0 0 78px !important;
+  width: 78px !important;
+  min-width: 78px !important;
   border-radius: 10px;
   border: 1.5px solid rgba(255, 255, 255, 0.18);
   background: #140a10;
   overflow: hidden;
   position: relative;
   cursor: pointer;
+  display: block !important;
+  visibility: visible !important;
   transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -360,7 +378,6 @@ body.duel-mode #main-content {
   text-overflow: ellipsis;
 }
 
-/* ---------- log ---------- */
 #duel-log {
   margin: 0 10px 10px;
   padding: 8px 10px;
@@ -373,9 +390,9 @@ body.duel-mode #main-content {
   min-height: 36px;
   max-height: 52px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
-/* ---------- shake ---------- */
 .duel-shake {
   animation: duel-shake 0.35s ease-in-out;
 }
@@ -399,7 +416,6 @@ body.duel-mode #main-content {
   }
 }
 
-/* ---------- empty state hint ---------- */
 #duel-board .zone-row .card-slot:not(.filled)::before {
   content: '';
   position: absolute;
@@ -409,17 +425,17 @@ body.duel-mode #main-content {
   pointer-events: none;
 }
 
-/* ---------- safe area ---------- */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   #screen-duel {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 }
 
 @media (min-width: 420px) {
   .hand-card {
-    flex-basis: 88px;
-    width: 88px;
+    flex-basis: 88px !important;
+    width: 88px !important;
+    min-width: 88px !important;
   }
   .hand-card .hc-art {
     height: 84px;
